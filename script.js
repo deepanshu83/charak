@@ -27,3 +27,37 @@ document.getElementById('form').onsubmit=e=>{
  const f=v=>encodeURIComponent(document.getElementById(v).value);
  window.open('https://wa.me/918852887717?text='+`Hello Charak Ayurveda%0AName: ${f('name')}%0APhone: ${f('phone')}%0AConcern: ${f('concern')}%0AMessage: ${f('msg')}`,'_blank');
 };
+
+const items=[...document.querySelectorAll('.g')],moreBtn=document.getElementById('gmore'),LIMIT=8;
+let filter='all',showAll=false,vis=[],cur=0;
+
+function render(){
+ let n=0;vis=[];
+ items.forEach(f=>{
+  const ok=filter==='all'||f.dataset.cat===filter;
+  const show=ok&&(showAll||n<LIMIT);
+  if(ok)n++;
+  f.classList.toggle('hide',!show);
+  if(show)vis.push(f);
+ });
+ moreBtn.style.display=(!showAll&&n>LIMIT)?'inline-flex':'none';
+}
+document.querySelectorAll('#gtabs button').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('#gtabs button').forEach(x=>x.classList.remove('on'));
+ b.classList.add('on');filter=b.dataset.f;showAll=false;render();
+});
+moreBtn.onclick=()=>{showAll=true;render()};
+render();
+
+/* lightbox */
+const lb=document.getElementById('lb'),lbi=document.getElementById('lbi');
+const show=i=>{cur=(i+vis.length)%vis.length;const im=vis[cur].querySelector('img');lbi.src=im.src;lbi.alt=im.alt;lb.classList.add('open')};
+items.forEach(f=>f.onclick=()=>show(vis.indexOf(f)));
+document.getElementById('lbx').onclick=()=>lb.classList.remove('open');
+document.getElementById('lbp').onclick=()=>show(cur-1);
+document.getElementById('lbn').onclick=()=>show(cur+1);
+lb.onclick=e=>{if(e.target===lb)lb.classList.remove('open')};
+addEventListener('keydown',e=>{if(!lb.classList.contains('open'))return;
+ if(e.key==='Escape')lb.classList.remove('open');
+ if(e.key==='ArrowLeft')show(cur-1);
+ if(e.key==='ArrowRight')show(cur+1)});
