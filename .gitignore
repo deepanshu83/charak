@@ -1,0 +1,92 @@
+# ==============================================================================
+# Dependencies
+# ==============================================================================
+node_modules/
+/.pnp
+.pnp.js
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# ==============================================================================
+# Environment & Secret Files (CRITICAL: NEVER COMMIT SECRETS TO GIT)
+# ==============================================================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+*.env
+*.env.*
+!/.env.example
+
+# ==============================================================================
+# Next.js Build Outputs & Caches
+# ==============================================================================
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# ==============================================================================
+# Logs & Debugging
+# ==============================================================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ==============================================================================
+# Operating System & IDE Files
+# ==============================================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ==============================================================================
+# Testing & Coverage
+# ==============================================================================
+coverage/
+.nyc_output/
+
+# ==============================================================================
+# Agent Scratchpads & Temporary Artifacts
+# ==============================================================================
+.agents/
+.gemini/
+scratch/
+tmp/
+temp/
+
+# ==============================================================================
+# Certificates & Private Keys
+# ==============================================================================
+*.pem
+*.key
+*.cert
+*.crt
