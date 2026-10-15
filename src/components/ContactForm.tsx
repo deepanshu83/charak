@@ -22,11 +22,10 @@ export default function ContactForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const f = (v: string) => encodeURIComponent(v);
-    const text = `Hello Charak Ayurveda%0AName: ${f(name)}%0APhone: ${f(
-      phone
-    )}%0AConcern: ${f(concern)}%0AMessage: ${f(msg)}`;
-    window.open(`https://wa.me/918852887717?text=${text}`, "_blank");
+    const text = encodeURIComponent(
+      `Hello Charak Ayurveda\nName: ${name.trim()}\nPhone: ${phone.trim()}\nConcern: ${concern}\nMessage: ${msg.trim()}`
+    );
+    window.open(`https://wa.me/918852887717?text=${text}`, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -82,10 +81,12 @@ export default function ContactForm({
             value={concern}
             onChange={(e) => setConcern(e.target.value)}
           >
-            <option>Panchakarma</option>
-            <option>Skin Care</option>
-            <option>Joint Care</option>
-            <option>Infertility Care</option>
+            <option>Therapies (Panchakarma & Retreat)</option>
+            <option>Body Pain & Spine</option>
+            <option>Skin & Hair Care</option>
+            <option>Women's Health (PCOS / Fertility)</option>
+            <option>Stomach & Digestion</option>
+            <option>Stress & Lifestyle</option>
             <option>Other</option>
           </select>
           <textarea

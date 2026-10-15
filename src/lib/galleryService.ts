@@ -72,7 +72,12 @@ export async function fetchGalleryItems(): Promise<GalleryItem[]> {
 export async function fetchAdminGallery(): Promise<AdminGalleryItem[]> {
   if (!isBrowser()) return runtimeGalleryCache;
   try {
-    const res = await fetch("/api/admin/gallery");
+    const res = await fetch("/api/admin/gallery", {
+      credentials: "include",
+      headers: {
+        "x-admin-auth": "authenticated_admin",
+      },
+    });
     const json = await res.json().catch(() => ({}));
     if (json.ok && Array.isArray(json.data)) {
       const mapped = json.data.map(mapDbGalleryToGalleryItem);
@@ -98,7 +103,11 @@ export async function adminCreateGallery(input: {
 }): Promise<AdminGalleryItem> {
   const res = await fetch("/api/admin/gallery", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-auth": "authenticated_admin",
+    },
     body: JSON.stringify(input),
   });
   const json = await res.json();
@@ -118,7 +127,11 @@ export async function adminUpdateGallery(
 ): Promise<AdminGalleryItem> {
   const res = await fetch("/api/admin/gallery", {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-auth": "authenticated_admin",
+    },
     body: JSON.stringify({ id, ...changes }),
   });
   const json = await res.json();
@@ -139,7 +152,11 @@ export async function adminDeleteGallery(id: string): Promise<void> {
     try {
       await fetch("/api/admin/media/delete", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-auth": "authenticated_admin",
+        },
         body: JSON.stringify({ storagePath: item.storagePath, bucket: "hospital-images" }),
       });
     } catch (err) {
@@ -147,7 +164,13 @@ export async function adminDeleteGallery(id: string): Promise<void> {
     }
   }
 
-  const res = await fetch(`/api/admin/gallery?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+  const res = await fetch(`/api/admin/gallery?id=${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    credentials: "include",
+    headers: {
+      "x-admin-auth": "authenticated_admin",
+    },
+  });
   const json = await res.json();
   if (!res.ok || !json.ok) {
     throw new Error(json.error || "Failed to delete gallery item in database");

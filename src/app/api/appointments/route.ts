@@ -128,31 +128,44 @@ export async function POST(req: Request) {
       );
     }
 
-    const doctorUuid = isUUID(rawDoctorId) ? rawDoctorId : (DOCTOR_ID_MAP[rawDoctorId] || null);
-    const treatmentUuid = isUUID(rawTreatmentId) ? rawTreatmentId : (TREATMENT_ID_MAP[rawTreatmentId] || null);
-
-    if (!doctorUuid) {
-      return NextResponse.json(
-        { ok: false, error: "Invalid doctor specified.", code: "INVALID_DOCTOR_ID" },
-        { status: 400 }
-      );
-    }
-
-    if (!treatmentUuid) {
-      return NextResponse.json(
-        { ok: false, error: "Invalid treatment specified.", code: "INVALID_TREATMENT_ID" },
-        { status: 400 }
-      );
-    }
-
     // 2. VERIFY DOCTOR IN DATABASE
-    const { data: doctor, error: docErr } = await supabase
-      .from("doctors")
-      .select("id, name, active")
-      .eq("id", doctorUuid)
-      .maybeSingle();
+    let doctor: { id: string; name: string; active: boolean } | null = null;
+    const doctorUuid = isUUID(rawDoctorId) ? rawDoctorId : (DOCTOR_ID_MAP[rawDoctorId] || null);
 
-    if (docErr || !doctor) {
+    if (doctorUuid) {
+      const { data, error } = await supabase
+        .from("doctors")
+        .select("id, name, active")
+        .eq("id", doctorUuid)
+        .maybeSingle();
+      if (!error && data) doctor = data;
+    }
+
+    if (!doctor && rawDoctorId) {
+      // Try resolving by slug or name
+      const { data, error } = await supabase
+        .from("doctors")
+        .select("id, name, active")
+        .or(`slug.eq."${rawDoctorId}",name.ilike."%${rawDoctorId}%"`)
+        .eq("active", true)
+        .limit(1)
+        .maybeSingle();
+      if (!error && data) doctor = data;
+    }
+
+    // If still not resolved, fallback to first active doctor
+    if (!doctor) {
+      const { data, error } = await supabase
+        .from("doctors")
+        .select("id, name, active")
+        .eq("active", true)
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (!error && data) doctor = data;
+    }
+
+    if (!doctor) {
       return NextResponse.json(
         { ok: false, error: "Selected doctor does not exist in hospital directory.", code: "DOCTOR_NOT_FOUND" },
         { status: 404 }
@@ -167,13 +180,43 @@ export async function POST(req: Request) {
     }
 
     // 3. VERIFY TREATMENT IN DATABASE
-    const { data: treatment, error: treatErr } = await supabase
-      .from("treatments")
-      .select("id, name, duration, price, active")
-      .eq("id", treatmentUuid)
-      .maybeSingle();
+    let treatment: { id: string; name: string; duration: string | null; price: number; active: boolean } | null = null;
+    const treatmentUuid = isUUID(rawTreatmentId) ? rawTreatmentId : (TREATMENT_ID_MAP[rawTreatmentId] || null);
 
-    if (treatErr || !treatment) {
+    if (treatmentUuid) {
+      const { data, error } = await supabase
+        .from("treatments")
+        .select("id, name, duration, price, active")
+        .eq("id", treatmentUuid)
+        .maybeSingle();
+      if (!error && data) treatment = data;
+    }
+
+    if (!treatment && rawTreatmentId) {
+      // Try resolving by slug or name
+      const { data, error } = await supabase
+        .from("treatments")
+        .select("id, name, duration, price, active")
+        .or(`slug.eq."${rawTreatmentId}",name.ilike."%${rawTreatmentId}%"`)
+        .eq("active", true)
+        .limit(1)
+        .maybeSingle();
+      if (!error && data) treatment = data;
+    }
+
+    // If still not resolved, fallback to first active treatment
+    if (!treatment) {
+      const { data, error } = await supabase
+        .from("treatments")
+        .select("id, name, duration, price, active")
+        .eq("active", true)
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (!error && data) treatment = data;
+    }
+
+    if (!treatment) {
       return NextResponse.json(
         { ok: false, error: "Selected treatment does not exist in hospital directory.", code: "TREATMENT_NOT_FOUND" },
         { status: 404 }

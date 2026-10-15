@@ -72,7 +72,12 @@ export async function fetchOrderById(id: string): Promise<Order | null> {
 export async function fetchAdminOrders(): Promise<Order[]> {
   if (!isBrowser()) return runtimeOrdersCache;
   try {
-    const res = await fetch("/api/admin/orders");
+    const res = await fetch("/api/admin/orders", {
+      credentials: "include",
+      headers: {
+        "x-admin-auth": "authenticated_admin",
+      },
+    });
     const json = await res.json().catch(() => ({}));
     if (json.ok && Array.isArray(json.data)) {
       runtimeOrdersCache = json.data;
@@ -92,7 +97,11 @@ export async function adminUpdateOrderStatus(
 ): Promise<Order> {
   const res = await fetch("/api/admin/orders", {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-auth": "authenticated_admin",
+    },
     body: JSON.stringify({ id, orderStatus, paymentStatus }),
   });
 
@@ -127,6 +136,23 @@ export async function adminUpdateOrderStatus(
     status: orderStatus,
     createdAt: new Date().toISOString(),
   };
+}
+
+export async function adminDeleteOrder(id: string): Promise<void> {
+  const res = await fetch(`/api/admin/orders?id=${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    credentials: "include",
+    headers: {
+      "x-admin-auth": "authenticated_admin",
+    },
+  });
+  const json = await res.json().catch(() => null);
+  if (!res.ok || !json?.ok) {
+    throw new Error(json?.error || "Failed to delete order from database");
+  }
+
+  runtimeOrdersCache = runtimeOrdersCache.filter((o) => o.id !== id);
+  notifySubscribers();
 }
 
 // ----------------------------------------------------------------------------

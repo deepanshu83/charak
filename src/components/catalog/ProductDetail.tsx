@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -30,6 +30,16 @@ export default function ProductDetail({ product }: { product: Product }) {
   const { success, warning } = useToast();
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      setIsAdmin(
+        document.cookie.includes("charak_admin_ui=1") ||
+        document.cookie.includes("charak_admin_session=")
+      );
+    }
+  }, []);
 
   const productImages = useMemo(() => {
     if (product.images && product.images.length > 0) {
@@ -184,7 +194,7 @@ export default function ProductDetail({ product }: { product: Product }) {
 
           <div className="mvp-detail-copy">
             <div className="mvp-badge-row">
-              <span className="tag-badge">{product.category}</span>
+              <span className="tag" style={{ marginBottom: 0 }}>{product.category}</span>
               <span className={isInactive || isOutOfStock ? "stock-out" : "stock-in"}>
                 {isInactive ? (
                   <>
@@ -208,7 +218,7 @@ export default function ProductDetail({ product }: { product: Product }) {
             <div className="mvp-detail-price-box">
               <span className="mvp-price-curr">₹</span>
               <strong className="mvp-price-num">
-                {product.price.toLocaleString("en-IN")}
+                {(product.price ?? 0).toLocaleString("en-IN")}
               </strong>
               <span className="mvp-tax-note">(Inclusive of all taxes)</span>
             </div>
@@ -224,11 +234,87 @@ export default function ProductDetail({ product }: { product: Product }) {
                   This formulation is currently inactive in dispensary records and not available for online purchase. Please explore active formulations or consult our clinic physician.
                 </p>
                 <Link href="/products" className="btn ghost">
-                  Browse Active Formulations
+                  Browse Formulations
                 </Link>
+              </div>
+            ) : !isAdmin ? (
+              <div
+                style={{
+                  background: "linear-gradient(135deg, #fefce8 0%, #fef3c7 100%)",
+                  border: "1px solid #fde68a",
+                  borderLeft: "4px solid #d97706",
+                  borderRadius: "14px",
+                  padding: "20px 22px",
+                  margin: "10px 0 24px",
+                  boxShadow: "0 4px 14px rgba(217, 119, 6, 0.08)",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                  <span
+                    style={{
+                      fontSize: "0.72rem",
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.06em",
+                      background: "rgba(197, 160, 89, 0.28)",
+                      color: "#92400e",
+                      padding: "2px 8px",
+                      borderRadius: "999px",
+                    }}
+                  >
+                    Launching Soon
+                  </span>
+                  <strong style={{ color: "#78350f", fontSize: "0.95rem" }}>
+                    Online Store Launching Shortly
+                  </strong>
+                </div>
+                <p style={{ margin: "0 0 16px", color: "#451a03", fontSize: "0.88rem", lineHeight: 1.55 }}>
+                  We are preparing authentic laboratory-tested batches for <strong>{product.name}</strong>.
+                  While online cart dispatch opens shortly, you can inquire directly on WhatsApp or consult our hospital doctors.
+                </p>
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                  <a
+                    href={`https://wa.me/919414065600?text=${encodeURIComponent(
+                      `Namaste Charak Ayurveda, I would like to inquire about ${product.name} (₹${product.price}).`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn gold sm"
+                    style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+                  >
+                    <span>Inquire on WhatsApp</span>
+                  </a>
+                  <Link
+                    href="/appointment"
+                    className="btn sm"
+                    style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
+                  >
+                    <span>Book Doctor Consultation</span>
+                  </Link>
+                </div>
               </div>
             ) : !isOutOfStock ? (
               <div className="mvp-purchase-block">
+                <div
+                  style={{
+                    background: "#f0fdf4",
+                    border: "1px solid #bbf7d0",
+                    borderRadius: "8px",
+                    padding: "8px 12px",
+                    marginBottom: "16px",
+                    fontSize: "0.82rem",
+                    color: "#166534",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                  }}
+                >
+                  <ShieldCheck size={15} />
+                  <span>
+                    <strong>Admin Mode:</strong> Store is in Coming Soon mode for public visitors.
+                  </span>
+                </div>
+
                 <div className="mvp-qty-row">
                   <span className="mvp-qty-label">Quantity:</span>
                   <div className="quantity-control" role="group" aria-label="Product quantity controls">

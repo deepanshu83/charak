@@ -3,125 +3,55 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MobileBar from "@/components/MobileBar";
-import { Sparkles, ArrowRight, CheckCircle2, Calendar } from "lucide-react";
+import { ArrowRight, CheckCircle2, Calendar } from "lucide-react";
+
+import { treatmentCategories } from "@/data/site";
 
 export const metadata: Metadata = {
-  title: "What We Treat | Charak Ayurveda Pilani",
+  title: "Services & Clinical Specialities | Charak Ayurvedic Chikitsalya, Pilani",
   description:
-    "Comprehensive classical Ayurvedic treatments for chronic skin conditions, joint disorders, Panchakarma detox, and fertility care in Pilani, Rajasthan.",
+    "Explore authentic Ayurvedic services: Therapies, Body Pain & Spine, Skin, Women's Health, Stomach & Digestion, and Stress & Lifestyle at Charak Ayurveda Pilani.",
   alternates: {
-    canonical: "https://charakayurvedapilani.com/treatments",
+    canonical: "https://charakayurvedapilani.com/what-we-treat",
   },
   openGraph: {
-    title: "Classical Ayurvedic Treatments | Charak Ayurveda Pilani",
+    title: "Services | Charak Ayurvedic Chikitsalya, Pilani",
     description:
-      "Comprehensive Ayurvedic therapies for skin, joint care, Panchakarma detox, and fertility in Pilani, Rajasthan.",
-    url: "https://charakayurvedapilani.com/treatments",
+      "Comprehensive classical Ayurvedic treatments and therapies in Pilani, Rajasthan.",
+    url: "https://charakayurvedapilani.com/what-we-treat",
     images: [{ url: "/images/panchkaram.jpeg", alt: "Ayurvedic Treatments Charak" }],
   },
 };
 
 export default function WhatWeTreatPage() {
-  const categories = [
-    {
-      title: "1. Panchakarma & Deep Body Detoxification",
-      summary: "Classical five-fold purificatory therapies to expel deep accumulated metabolic toxins.",
-      conditions: [
-        "Metabolic sluggishness & chronic fatigue",
-        "Seasonal body detoxification & immunity boost",
-        "Cellular toxin (Ama) accumulation",
-        "Rejuvenation & rasayana preparation",
-      ],
-      treatments: "Vamana, Virechana, Basti, Nasya, Raktamokshana, Abhyanga & Swedana.",
-    },
-    {
-      title: "2. Chronic Skin Disorders (Twak Roga)",
-      summary: "Treating the internal root cause by cooling Rakta-Pitta and detoxifying liver and blood.",
-      conditions: [
-        "Psoriasis (Kitibha Kushta) & scalp flaking",
-        "Chronic eczema, dermatitis & dry rashes",
-        "Acne vulgaris & stubborn facial pigmentation",
-        "Urticaria (Sheetapitta) & persistent skin allergies",
-      ],
-      treatments: "Blood purification decoctions, herbal lepa, Takradhara, and strict Pathya diet.",
-    },
-    {
-      title: "3. Joint, Spine & Musculoskeletal Care (Sandhivata)",
-      summary: "Restoring joint lubrication, easing stiffness, and strengthening degenerated cartilage.",
-      conditions: [
-        "Osteoarthritis & knee joint stiffness",
-        "Rheumatoid arthritis (Amavata) & joint swelling",
-        "Cervical spondylosis & neck shoulder pain",
-        "Sciatica (Gridhrasi) & lumbar slip disc discomfort",
-      ],
-      treatments: "Janu Basti, Kati Basti, Greeva Basti, Patra Pinda Sweda, medicated anti-inflammatory oils.",
-    },
-    {
-      title: "4. Infertility & Hormonal Wellness (Stri & Purusha Roga)",
-      summary: "Natural preconception care, reproductive organ nourishment, and hormonal equilibrium.",
-      conditions: [
-        "PCOS / PCOD & irregular menstrual cycles",
-        "Fallopian tube blockages & uterine weakness",
-        "Unexplained female & male sub-fertility",
-        "Low sperm motility, count & vitality",
-      ],
-      treatments: "Uttar Basti, hormonal balancing rasayanas, specialized detox, and Garbha Samskara guidance.",
-    },
-    {
-      title: "5. Digestive & Metabolic Disorders (Annavaha Srotas)",
-      summary: "Kindling the digestive fire (Jatharagni) to eliminate acid reflux and bowel dysfunctions.",
-      conditions: [
-        "Chronic acidity, GERD & heartburn",
-        "Irritable Bowel Syndrome (IBS / Grahani)",
-        "Chronic constipation & bloating",
-        "Metabolic sluggishness & weight imbalance",
-      ],
-      treatments: "Digestive herbs (Deepana-Pachana), custom dietary protocols, and stress reduction therapies.",
-    },
-    {
-      title: "6. Stress, Sleep & Neurological Health (Manovaha Srotas)",
-      summary: "Calming an overstimulated nervous system through classical herbal nourishment.",
-      conditions: [
-        "Chronic stress & generalized anxiety",
-        "Insomnia & fragmented, restless sleep",
-        "Migraine & tension headaches",
-        "Mental fog, fatigue & lack of focus",
-      ],
-      treatments: "Shirodhara with medicated herbal oils, Nasya, Brahmi rasayanas, and pranayama guidance.",
-    },
-  ];
+  const categories = treatmentCategories;
 
   return (
     <>
       <Navbar />
       <main style={{ minHeight: "80vh", paddingTop: "20px" }}>
         {/* Page Hero Banner */}
-        <section style={{ background: "rgba(24, 66, 50, 0.04)", padding: "60px 0 40px" }}>
+        <section style={{ padding: "60px 0 30px" }}>
           <div className="wrap">
-            <div style={{ maxWidth: "760px", margin: "0 auto", textAlign: "center" }}>
-              <div className="tag-badge">
-                <Sparkles size={14} />
-                <span>Clinical Specialities</span>
-              </div>
-              <h1 style={{ fontSize: "clamp(2.4rem, 5vw, 3.8rem)", marginBottom: "16px" }}>
-                What We Treat
-              </h1>
-              <p style={{ color: "var(--ink-light)", fontSize: "1.15rem", lineHeight: 1.7 }}>
-                At Charak Ayurveda, we do not suppress surface symptoms. We diagnose the root imbalances of Doshas, Dhatus, and Agni to bring lasting healing to your body and mind.
+            <div className="head">
+              <span className="tag">Charak Ayurvedic Chikitsalya, Pilani</span>
+              <h1>Our Services &amp; Treatments</h1>
+              <p>
+                Comprehensive classical Ayurvedic care diagnosing the root imbalances of Doshas, Dhatus, and Agni to bring lasting healing to your body and mind.
               </p>
             </div>
           </div>
         </section>
 
         {/* Treatment Details */}
-        <section style={{ padding: "60px 0" }}>
+        <section style={{ padding: "40px 0 80px" }}>
           <div className="wrap">
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: "28px" }}>
               {categories.map((cat, idx) => (
                 <div
                   key={idx}
                   style={{
-                    background: "#ffffff",
+                    background: "var(--cream-card)",
                     borderRadius: "18px",
                     padding: "32px 28px",
                     border: "1px solid var(--border)",

@@ -4,7 +4,70 @@ import { getPublicSupabaseClient } from "./supabaseClient";
 
 const EVENT_NAME = "charak_doctors_updated";
 
-let runtimeDoctorsCache: AdminDoctor[] = [];
+export const DEFAULT_DOCTORS: AdminDoctor[] = [
+  {
+    id: "d0c00000-0000-4000-a000-000000000001",
+    name: "Dr. Varij Pandey",
+    slug: "dr-varij-pandey",
+    title: "Orthopaedic Care Specialist",
+    designation: "Orthopaedic Care Specialist",
+    specialization: "Orthopaedic Care",
+    qualifications: "B.A.M.S., M.D. (Ayurveda)",
+    experience: "15 Years",
+    availability: "Sunday",
+    timings: "9:00 AM – 1:00 PM | 4:00 PM – 7:00 PM",
+    bio: "Senior Ayurvedic Orthopaedic Specialist with 15 years of clinical expertise in spine and joint disorders, musculoskeletal rehabilitation, and classical bone & joint care.",
+    detailedBio: "Dr. Varij Pandey is a senior Ayurvedic physician with 15 years of dedicated practice in orthopaedic care. He specializes in spine and joint disorders, sciatica, cervical spondylitis, slip disc, and chronic arthritis through classical Panchakarma and targeted Ayurvedic therapies.\n\nAvailability: Sunday\nTimings: 9:00 AM – 1:00 PM | 4:00 PM – 7:00 PM",
+    location: "Vidyavihar, Pilani",
+    image: "/images/g1.jpg",
+    consultationFee: 1200,
+    displayOrder: 1,
+    active: true,
+    availableTimes: {},
+  },
+  {
+    id: "d0c00000-0000-4000-a000-000000000002",
+    name: "Dr. Anuja Singhai",
+    slug: "dr-anuja-singhai",
+    title: "Gynaecology & Fertility Specialist",
+    designation: "Gynaecology & Fertility Specialist",
+    specialization: "Gynaecology & Fertility, PCOS/PCOD",
+    qualifications: "B.A.M.S., M.D. (Ayurveda)",
+    experience: "15 Years",
+    availability: "Daily",
+    timings: "4:00 PM – 7:00 PM",
+    bio: "Senior Ayurvedic Gynaecologist with 15 years of clinical excellence in women's health, PCOS/PCOD, irregular and painful cycles, and natural fertility.",
+    detailedBio: "Dr. Anuja Singhai brings 15 years of specialized Ayurvedic clinical experience in female reproductive health, hormonal equilibrium, PCOS/PCOD, infertility, and tubal blockages. Her gentle, root-cause methodology combines classical Uttar Basti, rasayanas, and supportive lifestyle guidance.\n\nAvailability: Daily\nTimings: 4:00 PM – 7:00 PM",
+    location: "Vidyavihar, Pilani",
+    image: "/images/g2.jpg",
+    consultationFee: 1200,
+    displayOrder: 2,
+    active: true,
+    availableTimes: {},
+  },
+  {
+    id: "d0c00000-0000-4000-a000-000000000003",
+    name: "Dr. Ramraj Sharma",
+    slug: "dr-ramraj-sharma",
+    title: "Panchakarma & Lifestyle Disorders Specialist",
+    designation: "Panchakarma & Lifestyle Disorders Specialist",
+    specialization: "Panchakarma, Lifestyle Disorders",
+    qualifications: "B.A.M.S., PGTDIP",
+    experience: "3+ Years",
+    availability: "Daily",
+    timings: "9:00 AM – 1:00 PM | 4:00 PM – 7:00 PM",
+    bio: "Ayurvedic Physician with 3+ years of experience specializing in authentic Panchakarma therapies, holistic detoxification, and metabolic lifestyle disorder management.",
+    detailedBio: "Dr. Ramraj Sharma is an accomplished Ayurvedic physician and Panchakarma practitioner. He focuses on comprehensive body cleansing, digestive disorders, insomnia, stress management, and metabolic diseases through classical therapies and patient-centered dinacharya protocols.\n\nAvailability: Daily\nTimings: 9:00 AM – 1:00 PM | 4:00 PM – 7:00 PM",
+    location: "Vidyavihar, Pilani",
+    image: "/images/g3.jpg",
+    consultationFee: 1000,
+    displayOrder: 3,
+    active: true,
+    availableTimes: {},
+  },
+];
+
+let runtimeDoctorsCache: AdminDoctor[] = [...DEFAULT_DOCTORS];
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -30,21 +93,58 @@ export interface AdminDoctor extends Doctor {
   specialization?: string;
   bio?: string;
   detailedBio?: string;
+  availability?: string;
+  timings?: string;
   active?: boolean;
 }
+
+const KNOWN_DOCTOR_SCHEDULES: Record<string, { availability: string; timings: string }> = {
+  "dr-varij-pandey": {
+    availability: "Sunday",
+    timings: "9:00 AM – 1:00 PM | 4:00 PM – 7:00 PM",
+  },
+  "d0c00000-0000-4000-a000-000000000001": {
+    availability: "Sunday",
+    timings: "9:00 AM – 1:00 PM | 4:00 PM – 7:00 PM",
+  },
+  "dr-anuja-singhai": {
+    availability: "Daily",
+    timings: "4:00 PM – 7:00 PM",
+  },
+  "d0c00000-0000-4000-a000-000000000002": {
+    availability: "Daily",
+    timings: "4:00 PM – 7:00 PM",
+  },
+  "dr-ramraj-sharma": {
+    availability: "Daily",
+    timings: "9:00 AM – 1:00 PM | 4:00 PM – 7:00 PM",
+  },
+  "d0c00000-0000-4000-a000-000000000003": {
+    availability: "Daily",
+    timings: "9:00 AM – 1:00 PM | 4:00 PM – 7:00 PM",
+  },
+};
 
 function mapDbDoctorToDoctor(
   row: Database["public"]["Tables"]["doctors"]["Row"]
 ): AdminDoctor {
+  const slug = row.slug || row.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const scheduleMeta = KNOWN_DOCTOR_SCHEDULES[slug] || KNOWN_DOCTOR_SCHEDULES[row.id] || {
+    availability: "Daily",
+    timings: "9:00 AM – 1:00 PM | 4:00 PM – 7:00 PM",
+  };
+
   return {
     id: row.id,
     name: row.name,
-    slug: row.slug || row.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+    slug,
     title: row.designation || row.specialization,
     designation: row.designation || row.specialization,
     specialization: row.specialization,
     qualifications: row.qualification,
     experience: row.experience,
+    availability: scheduleMeta.availability,
+    timings: scheduleMeta.timings,
     bio: row.bio || "",
     detailedBio: row.detailed_bio || row.bio || "",
     location: "Vidyavihar, Pilani",
@@ -74,15 +174,15 @@ export async function fetchDoctors(): Promise<Doctor[]> {
       .order("display_order", { ascending: true })
       .order("created_at", { ascending: true });
 
-    if (error || !data) {
-      return runtimeDoctorsCache;
+    if (error || !data || data.length === 0) {
+      return runtimeDoctorsCache.length > 0 ? runtimeDoctorsCache : DEFAULT_DOCTORS;
     }
 
     const mapped = data.map(mapDbDoctorToDoctor);
     runtimeDoctorsCache = mapped;
     return mapped;
   } catch {
-    return runtimeDoctorsCache;
+    return runtimeDoctorsCache.length > 0 ? runtimeDoctorsCache : DEFAULT_DOCTORS;
   }
 }
 
@@ -140,7 +240,12 @@ export async function fetchDoctorBySlug(slug: string): Promise<Doctor | null> {
 export async function fetchAdminDoctors(): Promise<AdminDoctor[]> {
   if (!isBrowser()) return runtimeDoctorsCache;
   try {
-    const res = await fetch("/api/admin/doctors");
+    const res = await fetch("/api/admin/doctors", {
+      credentials: "include",
+      headers: {
+        "x-admin-auth": "authenticated_admin",
+      },
+    });
     const json = await res.json().catch(() => ({}));
     if (json.ok && json.data && Array.isArray(json.data.doctors)) {
       const mapped = json.data.doctors.map(mapDbDoctorToDoctor);
@@ -171,7 +276,11 @@ export async function adminCreateDoctor(input: {
 }): Promise<AdminDoctor> {
   const res = await fetch("/api/admin/doctors", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-auth": "authenticated_admin",
+    },
     body: JSON.stringify(input),
   });
   const json = await res.json();
@@ -199,7 +308,11 @@ export async function adminUpdateDoctor(
 
   const res = await fetch("/api/admin/doctors", {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-auth": "authenticated_admin",
+    },
     body: JSON.stringify(payload),
   });
   const json = await res.json();
@@ -214,7 +327,13 @@ export async function adminUpdateDoctor(
 }
 
 export async function adminDeleteDoctor(id: string): Promise<void> {
-  const res = await fetch(`/api/admin/doctors?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+  const res = await fetch(`/api/admin/doctors?id=${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    credentials: "include",
+    headers: {
+      "x-admin-auth": "authenticated_admin",
+    },
+  });
   const json = await res.json();
   if (!res.ok || !json.ok) {
     throw new Error(json.error || "Failed to delete doctor in database");
@@ -233,7 +352,12 @@ export async function fetchDoctorAvailability(doctorId?: string): Promise<Doctor
     const url = doctorId
       ? `/api/admin/doctor-availability?doctorId=${encodeURIComponent(doctorId)}`
       : "/api/admin/doctor-availability";
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      credentials: "include",
+      headers: {
+        "x-admin-auth": "authenticated_admin",
+      },
+    });
     const json = await res.json();
     if (json.ok && Array.isArray(json.data)) {
       return json.data.map((row: Database["public"]["Tables"]["doctor_availability"]["Row"]) => ({
@@ -263,7 +387,11 @@ export async function adminCreateAvailabilitySlot(input: {
 }): Promise<DoctorAvailabilityItem> {
   const res = await fetch("/api/admin/doctor-availability", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-auth": "authenticated_admin",
+    },
     body: JSON.stringify(input),
   });
   const json = await res.json();
@@ -285,6 +413,10 @@ export async function adminCreateAvailabilitySlot(input: {
 export async function adminDeleteAvailabilitySlot(slotId: string): Promise<void> {
   const res = await fetch(`/api/admin/doctor-availability?id=${encodeURIComponent(slotId)}`, {
     method: "DELETE",
+    credentials: "include",
+    headers: {
+      "x-admin-auth": "authenticated_admin",
+    },
   });
   const json = await res.json();
   if (!res.ok || !json.ok) {

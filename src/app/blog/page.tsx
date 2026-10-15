@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MobileBar from "@/components/MobileBar";
 import { fetchBlogs } from "@/lib/blogService";
-import { Sparkles, Clock, ArrowRight, BookOpen } from "lucide-react";
+import { Clock, ArrowRight, BookOpen } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Ayurveda Health Blog | Charak Ayurveda Pilani",
@@ -21,17 +21,12 @@ export default async function BlogListPage() {
       <Navbar />
       <main style={{ minHeight: "80vh", paddingTop: "20px" }}>
         {/* Page Hero Banner */}
-        <section style={{ background: "rgba(24, 66, 50, 0.04)", padding: "60px 0 40px" }}>
+        <section style={{ padding: "60px 0 30px" }}>
           <div className="wrap">
-            <div style={{ maxWidth: "760px", margin: "0 auto", textAlign: "center" }}>
-              <div className="tag-badge">
-                <Sparkles size={14} />
-                <span>Vedic Wisdom &amp; Wellness</span>
-              </div>
-              <h1 style={{ fontSize: "clamp(2.4rem, 5vw, 3.8rem)", marginBottom: "16px" }}>
-                Charak Ayurveda Blog
-              </h1>
-              <p style={{ color: "var(--ink-light)", fontSize: "1.15rem", lineHeight: 1.7 }}>
+            <div className="head">
+              <span className="tag">Vedic Wisdom &amp; Wellness</span>
+              <h1>Charak Ayurveda Blog</h1>
+              <p>
                 Explore classical insights, seasonal health tips, and practical guidelines to integrate timeless Vedic medicine into your modern everyday life.
               </p>
             </div>
@@ -39,14 +34,14 @@ export default async function BlogListPage() {
         </section>
 
         {/* Blog Posts Grid */}
-        <section style={{ padding: "60px 0 80px" }}>
+        <section style={{ padding: "40px 0 80px" }}>
           <div className="wrap">
             {posts.length === 0 ? (
               <div
                 style={{
                   textAlign: "center",
                   padding: "60px 20px",
-                  background: "#ffffff",
+                  background: "var(--cream-card)",
                   borderRadius: "20px",
                   border: "1px dashed var(--border)",
                   maxWidth: "540px",
@@ -73,7 +68,7 @@ export default async function BlogListPage() {
                   <article
                     key={post.slug}
                     style={{
-                      background: "#ffffff",
+                      background: "var(--cream-card)",
                       borderRadius: "20px",
                       border: "1px solid var(--border)",
                       boxShadow: "var(--shadow-sm)",

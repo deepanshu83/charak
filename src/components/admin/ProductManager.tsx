@@ -261,10 +261,14 @@ export default function ProductManager() {
       const res = await fetch("/api/admin/media/upload", {
         method: "POST",
         body: formData,
+        credentials: "include",
+        headers: {
+          "x-admin-auth": "authenticated_admin",
+        },
       });
-      const json = await res.json();
-      if (!res.ok || !json.ok) {
-        throw new Error(json.error || "Failed to upload replacement image.");
+      const json = await res.json().catch(() => null);
+      if (!res.ok || !json?.ok) {
+        throw new Error(json?.error || `Failed to upload replacement image (HTTP ${res.status}).`);
       }
 
       setForm((prev) => {
@@ -417,6 +421,9 @@ export default function ProductManager() {
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
             <Badge variant="gold">Dispensary Inventory</Badge>
+            <Badge variant="neutral" size="sm" style={{ background: "#fef3c7", color: "#92400e", border: "1px solid #fde68a" }}>
+              Public Status: Coming Soon
+            </Badge>
             <Badge variant={activeCount >= MAX_ACTIVE_PRODUCTS ? "warning" : "neutral"} size="sm">
               Active: {activeCount} / {MAX_ACTIVE_PRODUCTS} Formulations
             </Badge>
@@ -428,9 +435,9 @@ export default function ProductManager() {
           </p>
         </div>
         <div className="header-quick-actions" style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <Link href="/products" target="_blank">
+          <Link href="/products?preview=admin" target="_blank">
             <Button variant="ghost" size="sm" icon={<ExternalLink size={15} />}>
-              Public Store
+              Preview Storefront
             </Button>
           </Link>
           <Button
@@ -443,6 +450,46 @@ export default function ProductManager() {
             Add New Product
           </Button>
         </div>
+      </div>
+
+      {/* Storefront Coming Soon Notice Banner */}
+      <div
+        style={{
+          background: "linear-gradient(135deg, #fefce8 0%, #fef3c7 100%)",
+          border: "1px solid #fde68a",
+          borderLeft: "4px solid #d97706",
+          borderRadius: "10px",
+          padding: "12px 18px",
+          marginBottom: "20px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "10px",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <span style={{ fontSize: "1.1rem" }}>📢</span>
+          <span style={{ fontSize: "0.88rem", color: "#78350f" }}>
+            <strong>Online Store is currently in &ldquo;Coming Soon&rdquo; mode for website visitors.</strong> All formulations and photos you add here are saved directly to your database and ready for when you launch.
+          </span>
+        </div>
+        <Link
+          href="/products?preview=admin"
+          target="_blank"
+          style={{
+            fontSize: "0.82rem",
+            fontWeight: 600,
+            color: "#92400e",
+            textDecoration: "underline",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "4px",
+          }}
+        >
+          <span>Open Live Preview</span>
+          <ExternalLink size={13} />
+        </Link>
       </div>
 
       {/* Filter and Search Bar */}

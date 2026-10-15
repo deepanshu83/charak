@@ -47,14 +47,15 @@ function AppointmentConfirmationContent() {
   return (
     <div className="appointment-confirmation-page py-16">
       <div className="wrap max-w-3xl mx-auto px-4">
-        <div className="bg-white rounded-2xl border border-[var(--border)] p-8 sm:p-12 shadow-sm text-center">
+        <div
+          className="rounded-2xl border border-[var(--border)] p-8 sm:p-12 shadow-sm text-center"
+          style={{ background: "var(--cream-card)" }}
+        >
           <div className="w-16 h-16 bg-emerald-50 text-emerald-700 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 size={36} />
           </div>
 
-          <span className="inline-block px-3 py-1 bg-amber-50 text-amber-900 border border-amber-200/60 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
-            Consultation Confirmed
-          </span>
+          <span className="tag">Consultation Confirmed</span>
 
           <h1 className="text-3xl sm:text-4xl font-serif font-bold text-[var(--green)] mb-3">
             Appointment Confirmed

@@ -54,8 +54,8 @@ function AdminLoginForm() {
         return;
       }
 
-      // Successful admin login
-      document.cookie = "charak_admin_session=authenticated_admin; Path=/; SameSite=Lax; Max-Age=86400";
+      // Successful admin login - HttpOnly session cookie set by API response
+      document.cookie = "charak_admin_ui=1; Path=/; SameSite=Lax; Max-Age=86400";
       router.push(nextPath);
       router.refresh();
     } catch (err: unknown) {

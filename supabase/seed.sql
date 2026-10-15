@@ -7,36 +7,39 @@
 -- 1. DOCTORS (3 records)
 -- ----------------------------------------------------------------------------
 INSERT INTO public.doctors (
-  id, name, specialization, qualification, experience, bio, image, active
+  id, name, specialization, qualification, experience, bio, detailed_bio, image, active
 ) VALUES
 (
   'd0c00000-0000-4000-a000-000000000001',
-  'Dr. Ravi Sharma',
-  'Senior Ayurvedic Physician',
-  'BAMS, Panchakarma Specialist',
-  '12 years',
-  'Chief Medical Officer with 12 years of clinical excellence in classical Panchakarma, Nadi Pariksha, and holistic metabolic rehabilitation.',
-  '/images/g5.jpg',
+  'Dr. Varij Pandey',
+  'Orthopaedic Care',
+  'B.A.M.S., M.D. (Ayurveda)',
+  '15 Years',
+  'Senior Ayurvedic Orthopaedic Specialist with 15 years of clinical expertise in spine and joint disorders, musculoskeletal rehabilitation, and classical bone & joint care.',
+  'Dr. Varij Pandey is a senior Ayurvedic physician with 15 years of dedicated practice in orthopaedic care. He specializes in spine and joint disorders, sciatica, cervical spondylitis, slip disc, and chronic arthritis through classical Panchakarma and targeted Ayurvedic therapies.\n\nAvailability: Sunday\nTimings: 9:00 AM – 1:00 PM | 4:00 PM – 7:00 PM',
+  '/images/g1.jpg',
   true
 ),
 (
   'd0c00000-0000-4000-a000-000000000002',
-  'Dr. Meera Verma',
-  'Ayurvedic Skin Specialist',
-  'BAMS, Skin Care Specialist',
-  '9 years',
-  'Renowned specialist in chronic dermatological disorders, Rakta Shodhana therapies, and constitutional skin restoration.',
-  '/images/g5.jpg',
+  'Dr. Anuja Singhai',
+  'Gynaecology & Fertility, PCOS/PCOD',
+  'B.A.M.S., M.D. (Ayurveda)',
+  '15 Years',
+  'Senior Ayurvedic Gynaecologist with 15 years of clinical excellence in women''s health, PCOS/PCOD, irregular and painful cycles, and natural fertility.',
+  'Dr. Anuja Singhai brings 15 years of specialized Ayurvedic clinical experience in female reproductive health, hormonal equilibrium, PCOS/PCOD, infertility, and tubal blockages. Her gentle, root-cause methodology combines classical Uttar Basti, rasayanas, and supportive lifestyle guidance.\n\nAvailability: Daily\nTimings: 4:00 PM – 7:00 PM',
+  '/images/g2.jpg',
   true
 ),
 (
   'd0c00000-0000-4000-a000-000000000003',
-  'Dr. Arjun Kapoor',
-  'Panchakarma & Joint Care Physician',
-  'BAMS, Musculoskeletal Specialist',
-  '10 years',
-  'Specialist in musculoskeletal care, Sandhivata rehabilitation, Janu Basti, and personalized joint mobility protocols.',
-  '/images/g5.jpg',
+  'Dr. Ramraj Sharma',
+  'Panchakarma, Lifestyle Disorders',
+  'B.A.M.S., PGTDIP',
+  '3+ Years',
+  'Ayurvedic Physician with 3+ years of experience specializing in authentic Panchakarma therapies, holistic detoxification, and metabolic lifestyle disorder management.',
+  'Dr. Ramraj Sharma is an accomplished Ayurvedic physician and Panchakarma practitioner. He focuses on comprehensive body cleansing, digestive disorders, insomnia, stress management, and metabolic diseases through classical therapies and patient-centered dinacharya protocols.\n\nAvailability: Daily\nTimings: 9:00 AM – 1:00 PM | 4:00 PM – 7:00 PM',
+  '/images/g3.jpg',
   true
 )
 ON CONFLICT (id) DO UPDATE SET
@@ -45,39 +48,45 @@ ON CONFLICT (id) DO UPDATE SET
   qualification = EXCLUDED.qualification,
   experience = EXCLUDED.experience,
   bio = EXCLUDED.bio,
+  detailed_bio = EXCLUDED.detailed_bio,
   image = EXCLUDED.image,
   active = EXCLUDED.active,
   updated_at = now();
 
 -- ----------------------------------------------------------------------------
--- 2. DOCTOR AVAILABILITY (18 records - 6 days/week for 3 doctors)
+-- 2. DOCTOR AVAILABILITY
 -- ----------------------------------------------------------------------------
 INSERT INTO public.doctor_availability (
   id, doctor_id, day_of_week, start_time, end_time, slot_duration, active
 ) VALUES
--- Dr. Ravi Sharma availability
-('a0000001-0000-4000-a000-000000000001', 'd0c00000-0000-4000-a000-000000000001', 'Monday', '09:00:00', '13:00:00', 30, true),
-('a0000001-0000-4000-a000-000000000002', 'd0c00000-0000-4000-a000-000000000001', 'Tuesday', '09:00:00', '13:00:00', 30, true),
-('a0000001-0000-4000-a000-000000000003', 'd0c00000-0000-4000-a000-000000000001', 'Wednesday', '09:00:00', '13:00:00', 30, true),
-('a0000001-0000-4000-a000-000000000004', 'd0c00000-0000-4000-a000-000000000001', 'Thursday', '09:00:00', '13:00:00', 30, true),
-('a0000001-0000-4000-a000-000000000005', 'd0c00000-0000-4000-a000-000000000001', 'Friday', '09:00:00', '13:00:00', 30, true),
-('a0000001-0000-4000-a000-000000000006', 'd0c00000-0000-4000-a000-000000000001', 'Saturday', '09:00:00', '13:00:00', 30, true),
+-- Dr. Varij Pandey availability (Sunday only: 9am-1pm, 4pm-7pm)
+('a0000001-0000-4000-a000-000000000001', 'd0c00000-0000-4000-a000-000000000001', 'Sunday', '09:00:00', '13:00:00', 30, true),
+('a0000001-0000-4000-a000-000000000002', 'd0c00000-0000-4000-a000-000000000001', 'Sunday', '16:00:00', '19:00:00', 30, true),
 
--- Dr. Meera Verma availability
-('a0000002-0000-4000-a000-000000000001', 'd0c00000-0000-4000-a000-000000000002', 'Monday', '10:00:00', '14:00:00', 30, true),
-('a0000002-0000-4000-a000-000000000002', 'd0c00000-0000-4000-a000-000000000002', 'Tuesday', '10:00:00', '14:00:00', 30, true),
-('a0000002-0000-4000-a000-000000000003', 'd0c00000-0000-4000-a000-000000000002', 'Wednesday', '10:00:00', '14:00:00', 30, true),
-('a0000002-0000-4000-a000-000000000004', 'd0c00000-0000-4000-a000-000000000002', 'Thursday', '10:00:00', '14:00:00', 30, true),
-('a0000002-0000-4000-a000-000000000005', 'd0c00000-0000-4000-a000-000000000002', 'Friday', '10:00:00', '14:00:00', 30, true),
-('a0000002-0000-4000-a000-000000000006', 'd0c00000-0000-4000-a000-000000000002', 'Saturday', '10:00:00', '14:00:00', 30, true),
+-- Dr. Anuja Singhai availability (Daily: 4pm-7pm)
+('a0000002-0000-4000-a000-000000000001', 'd0c00000-0000-4000-a000-000000000002', 'Monday', '16:00:00', '19:00:00', 30, true),
+('a0000002-0000-4000-a000-000000000002', 'd0c00000-0000-4000-a000-000000000002', 'Tuesday', '16:00:00', '19:00:00', 30, true),
+('a0000002-0000-4000-a000-000000000003', 'd0c00000-0000-4000-a000-000000000002', 'Wednesday', '16:00:00', '19:00:00', 30, true),
+('a0000002-0000-4000-a000-000000000004', 'd0c00000-0000-4000-a000-000000000002', 'Thursday', '16:00:00', '19:00:00', 30, true),
+('a0000002-0000-4000-a000-000000000005', 'd0c00000-0000-4000-a000-000000000002', 'Friday', '16:00:00', '19:00:00', 30, true),
+('a0000002-0000-4000-a000-000000000006', 'd0c00000-0000-4000-a000-000000000002', 'Saturday', '16:00:00', '19:00:00', 30, true),
+('a0000002-0000-4000-a000-000000000007', 'd0c00000-0000-4000-a000-000000000002', 'Sunday', '16:00:00', '19:00:00', 30, true),
 
--- Dr. Arjun Kapoor availability
-('a0000003-0000-4000-a000-000000000001', 'd0c00000-0000-4000-a000-000000000003', 'Monday', '09:00:00', '14:00:00', 30, true),
-('a0000003-0000-4000-a000-000000000002', 'd0c00000-0000-4000-a000-000000000003', 'Tuesday', '09:00:00', '14:00:00', 30, true),
-('a0000003-0000-4000-a000-000000000003', 'd0c00000-0000-4000-a000-000000000003', 'Wednesday', '09:00:00', '14:00:00', 30, true),
-('a0000003-0000-4000-a000-000000000004', 'd0c00000-0000-4000-a000-000000000003', 'Thursday', '09:00:00', '14:00:00', 30, true),
-('a0000003-0000-4000-a000-000000000005', 'd0c00000-0000-4000-a000-000000000003', 'Friday', '09:00:00', '14:00:00', 30, true),
-('a0000003-0000-4000-a000-000000000006', 'd0c00000-0000-4000-a000-000000000003', 'Saturday', '09:00:00', '14:00:00', 30, true)
+-- Dr. Ramraj Sharma availability (Daily: 9am-1pm, 4pm-7pm)
+('a0000003-0000-4000-a000-000000000001', 'd0c00000-0000-4000-a000-000000000003', 'Monday', '09:00:00', '13:00:00', 30, true),
+('a0000003-0000-4000-a000-000000000002', 'd0c00000-0000-4000-a000-000000000003', 'Monday', '16:00:00', '19:00:00', 30, true),
+('a0000003-0000-4000-a000-000000000003', 'd0c00000-0000-4000-a000-000000000003', 'Tuesday', '09:00:00', '13:00:00', 30, true),
+('a0000003-0000-4000-a000-000000000004', 'd0c00000-0000-4000-a000-000000000003', 'Tuesday', '16:00:00', '19:00:00', 30, true),
+('a0000003-0000-4000-a000-000000000005', 'd0c00000-0000-4000-a000-000000000003', 'Wednesday', '09:00:00', '13:00:00', 30, true),
+('a0000003-0000-4000-a000-000000000006', 'd0c00000-0000-4000-a000-000000000003', 'Wednesday', '16:00:00', '19:00:00', 30, true),
+('a0000003-0000-4000-a000-000000000007', 'd0c00000-0000-4000-a000-000000000003', 'Thursday', '09:00:00', '13:00:00', 30, true),
+('a0000003-0000-4000-a000-000000000008', 'd0c00000-0000-4000-a000-000000000003', 'Thursday', '16:00:00', '19:00:00', 30, true),
+('a0000003-0000-4000-a000-000000000009', 'd0c00000-0000-4000-a000-000000000003', 'Friday', '09:00:00', '13:00:00', 30, true),
+('a0000003-0000-4000-a000-000000000010', 'd0c00000-0000-4000-a000-000000000003', 'Friday', '16:00:00', '19:00:00', 30, true),
+('a0000003-0000-4000-a000-000000000011', 'd0c00000-0000-4000-a000-000000000003', 'Saturday', '09:00:00', '13:00:00', 30, true),
+('a0000003-0000-4000-a000-000000000012', 'd0c00000-0000-4000-a000-000000000003', 'Saturday', '16:00:00', '19:00:00', 30, true),
+('a0000003-0000-4000-a000-000000000013', 'd0c00000-0000-4000-a000-000000000003', 'Sunday', '09:00:00', '13:00:00', 30, true),
+('a0000003-0000-4000-a000-000000000014', 'd0c00000-0000-4000-a000-000000000003', 'Sunday', '16:00:00', '19:00:00', 30, true)
 ON CONFLICT (id) DO UPDATE SET
   doctor_id = EXCLUDED.doctor_id,
   day_of_week = EXCLUDED.day_of_week,
@@ -94,54 +103,54 @@ INSERT INTO public.treatments (
 ) VALUES
 (
   '70000000-0000-4000-a000-000000000001',
-  'Panchakarma Detox',
-  'panchakarma-detox',
-  'Classical five-step cleansing and rehabilitation plan',
-  'Classical five-step cleansing and rehabilitation plan to eliminate deep-seated cellular toxins, reset metabolic balance, and restore vitality.',
-  '14–30 days',
-  48000.00,
+  'Therapies & Panchakarma',
+  'therapies-panchakarma',
+  'Panchakarma & Ayurvedic retreat (5 day / 7 day)',
+  'Classical Panchakarma detoxification and intensive 5-day / 7-day Ayurvedic residential retreats to cleanse accumulated Ama, rejuvenate tissues, and restore lifelong vitality.',
+  '60–90 min',
+  2500.00,
   '/images/panchkaram.jpeg',
   true
 ),
 (
   '70000000-0000-4000-a000-000000000002',
-  'Skin Care Consultation',
-  'skin-care-consultation',
-  'Personalized skin diagnosis and herbal care roadmap',
-  'Personalized skin diagnosis and herbal care roadmap addressing eczema, psoriasis, acne, and stubborn pigmentation at the root cause.',
+  'Body Pain & Spine Care',
+  'body-pain-spine-care',
+  'Back pain, Sciatica, Knee pain, Cervical spondylitis & Slip disc',
+  'Targeted Ayurvedic treatments for back pain, sciatica, knee pain, neck & shoulder pain, cervical spondylitis, slip disc, frozen shoulder, and joint arthritis using authentic Basti and herbal oils.',
+  '45 min',
+  1200.00,
+  '/images/joint.png',
+  true
+),
+(
+  '70000000-0000-4000-a000-000000000003',
+  'Skin & Hair Care',
+  'skin-hair-care',
+  'Psoriasis, Eczema, Skin allergy, Acne, Hair fall & Vitiligo',
+  'Root-cause Ayurvedic healing for psoriasis, eczema, skin allergies, acne & scars, fungal infections, hair fall, dandruff, and vitiligo via internal blood purification and herbal Lepa.',
   '45 min',
   1200.00,
   '/images/skincare.jpeg',
   true
 ),
 (
-  '70000000-0000-4000-a000-000000000003',
-  'Joint Care Consultation',
-  'joint-care-consultation',
-  'Nadi Pariksha and targeted joint wellness plan',
-  'Nadi Pariksha and targeted joint wellness plan for osteoarthritis, rheumatoid arthritis, cervical spondylosis, and knee stiffness.',
-  '45 min',
-  1300.00,
-  '/images/joint.png',
-  true
-),
-(
   '70000000-0000-4000-a000-000000000004',
-  'Fertility Wellness',
-  'fertility-wellness',
-  'Holistic reproductive wellness consultation',
-  'Holistic reproductive wellness consultation for hormonal rebalancing, PCOS/PCOD, uterine health, and pre-conception care.',
-  '60 min',
-  1500.00,
+  'Women''s Health & Fertility',
+  'womens-health-fertility',
+  'PCOS, PCOD, Irregular & Painful periods, Infertility, Tubal block',
+  'Holistic Ayurvedic care for PCOS, PCOD, irregular and painful menstrual cycles, natural fertility enhancement, and tubal blockages using specialized Uttar Basti and balancing rasayanas.',
+  '45 min',
+  1200.00,
   '/images/infertility.png',
   true
 ),
 (
   '70000000-0000-4000-a000-000000000005',
-  'General Ayurvedic Consultation',
-  'general-ayurvedic-consultation',
-  'Comprehensive constitutional and lifestyle assessment',
-  'Comprehensive constitutional and lifestyle assessment through traditional Nadi Pariksha, diet planning, and preventive care.',
+  'Stomach & Digestion',
+  'stomach-digestion',
+  'Acidity, Gas, Constipation, IBS, Bloating, Piles & Fatty liver',
+  'Re-igniting the digestive fire (Jatharagni) to effectively resolve acidity, gas, constipation, IBS, bloating, indigestion, piles, fissure, fistula, and fatty liver.',
   '45 min',
   1000.00,
   '/images/g5.jpg',
@@ -149,13 +158,13 @@ INSERT INTO public.treatments (
 ),
 (
   '70000000-0000-4000-a000-000000000006',
-  'Nadi Pariksha',
-  'nadi-pariksha',
-  'Classical pulse diagnosis and dosha assessment',
-  'Classical pulse diagnosis and dosha assessment detecting subtle sub-cellular imbalances before physical symptoms develop.',
-  '30 min',
-  900.00,
-  '/images/g5.jpg',
+  'Stress & Lifestyle Management',
+  'stress-lifestyle-management',
+  'Insomnia, Stress & anxiety, Migraine, Obesity, Thyroid, Diabetes',
+  'Comprehensive therapeutic protocols for insomnia, chronic stress, anxiety, migraine, obesity, thyroid dysfunction, and diabetes through Shirodhara, herbal Rasayanas, and Dinacharya.',
+  '45 min',
+  1000.00,
+  '/images/g4.jpg',
   true
 )
 ON CONFLICT (id) DO UPDATE SET

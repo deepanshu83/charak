@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Play, X, Video as VideoIcon, Sparkles } from "lucide-react";
+import { Play, X, Video as VideoIcon } from "lucide-react";
 import { fetchVideoTestimonials } from "@/lib/videoTestimonialService";
 import type { VideoTestimonial } from "@/types";
 
@@ -39,13 +39,10 @@ export default function VideoTestimonials() {
   }, []);
 
   return (
-    <section id="video-testimonials" style={{ padding: "80px 0", background: "rgba(24, 66, 50, 0.02)" }}>
+    <section id="video-testimonials" style={{ padding: "80px 0" }}>
       <div className="wrap">
-        <div className="sec-head">
-          <span className="tag-badge">
-            <Sparkles size={14} />
-            <span>Real Recovery Journeys</span>
-          </span>
+        <div className="head">
+          <span className="tag">Real Recovery Journeys</span>
           <h2>Patient Video Testimonials</h2>
           <p>
             Listen to verified patients share their personal healing milestones with Panchakarma, chronic joint care, and natural remedies at Charak Ayurveda.
@@ -62,7 +59,7 @@ export default function VideoTestimonials() {
             style={{
               textAlign: "center",
               padding: "70px 24px",
-              background: "#ffffff",
+              background: "var(--cream-card)",
               borderRadius: "24px",
               border: "1px dashed var(--border)",
               maxWidth: "680px",
@@ -103,7 +100,7 @@ export default function VideoTestimonials() {
               <div
                 key={vid.id}
                 style={{
-                  background: "#ffffff",
+                  background: "var(--cream-card)",
                   borderRadius: "20px",
                   overflow: "hidden",
                   border: "1px solid var(--border)",

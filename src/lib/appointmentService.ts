@@ -114,7 +114,12 @@ export function getAllDoctorSlots(
 export async function fetchAdminAppointments(): Promise<Appointment[]> {
   if (!isBrowser()) return runtimeAppointmentsCache;
   try {
-    const res = await fetch("/api/admin/appointments");
+    const res = await fetch("/api/admin/appointments", {
+      credentials: "include",
+      headers: {
+        "x-admin-auth": "authenticated_admin",
+      },
+    });
     const json = await res.json().catch(() => ({}));
     if (json.ok && Array.isArray(json.data)) {
       runtimeAppointmentsCache = json.data;
@@ -134,7 +139,11 @@ export async function adminUpdateAppointmentStatus(
 ): Promise<Appointment> {
   const res = await fetch("/api/admin/appointments", {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-auth": "authenticated_admin",
+    },
     body: JSON.stringify({ id, status, notes }),
   });
 
@@ -164,6 +173,23 @@ export async function adminUpdateAppointmentStatus(
     notes: notes || "",
     createdAt: new Date().toISOString(),
   };
+}
+
+export async function adminDeleteAppointment(id: string): Promise<void> {
+  const res = await fetch(`/api/admin/appointments?id=${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    credentials: "include",
+    headers: {
+      "x-admin-auth": "authenticated_admin",
+    },
+  });
+  const json = await res.json().catch(() => null);
+  if (!res.ok || !json?.ok) {
+    throw new Error(json?.error || "Failed to delete appointment from database");
+  }
+
+  runtimeAppointmentsCache = runtimeAppointmentsCache.filter((a) => a.id !== id);
+  notifySubscribers();
 }
 
 // ----------------------------------------------------------------------------

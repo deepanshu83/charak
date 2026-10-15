@@ -2,7 +2,6 @@ import Link from "next/link";
 import {
   CheckCircle2,
   Clock,
-  ShieldCheck,
   ShoppingBag,
 } from "lucide-react";
 import BrandHeader from "@/components/ui/BrandHeader";
@@ -69,10 +68,7 @@ export default async function OrderSuccessPage({
                 <CheckCircle2 size={56} className="text-gold" />
               </div>
 
-              <div className="tag-badge">
-                <ShieldCheck size={14} />
-                <span>Order Placed &amp; Registered</span>
-              </div>
+              <span className="tag">Order Placed &amp; Registered</span>
 
               <h1>Order Placed Successfully</h1>
 
@@ -103,7 +99,7 @@ export default async function OrderSuccessPage({
                     </div>
                     <div>
                       <span>Total Amount:</span>
-                      <strong>₹{order.total.toLocaleString("en-IN")}</strong>
+                      <strong>₹{(order.total ?? 0).toLocaleString("en-IN")}</strong>
                     </div>
                   </div>
 
@@ -116,7 +112,7 @@ export default async function OrderSuccessPage({
                             {item.quantity} × {item.name}
                           </span>
                           <span>
-                            ₹{(item.price * item.quantity).toLocaleString("en-IN")}
+                            ₹{((item.price ?? 0) * item.quantity).toLocaleString("en-IN")}
                           </span>
                         </li>
                       ))}

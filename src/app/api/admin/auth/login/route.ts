@@ -2,19 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { Database } from "@/types/database.types";
-
-// Authorized administrator emails (Strict email only)
-const CONFIGURED_ADMIN_EMAIL = (
-  process.env.ADMIN_EMAIL || "admin@charakayurvedapilani.com"
-)
-  .toLowerCase()
-  .trim();
-
-const WHITELISTED_ADMIN_EMAILS = new Set([
-  CONFIGURED_ADMIN_EMAIL,
-  "admin@charakayurvedapilani.com",
-  "admin@charakayurveda.com",
-]);
+import { createAdminSessionToken, WHITELISTED_ADMIN_EMAILS } from "@/lib/adminSessionToken";
 
 // Master administrator fallback password securely retained on the server
 const MASTER_ADMIN_PASSWORD =
@@ -140,21 +128,34 @@ export async function POST(req: Request) {
       );
     }
 
-    // Authentication succeeded: set session cookie
+    // Authentication succeeded: generate signed session token
+    const sessionToken = await createAdminSessionToken(authUserEmail);
+
     const response = NextResponse.json({
       ok: true,
       message: "Administrator session authenticated successfully",
+      token: sessionToken,
       user: {
         email: authUserEmail,
         role: "admin",
       },
     });
 
-    response.cookies.set("charak_admin_session", "authenticated_admin", {
+    // Secure HttpOnly session cookie - cannot be accessed or manipulated by malicious client scripts
+    response.cookies.set("charak_admin_session", sessionToken, {
       path: "/",
-      httpOnly: false, // Required for both client and SSR middleware inspection
+      httpOnly: true,
       sameSite: "lax",
       maxAge: 86400, // 24 hours
+      secure: process.env.NODE_ENV === "production",
+    });
+
+    // Client indicator cookie for reactive UI state
+    response.cookies.set("charak_admin_ui", "1", {
+      path: "/",
+      httpOnly: false,
+      sameSite: "lax",
+      maxAge: 86400,
       secure: process.env.NODE_ENV === "production",
     });
 

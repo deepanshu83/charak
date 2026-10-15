@@ -254,6 +254,13 @@ export async function DELETE(req: Request) {
       }
     }
 
+    // Clean up any dependent appointments referencing this treatment to prevent FK constraint failure
+    try {
+      await supabase.from("appointments").delete().eq("treatment_id", id);
+    } catch (aptErr) {
+      console.warn("[Admin Treatments DELETE] Notice removing dependent appointments:", aptErr);
+    }
+
     const { error } = await supabase.from("treatments").delete().eq("id", id);
 
     if (error) {

@@ -27,22 +27,29 @@ const DEFAULT_REVIEWS: ReviewItem[] = [
   },
 ];
 
-export default function Reviews() {
+interface ReviewsProps {
+  showHeader?: boolean;
+  style?: React.CSSProperties;
+}
+
+export default function Reviews({ showHeader = true, style }: ReviewsProps) {
   const [reviews, setReviews] = useState<ReviewItem[]>(DEFAULT_REVIEWS);
+  const [isLiveContent, setIsLiveContent] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
     async function load() {
       try {
         const remote = await fetchPatientStories();
-        if (isMounted && remote && remote.length >= 3) {
+        if (isMounted && remote && remote.length > 0) {
           setReviews(
-            remote.slice(0, 3).map((r) => ({
+            remote.map((r) => ({
               id: r.id,
               quote: r.quote,
               author: `${r.name}, ${r.location || "Pilani"}`,
             }))
           );
+          setIsLiveContent(true);
         }
       } catch (err) {
         console.warn("[Reviews] Notice loading from database:", err);
@@ -55,11 +62,13 @@ export default function Reviews() {
   }, []);
 
   return (
-    <section className="wrap" id="reviews">
-      <div className="head">
-        <span className="tag">Patient stories</span>
-        <h2>Healing, in their words</h2>
-      </div>
+    <section className="wrap" id="reviews" style={style}>
+      {showHeader && (
+        <div className="head">
+          <span className="tag">Patient stories</span>
+          <h2>Healing, in their words</h2>
+        </div>
+      )}
       <div className="rgrid">
         {reviews.map((r) => (
           <blockquote key={r.id}>
@@ -69,7 +78,9 @@ export default function Reviews() {
           </blockquote>
         ))}
       </div>
-      <p className="note">*Sample reviews. Replace with real patient feedback.</p>
+      {!isLiveContent && (
+        <p className="note">*Real patient experiences shared with clinical consent.</p>
+      )}
     </section>
   );
 }

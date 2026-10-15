@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MobileBar from "@/components/MobileBar";
 import VideoTestimonials from "@/components/VideoTestimonials";
-import { Sparkles, Calendar, Phone } from "lucide-react";
+import { Calendar, Phone } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Patient Video Testimonials | Charak Ayurveda Pilani",
@@ -18,17 +18,12 @@ export default function VideoTestimonialsPage() {
       <Navbar />
       <main style={{ minHeight: "80vh", paddingTop: "20px" }}>
         {/* Page Hero Banner */}
-        <section style={{ background: "rgba(24, 66, 50, 0.04)", padding: "60px 0 40px" }}>
+        <section style={{ padding: "60px 0 30px" }}>
           <div className="wrap">
-            <div style={{ maxWidth: "760px", margin: "0 auto", textAlign: "center" }}>
-              <div className="tag-badge">
-                <Sparkles size={14} />
-                <span>Verified Patient Accounts</span>
-              </div>
-              <h1 style={{ fontSize: "clamp(2.4rem, 5vw, 3.8rem)", marginBottom: "16px" }}>
-                Video Testimonials
-              </h1>
-              <p style={{ color: "var(--ink-light)", fontSize: "1.15rem", lineHeight: 1.7 }}>
+            <div className="head">
+              <span className="tag">Verified Patient Accounts</span>
+              <h1>Video Testimonials</h1>
+              <p>
                 Hear directly from our patients about their path from chronic ailment to restored vitality with personalized Ayurvedic therapy.
               </p>
             </div>

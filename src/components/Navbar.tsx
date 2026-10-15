@@ -25,8 +25,24 @@ export default function Navbar() {
           <Link href="/doctors" onClick={closeMenu}>
             Doctors
           </Link>
-          <Link href="/products" onClick={closeMenu}>
-            Products
+          <Link href="/products" onClick={closeMenu} style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+            <span>Products</span>
+            <span
+              style={{
+                fontSize: "0.62rem",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                background: "rgba(197, 160, 89, 0.18)",
+                color: "#b08930",
+                border: "1px solid rgba(197, 160, 89, 0.35)",
+                padding: "1px 6px",
+                borderRadius: "999px",
+                lineHeight: "1.2",
+              }}
+            >
+              Soon
+            </span>
           </Link>
           <Link href="/patient-stories" onClick={closeMenu}>
             Stories

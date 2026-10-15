@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
 
 export default function Hero() {
   return (
@@ -19,8 +18,8 @@ export default function Hero() {
             <Link href="/appointment" className="btn">
               Book Appointment
             </Link>
-            <Link href="/products" className="btn gold" id="hero-shop-btn">
-              Shop Formulations
+            <Link href="/treatments" className="btn gold" id="hero-treatments-btn">
+              View Treatments
             </Link>
             <a href="tel:+918852887717" className="btn ghost">
               📞 088528 87717
@@ -44,31 +43,6 @@ export default function Hero() {
                 type="video/mp4"
               />
             </video>
-          </div>
-
-          <div className="hero-floating-badge">
-            <div
-              style={{
-                width: "34px",
-                height: "34px",
-                borderRadius: "50%",
-                background: "rgba(192, 138, 62, 0.15)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "var(--gold)",
-              }}
-            >
-              <Sparkles size={18} />
-            </div>
-            <div>
-              <div style={{ fontWeight: 600, fontSize: "0.88rem", color: "var(--green)" }}>
-                Authentic Ayurveda
-              </div>
-              <div style={{ fontSize: "0.75rem", color: "var(--ink-muted)" }}>
-                Pilani, Rajasthan
-              </div>
-            </div>
           </div>
         </div>
       </div>

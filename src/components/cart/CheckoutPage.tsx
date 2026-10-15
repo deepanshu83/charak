@@ -152,7 +152,7 @@ export default function CheckoutPage() {
         </div>
 
         <div className="mvp-page-heading">
-          <span className="tag-badge">Ayurvedic Pharmacy Dispatch</span>
+          <span className="tag">Ayurvedic Pharmacy Dispatch</span>
           <h1>Dispatch &amp; Delivery Details</h1>
           <p>
             Complete your delivery information below. Payment processing will be settled directly via our dispatch team or cash on delivery.
@@ -298,7 +298,7 @@ export default function CheckoutPage() {
                         <span>Qty: {item.quantity}</span>
                       </div>
                       <span className="checkout-item-price">
-                        ₹{(product.price * item.quantity).toLocaleString("en-IN")}
+                        ₹{((product.price ?? 0) * item.quantity).toLocaleString("en-IN")}
                       </span>
                     </div>
                   );
@@ -308,7 +308,7 @@ export default function CheckoutPage() {
               <div className="summary-breakdown">
                 <div className="summary-row">
                   <span>Subtotal</span>
-                  <span>₹{subtotal.toLocaleString("en-IN")}</span>
+                  <span>₹{(subtotal ?? 0).toLocaleString("en-IN")}</span>
                 </div>
                 <div className="summary-row">
                   <span>Prescription Packaging</span>
@@ -317,7 +317,7 @@ export default function CheckoutPage() {
                 <div className="summary-row total-row">
                   <strong>Total Amount</strong>
                   <strong className="total-amount">
-                    ₹{subtotal.toLocaleString("en-IN")}
+                    ₹{(subtotal ?? 0).toLocaleString("en-IN")}
                   </strong>
                 </div>
               </div>

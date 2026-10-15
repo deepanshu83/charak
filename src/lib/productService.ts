@@ -186,7 +186,12 @@ export async function fetchProductById(id: string): Promise<Product | null> {
 export async function fetchAdminProducts(): Promise<Product[]> {
   if (!isBrowser()) return runtimeProductsCache;
   try {
-    const res = await fetch("/api/admin/products");
+    const res = await fetch("/api/admin/products", {
+      credentials: "include",
+      headers: {
+        "x-admin-auth": "authenticated_admin",
+      },
+    });
     const json = await res.json().catch(() => ({}));
     if (json.ok && Array.isArray(json.data)) {
       const mapped = json.data.map(mapDbProductToProduct);
@@ -203,12 +208,16 @@ export async function fetchAdminProducts(): Promise<Product[]> {
 export async function adminCreateProduct(product: Omit<Product, "id">): Promise<Product> {
   const res = await fetch("/api/admin/products", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-auth": "authenticated_admin",
+    },
     body: JSON.stringify(product),
   });
-  const json = await res.json();
-  if (!res.ok || !json.ok || !json.data) {
-    throw new Error(json.error || "Failed to create product in database");
+  const json = await res.json().catch(() => null);
+  if (!res.ok || !json?.ok || !json?.data) {
+    throw new Error(json?.error || `Failed to create product in database (HTTP ${res.status})`);
   }
 
   const created = mapDbProductToProduct(json.data);
@@ -220,12 +229,16 @@ export async function adminCreateProduct(product: Omit<Product, "id">): Promise<
 export async function adminUpdateProduct(id: string, changes: Partial<Product>): Promise<Product> {
   const res = await fetch("/api/admin/products", {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-auth": "authenticated_admin",
+    },
     body: JSON.stringify({ id, ...changes }),
   });
-  const json = await res.json();
-  if (!res.ok || !json.ok || !json.data) {
-    throw new Error(json.error || "Failed to update product in database");
+  const json = await res.json().catch(() => null);
+  if (!res.ok || !json?.ok || !json?.data) {
+    throw new Error(json?.error || `Failed to update product in database (HTTP ${res.status})`);
   }
 
   const updated = mapDbProductToProduct(json.data);
@@ -237,10 +250,14 @@ export async function adminUpdateProduct(id: string, changes: Partial<Product>):
 export async function adminDeleteProduct(id: string): Promise<void> {
   const res = await fetch(`/api/admin/products?id=${encodeURIComponent(id)}`, {
     method: "DELETE",
+    credentials: "include",
+    headers: {
+      "x-admin-auth": "authenticated_admin",
+    },
   });
-  const json = await res.json();
-  if (!res.ok || !json.ok) {
-    throw new Error(json.error || "Failed to delete product in database");
+  const json = await res.json().catch(() => null);
+  if (!res.ok || !json?.ok) {
+    throw new Error(json?.error || `Failed to delete product in database (HTTP ${res.status})`);
   }
 
   runtimeProductsCache = runtimeProductsCache.filter((p) => p.id !== id);

@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import MobileBar from "@/components/MobileBar";
 import Reviews from "@/components/Reviews";
 import VideoTestimonials from "@/components/VideoTestimonials";
-import { Sparkles, Calendar, Phone } from "lucide-react";
+import { Calendar, Phone } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Patient Stories & Testimonials | Charak Ayurveda Pilani",
@@ -19,17 +19,12 @@ export default function PatientStoriesPage() {
       <Navbar />
       <main style={{ minHeight: "80vh", paddingTop: "20px" }}>
         {/* Page Hero Banner */}
-        <section style={{ background: "rgba(24, 66, 50, 0.04)", padding: "60px 0 40px" }}>
+        <section style={{ paddingTop: "48px", paddingBottom: "0" }}>
           <div className="wrap">
-            <div style={{ maxWidth: "760px", margin: "0 auto", textAlign: "center" }}>
-              <div className="tag-badge">
-                <Sparkles size={14} />
-                <span>Real Healing Experiences</span>
-              </div>
-              <h1 style={{ fontSize: "clamp(2.4rem, 5vw, 3.8rem)", marginBottom: "16px" }}>
-                Patient Stories
-              </h1>
-              <p style={{ color: "var(--ink-light)", fontSize: "1.15rem", lineHeight: 1.7 }}>
+            <div className="head" style={{ marginBottom: "24px" }}>
+              <span className="tag">Real Healing Experiences</span>
+              <h1>Patient Stories</h1>
+              <p>
                 Authentic testimonials and clinical recovery journeys from individuals who placed their faith in classical Ayurveda at Charak Ayurveda in Pilani.
               </p>
             </div>
@@ -37,7 +32,7 @@ export default function PatientStoriesPage() {
         </section>
 
         {/* Stories Section reading from Supabase */}
-        <Reviews />
+        <Reviews showHeader={false} style={{ paddingTop: "0px", paddingBottom: "50px" }} />
 
         {/* Video Testimonials Section */}
         <VideoTestimonials />

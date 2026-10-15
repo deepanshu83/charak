@@ -85,7 +85,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
+      await fetch("/api/admin/auth/logout", { method: "POST" });
       document.cookie = "charak_admin_session=; Path=/; Max-Age=0";
+      document.cookie = "charak_admin_ui=; Path=/; Max-Age=0";
       const supabase = createClient();
       await supabase.auth.signOut();
     } catch {

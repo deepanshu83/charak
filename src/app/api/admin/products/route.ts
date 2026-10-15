@@ -20,6 +20,14 @@ function extractStoragePath(urlOrPath: string): string {
   return filename ? `products/${filename}` : "";
 }
 
+function normalizeProductCategory(cat?: string): "Herbal Formulation" | "Therapeutic Oil" | "Wellness" | "Care" {
+  const lower = (cat || "").toLowerCase().trim();
+  if (lower.includes("oil")) return "Therapeutic Oil";
+  if (lower.includes("herbal") || lower.includes("formulation")) return "Herbal Formulation";
+  if (lower.includes("care")) return "Care";
+  return "Wellness";
+}
+
 export async function GET(req: Request) {
   try {
     const auth = await verifyAdminRequest(req);
@@ -207,7 +215,7 @@ export async function POST(req: Request) {
     const newRow = {
       name: name.trim(),
       slug: generatedSlug,
-      category: category || "Wellness",
+      category: normalizeProductCategory(category),
       price: numPrice,
       stock: numStock,
       short_description: shortDescription?.trim() || "",
@@ -348,7 +356,7 @@ export async function PUT(req: Request) {
     const updates: ProductUpdate = {};
 
     if (name !== undefined) updates.name = String(name).trim();
-    if (category !== undefined) updates.category = category;
+    if (category !== undefined) updates.category = normalizeProductCategory(category);
     if (price !== undefined) {
       const numPrice = Number(price);
       if (isNaN(numPrice) || numPrice < 0) {
@@ -549,6 +557,13 @@ export async function DELETE(req: Request) {
       } catch (storageErr) {
         console.warn("[Supabase Storage] Failed to remove product images:", storageErr);
       }
+    }
+
+    // Clean up dependent order items if any exist
+    try {
+      await supabase.from("order_items").delete().eq("product_id", id);
+    } catch (orderErr) {
+      console.warn("[Admin Products DELETE] Notice cleaning up order items:", orderErr);
     }
 
     // Delete product row (CASCADE deletes associated product_images records)

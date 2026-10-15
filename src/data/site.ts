@@ -84,12 +84,84 @@ export const faqs = [
 ];
 
 export const treatmentCategories = [
-  { title: "1. Panchakarma & Deep Body Detoxification", summary: "Classical five-fold purificatory therapies to expel deep accumulated metabolic toxins.", conditions: ["Metabolic sluggishness & chronic fatigue", "Seasonal body detoxification & immunity boost", "Cellular toxin (Ama) accumulation", "Rejuvenation & rasayana preparation"], treatments: "Vamana, Virechana, Basti, Nasya, Raktamokshana, Abhyanga & Swedana." },
-  { title: "2. Chronic Skin Disorders (Twak Roga)", summary: "Treating the internal root cause by cooling Rakta-Pitta and detoxifying liver and blood.", conditions: ["Psoriasis (Kitibha Kushta) & scalp flaking", "Chronic eczema, dermatitis & dry rashes", "Acne vulgaris & stubborn facial pigmentation", "Urticaria (Sheetapitta) & persistent skin allergies"], treatments: "Blood purification decoctions, herbal lepa, Takradhara, and strict Pathya diet." },
-  { title: "3. Joint, Spine & Musculoskeletal Care (Sandhivata)", summary: "Restoring joint lubrication, easing stiffness, and strengthening degenerated cartilage.", conditions: ["Osteoarthritis & knee joint stiffness", "Rheumatoid arthritis (Amavata) & joint swelling", "Cervical spondylosis & neck shoulder pain", "Sciatica (Gridhrasi) & lumbar slip disc discomfort"], treatments: "Janu Basti, Kati Basti, Greeva Basti, Patra Pinda Sweda, medicated anti-inflammatory oils." },
-  { title: "4. Infertility & Hormonal Wellness (Stri & Purusha Roga)", summary: "Natural preconception care, reproductive organ nourishment, and hormonal equilibrium.", conditions: ["PCOS / PCOD & irregular menstrual cycles", "Fallopian tube blockages & uterine weakness", "Unexplained female & male sub-fertility", "Low sperm motility, count & vitality"], treatments: "Uttar Basti, hormonal balancing rasayanas, specialized detox, and Garbha Samskara guidance." },
-  { title: "5. Digestive & Metabolic Disorders (Annavaha Srotas)", summary: "Kindling the digestive fire (Jatharagni) to eliminate acid reflux and bowel dysfunctions.", conditions: ["Chronic acidity, GERD & heartburn", "Irritable Bowel Syndrome (IBS / Grahani)", "Chronic constipation & bloating", "Metabolic sluggishness & weight imbalance"], treatments: "Digestive herbs (Deepana-Pachana), custom dietary protocols, and stress reduction therapies." },
-  { title: "6. Stress, Sleep & Neurological Health (Manovaha Srotas)", summary: "Calming an overstimulated nervous system through classical herbal nourishment.", conditions: ["Chronic stress & generalized anxiety", "Insomnia & fragmented, restless sleep", "Migraine & tension headaches", "Mental fog, fatigue & lack of focus"], treatments: "Shirodhara with medicated herbal oils, Nasya, Brahmi rasayanas, and pranayama guidance." },
+  {
+    title: "1. THERAPIES",
+    summary: "Authentic classical Panchakarma therapies and residential rejuvenating Ayurvedic retreat programs to cleanse cellular toxins and reboot vitality.",
+    conditions: [
+      "Panchakarma (Classical 5-fold detoxification)",
+      "Ayurvedic retreat (5 day / 7 day intensive wellness programs)",
+    ],
+    treatments: "Vamana, Virechana, Basti, Nasya, Raktamokshana, Abhyanga & Swedana.",
+  },
+  {
+    title: "2. BODY PAIN",
+    summary: "Targeted Ayurvedic pain rehabilitation to lubricate joints, soothe inflamed nerves, and restore pain-free spine and joint movement.",
+    conditions: [
+      "Back pain",
+      "Sciatica",
+      "Knee pain",
+      "Neck and shoulder pain",
+      "Cervical spondylitis",
+      "Slip disc",
+      "Frozen shoulder",
+      "Arthritis and joint pain",
+    ],
+    treatments: "Janu Basti, Kati Basti, Greeva Basti, Patra Pinda Sweda, medicated anti-inflammatory herbal oils.",
+  },
+  {
+    title: "3. SKIN",
+    summary: "Treating the internal root cause by cooling Rakta-Pitta, detoxifying liver and blood, and restoring radiant scalp and skin health.",
+    conditions: [
+      "Psoriasis",
+      "Eczema",
+      "Skin allergy",
+      "Acne and scars",
+      "Fungal infection",
+      "Hair fall",
+      "Dandruff",
+      "Vitiligo",
+    ],
+    treatments: "Blood purification decoctions, herbal Lepa, Takradhara, and strict constitutional Pathya diet.",
+  },
+  {
+    title: "4. WOMEN'S HEALTH",
+    summary: "Natural reproductive organ nourishment, menstrual cycle normalization, and hormonal equilibrium through gentle Ayurvedic therapies.",
+    conditions: [
+      "PCOS",
+      "PCOD",
+      "Irregular periods",
+      "Painful periods",
+      "Infertility",
+      "Tubal block",
+    ],
+    treatments: "Uttar Basti, hormonal balancing rasayanas, specialized detox, and Garbha Samskara guidance.",
+  },
+  {
+    title: "5. STOMACH AND DIGESTION",
+    summary: "Kindling the digestive fire (Jatharagni) to clear gut toxins (Ama) and permanently resolve gastrointestinal dysfunctions.",
+    conditions: [
+      "Acidity and gas",
+      "Constipation",
+      "IBS (Irritable Bowel Syndrome)",
+      "Bloating and indigestion",
+      "Piles, fissure, fistula",
+      "Fatty liver",
+    ],
+    treatments: "Digestive herbs (Deepana-Pachana), Takra therapies, custom dietary protocols, and metabolic detoxification.",
+  },
+  {
+    title: "6. STRESS AND LIFESTYLE",
+    summary: "Calming an overstimulated nervous system, regulating metabolic balance, and managing chronic modern lifestyle disorders.",
+    conditions: [
+      "Insomnia",
+      "Stress and anxiety",
+      "Migraine",
+      "Obesity",
+      "Thyroid",
+      "Diabetes",
+    ],
+    treatments: "Shirodhara with medicated herbal oils, Nasya, Medhya Rasayanas, and personalized Dinacharya guidance.",
+  },
 ];
 
 export const approachPillars = [
@@ -107,7 +179,7 @@ export const journeySteps = [
 ];
 
 export const stats = [
-  { num: "4", label: "Speciality Care Areas" },
+  { num: "6", label: "Speciality Care Areas" },
   { num: "100%", label: "Herbal Formulations" },
   { num: "1 : 1", label: "Personalized Consultation" },
   { num: "5", label: "Panchakarma Therapies" },

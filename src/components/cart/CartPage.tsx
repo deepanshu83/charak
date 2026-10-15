@@ -68,7 +68,7 @@ export default function CartPage() {
       <div className="wrap">
         <div className="mvp-cart-header">
           <div>
-            <span className="tag-badge">Ayurvedic Dispensing</span>
+            <span className="tag">Ayurvedic Dispensing</span>
             <h1>Your Prescription Cart</h1>
             <p>
               {itemCount} {itemCount === 1 ? "item" : "items"} selected for dispatch
@@ -161,7 +161,7 @@ export default function CartPage() {
                       </h3>
                       <div className="mvp-cart-price-line">
                         <span className="unit-price">
-                          ₹{product.price.toLocaleString("en-IN")} each
+                          ₹{(product.price ?? 0).toLocaleString("en-IN")} each
                         </span>
                         {product.active === false ? (
                           <span className="stock-out">
@@ -203,7 +203,7 @@ export default function CartPage() {
                       </div>
 
                       <div className="item-subtotal">
-                        ₹{(product.price * item.quantity).toLocaleString("en-IN")}
+                        ₹{((product.price ?? 0) * item.quantity).toLocaleString("en-IN")}
                       </div>
 
                       <button
@@ -224,7 +224,7 @@ export default function CartPage() {
               <h2>Order Summary</h2>
               <div className="summary-row">
                 <span>Items ({itemCount})</span>
-                <span>₹{subtotal.toLocaleString("en-IN")}</span>
+                <span>₹{(subtotal ?? 0).toLocaleString("en-IN")}</span>
               </div>
               <div className="summary-row">
                 <span>Standard Hospital Shipping</span>
@@ -233,7 +233,7 @@ export default function CartPage() {
               <div className="summary-row total-row">
                 <strong>Estimated Total</strong>
                 <strong className="total-amount">
-                  ₹{subtotal.toLocaleString("en-IN")}
+                  ₹{(subtotal ?? 0).toLocaleString("en-IN")}
                 </strong>
               </div>
 

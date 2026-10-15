@@ -48,14 +48,15 @@ function OrderSuccessContent() {
   return (
     <div className="order-success-page py-16">
       <div className="wrap max-w-3xl mx-auto px-4">
-        <div className="bg-white rounded-2xl border border-[var(--border)] p-8 sm:p-12 shadow-sm text-center">
+        <div
+          className="rounded-2xl border border-[var(--border)] p-8 sm:p-12 shadow-sm text-center"
+          style={{ background: "var(--cream-card)" }}
+        >
           <div className="w-16 h-16 bg-emerald-50 text-emerald-700 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 size={36} />
           </div>
 
-          <span className="inline-block px-3 py-1 bg-amber-50 text-amber-900 border border-amber-200/60 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
-            Order Successfully Recorded
-          </span>
+          <span className="tag">Order Successfully Recorded</span>
 
           <h1 className="text-3xl sm:text-4xl font-serif font-bold text-[var(--green)] mb-3">
             Thank You for Your Order
@@ -91,7 +92,7 @@ function OrderSuccessContent() {
                 </div>
                 <div className="flex justify-between border-t border-stone-200 pt-2 mt-2 font-semibold">
                   <span>Total Amount:</span>
-                  <span className="text-[var(--green)] text-base">₹{order.total?.toLocaleString("en-IN")}</span>
+                  <span className="text-[var(--green)] text-base">₹{(order.total ?? 0).toLocaleString("en-IN")}</span>
                 </div>
               </div>
             </div>

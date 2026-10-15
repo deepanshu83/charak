@@ -185,3 +185,55 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request) {
+  try {
+    const auth = await verifyAdminRequest(req);
+    if (!auth.authorized) {
+      return NextResponse.json({ ok: false, error: auth.error }, { status: auth.status });
+    }
+
+    if (!hasServiceRoleKey()) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            "Server Configuration Error: SUPABASE_SERVICE_ROLE_KEY is required in .env.local for administrative write operations. Please configure SUPABASE_SERVICE_ROLE_KEY in .env.local.",
+        },
+        { status: 500 }
+      );
+    }
+
+    const supabase = getAdminSupabaseClient();
+    if (!supabase) {
+      return NextResponse.json(
+        { ok: false, error: "Database client not configured" },
+        { status: 500 }
+      );
+    }
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ ok: false, error: "Order ID is required" }, { status: 400 });
+    }
+
+    // Clean up dependent order items first to prevent FK constraint violations
+    const { error: itemsErr } = await supabase.from("order_items").delete().eq("order_id", id);
+    if (itemsErr) {
+      console.warn("[Admin Orders DELETE] Warning removing order items:", itemsErr.message);
+    }
+
+    const { error } = await supabase.from("orders").delete().eq("id", id);
+
+    if (error) {
+      return NextResponse.json({ ok: false, error: error.message }, { status: 400 });
+    }
+
+    return NextResponse.json({ ok: true, id });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Internal server error";
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+  }
+}

@@ -1,5 +1,4 @@
 import React from "react";
-import { Sparkles } from "lucide-react";
 
 export interface SectionHeadingProps {
   eyebrow?: string;
@@ -17,7 +16,7 @@ export default function SectionHeading({
   title,
   description,
   centered = false,
-  tagIcon = <Sparkles size={14} />,
+  tagIcon,
   children,
   as: HeadingTag = "h2",
   className = "",
@@ -28,10 +27,10 @@ export default function SectionHeading({
       style={centered ? { maxWidth: "780px", margin: "0 auto 36px", textAlign: "center" } : { marginBottom: "32px" }}
     >
       {eyebrow && (
-        <div className="tag-badge" style={centered ? { margin: "0 auto 12px" } : { marginBottom: "12px" }}>
-          {tagIcon}
-          <span>{eyebrow}</span>
-        </div>
+        <span className="tag" style={centered ? { margin: "0 auto 12px", textAlign: "center" } : { marginBottom: "12px" }}>
+          {tagIcon && <span style={{ marginRight: 6, display: "inline-flex", verticalAlign: "middle" }}>{tagIcon}</span>}
+          {eyebrow}
+        </span>
       )}
       <HeadingTag className="section-heading-title">{title}</HeadingTag>
       {description && <p className="section-heading-desc">{description}</p>}

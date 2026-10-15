@@ -322,7 +322,7 @@
 
 .mvp-detail-image-box {
   position: relative;
-  background: #fff;
+  background: var(--cream-card);
   border-radius: 24px;
   border: 1px solid var(--border);
   padding: 16px;
@@ -460,7 +460,7 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
-  background: #fff;
+  background: var(--cream-card);
   padding: 24px;
   border-radius: 20px;
   border: 1px solid var(--border);
@@ -593,7 +593,7 @@
 }
 
 .mvp-cart-list {
-  background: #fff;
+  background: var(--cream-card);
   border: 1px solid var(--border);
   border-radius: 24px;
   padding: 28px;
@@ -688,7 +688,7 @@
 }
 
 .mvp-summary-card {
-  background: #fff;
+  background: var(--cream-card);
   border: 1px solid var(--border);
   border-radius: 24px;
   padding: 28px;
@@ -768,7 +768,7 @@
    Checkout Page
    -------------------------------------------------------------------------- */
 .mvp-form-card {
-  background: #fff;
+  background: var(--cream-card);
   border: 1px solid var(--border);
   border-radius: 24px;
   padding: 32px;
@@ -960,7 +960,7 @@
 }
 
 .mvp-success-card {
-  background: #fff;
+  background: var(--cream-card);
   border: 1px solid var(--border);
   border-radius: 28px;
   padding: 48px 36px;
@@ -1106,7 +1106,7 @@
   justify-content: space-between;
   gap: 8px;
   margin-bottom: 36px;
-  background: #fff;
+  background: var(--cream-card);
   padding: 16px 24px;
   border-radius: 18px;
   border: 1px solid var(--border);
@@ -1168,7 +1168,7 @@
 }
 
 .mvp-appointment-panel {
-  background: #fff;
+  background: var(--cream-card);
   border: 1px solid var(--border);
   border-radius: 24px;
   padding: 32px;
@@ -1526,7 +1526,7 @@
 }
 
 .admin-header {
-  background: #fff;
+  background: var(--cream-card);
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
@@ -3122,7 +3122,7 @@ textarea:focus-visible {
    Card Component Variants
    -------------------------------------------------------------------------- */
 .ui-card {
-  background: #fff;
+  background: var(--cream-card);
   border: 1px solid var(--border);
   border-radius: 20px;
   box-shadow: var(--shadow-sm);
@@ -3707,7 +3707,7 @@ textarea:focus-visible {
 .admin-login-card {
   width: 100%;
   max-width: 440px;
-  background: #ffffff;
+  background: var(--cream-card);
   border-radius: 14px;
   padding: 38px 34px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);

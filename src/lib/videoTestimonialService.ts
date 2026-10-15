@@ -72,7 +72,12 @@ export async function fetchVideoTestimonials(): Promise<VideoTestimonial[]> {
 export async function fetchAdminVideoTestimonials(): Promise<VideoTestimonial[]> {
   if (!isBrowser()) return runtimeVideoCache;
   try {
-    const res = await fetch("/api/admin/video-testimonials");
+    const res = await fetch("/api/admin/video-testimonials", {
+      credentials: "include",
+      headers: {
+        "x-admin-auth": "authenticated_admin",
+      },
+    });
     const json = await res.json().catch(() => ({}));
     if (json.ok && Array.isArray(json.data)) {
       const mapped = json.data.map(mapDbRowToVideoTestimonial);
@@ -101,7 +106,11 @@ export async function adminCreateVideoTestimonial(input: {
 }): Promise<VideoTestimonial> {
   const res = await fetch("/api/admin/video-testimonials", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-auth": "authenticated_admin",
+    },
     body: JSON.stringify(input),
   });
   const json = await res.json();
@@ -121,7 +130,11 @@ export async function adminUpdateVideoTestimonial(
 ): Promise<VideoTestimonial> {
   const res = await fetch("/api/admin/video-testimonials", {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-auth": "authenticated_admin",
+    },
     body: JSON.stringify({ id, ...changes }),
   });
   const json = await res.json();
@@ -143,7 +156,11 @@ export async function adminDeleteVideoTestimonial(id: string): Promise<void> {
     try {
       await fetch("/api/admin/media/delete", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-auth": "authenticated_admin",
+        },
         body: JSON.stringify({ storagePath: item.storagePath, bucket: "hospital-videos" }),
       });
     } catch (err) {
@@ -155,7 +172,11 @@ export async function adminDeleteVideoTestimonial(id: string): Promise<void> {
     try {
       await fetch("/api/admin/media/delete", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-auth": "authenticated_admin",
+        },
         body: JSON.stringify({ storagePath: item.thumbnailStoragePath, bucket: "hospital-images" }),
       });
     } catch (err) {
@@ -165,6 +186,10 @@ export async function adminDeleteVideoTestimonial(id: string): Promise<void> {
 
   const res = await fetch(`/api/admin/video-testimonials?id=${encodeURIComponent(id)}`, {
     method: "DELETE",
+    credentials: "include",
+    headers: {
+      "x-admin-auth": "authenticated_admin",
+    },
   });
   const json = await res.json();
   if (!res.ok || !json.ok) {

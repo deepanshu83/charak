@@ -17,7 +17,6 @@ import {
   Printer,
   RotateCcw,
   ShieldCheck,
-  Sparkles,
 } from "lucide-react";
 import {
   bookAppointment,
@@ -217,11 +216,20 @@ export default function AppointmentFlow() {
           ? err.message
           : "This appointment slot was just booked. Please select another time.";
 
-      toast.error("Booking Conflict", errorMessage);
-      // Re-fetch slots so the newly taken slot shows disabled
-      await refreshSlots();
-      // Transition back to step 4 so user can pick another slot
-      setStep(4);
+      const isSlotConflict =
+        errorMessage.toLowerCase().includes("slot") ||
+        errorMessage.toLowerCase().includes("already booked") ||
+        errorMessage.toLowerCase().includes("conflict");
+
+      if (isSlotConflict) {
+        toast.error("Booking Conflict", errorMessage);
+        // Re-fetch slots so the newly taken slot shows disabled
+        await refreshSlots();
+        // Transition back to step 4 so user can pick another slot
+        setStep(4);
+      } else {
+        toast.error("Booking Notice", errorMessage);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -240,10 +248,7 @@ export default function AppointmentFlow() {
     <section className="mvp-section" aria-label="Ayurvedic Consultation Booking">
       <div className="wrap">
         <div className="mvp-page-heading">
-          <div className="tag-badge">
-            <Sparkles size={14} />
-            <span>Classical Ayurvedic Consultation</span>
-          </div>
+          <span className="tag">Classical Ayurvedic Consultation</span>
           <h1>Book a Doctor Consultation</h1>
           <p>
             Experience authentic pulse diagnosis (Nadi Pariksha) and individualized
@@ -369,7 +374,7 @@ export default function AppointmentFlow() {
                   </div>
                   <div>
                     <span>Consultation Fee:</span>
-                    <strong>₹{selectedDoctor?.consultationFee.toLocaleString("en-IN")}</strong>
+                    <strong>₹{(selectedDoctor?.consultationFee ?? 1200).toLocaleString("en-IN")}</strong>
                   </div>
                 </div>
 
@@ -472,7 +477,7 @@ export default function AppointmentFlow() {
                               <p>{t.description}</p>
                               <div className="choice-card-meta">
                                 <span>Duration: {t.duration}</span>
-                                <strong>₹{t.price.toLocaleString("en-IN")}</strong>
+                                <strong>₹{(t.price ?? 0).toLocaleString("en-IN")}</strong>
                               </div>
                             </div>
                           </div>
@@ -558,7 +563,7 @@ export default function AppointmentFlow() {
                                   {doc.location}
                                 </span>
                                 <strong>
-                                  Fee: ₹{doc.consultationFee.toLocaleString("en-IN")}
+                                  Fee: ₹{(doc.consultationFee ?? 1200).toLocaleString("en-IN")}
                                 </strong>
                               </div>
                             </div>

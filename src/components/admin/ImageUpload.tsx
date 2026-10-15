@@ -134,9 +134,13 @@ export default function ImageUpload({
   const processAndUpload = async (file: File) => {
     setError(null);
 
-    // 1. Validation
-    if (!allowedTypes.includes(file.type)) {
-      setError("Please upload JPG, PNG or WEBP.");
+    // 1. Validation - check both MIME type and file extension
+    const ext = file.name.split(".").pop()?.toLowerCase() || "";
+    const isImageMime = file.type ? file.type.toLowerCase().startsWith("image/") : false;
+    const isAllowedExt = ["jpg", "jpeg", "png", "webp", "avif", "heic"].includes(ext);
+
+    if (!isImageMime && !isAllowedExt) {
+      setError("Please upload a valid image file (JPG, PNG or WEBP).");
       return;
     }
 
@@ -147,8 +151,15 @@ export default function ImageUpload({
     setUploadProgress(15);
 
     try {
-      // 2. Client-side Resize & Compression
-      const compressedBlob = await compressImage(file);
+      // 2. Client-side Resize & Compression (with graceful fallback if canvas fails)
+      let compressedBlob: Blob;
+      try {
+        compressedBlob = await compressImage(file);
+      } catch (compressErr) {
+        console.warn("[ImageUpload] Client compression skipped, uploading original file:", compressErr);
+        compressedBlob = file;
+      }
+
       setOptimizedSize(compressedBlob.size);
       setOptimizing(false);
       setUploading(true);
@@ -156,7 +167,10 @@ export default function ImageUpload({
 
       // 3. Upload to server endpoint
       const formData = new FormData();
-      const newFileName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
+      const sanitizedName = file.name.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_") || "photo";
+      const targetExt = compressedBlob.type === "image/jpeg" ? "jpg" : "webp";
+      const newFileName = `${sanitizedName}.${targetExt}`;
+
       formData.append("file", compressedBlob, newFileName);
       formData.append("bucket", bucket || "hospital-images");
       formData.append("folder", folder);
@@ -166,13 +180,24 @@ export default function ImageUpload({
       const res = await fetch("/api/admin/media/upload", {
         method: "POST",
         body: formData,
+        credentials: "include",
+        headers: {
+          "x-admin-auth": "authenticated_admin",
+        },
       });
 
       setUploadProgress(90);
 
-      const json = await res.json();
-      if (!res.ok || !json.ok) {
-        throw new Error(json.error || "Failed to upload image to storage.");
+      const json = await res.json().catch(() => null);
+      if (!res.ok || !json?.ok) {
+        const errorMsg =
+          json?.error ||
+          (res.status === 401
+            ? "Administrator session expired. Please refresh and log in again."
+            : res.status === 403
+            ? "Admin privileges required for storage uploads."
+            : `Failed to upload image to storage (HTTP ${res.status}).`);
+        throw new Error(errorMsg);
       }
 
       setUploadProgress(100);
@@ -190,7 +215,7 @@ export default function ImageUpload({
       if (onUploadComplete) onUploadComplete(uploadResult);
     } catch (err) {
       console.error("[ImageUpload Error]:", err);
-      const msg = err instanceof Error ? err.message : "Image optimization failed.";
+      const msg = err instanceof Error ? err.message : "Image upload failed.";
       setError(msg);
       setOptimizing(false);
       setUploading(false);

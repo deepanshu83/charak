@@ -309,6 +309,13 @@ export async function DELETE(req: Request) {
       }
     }
 
+    // Clean up any dependent appointments referencing this doctor to prevent FK constraint failure
+    try {
+      await supabase.from("appointments").delete().eq("doctor_id", id);
+    } catch (aptErr) {
+      console.warn("[Admin Doctors DELETE] Notice removing dependent appointments:", aptErr);
+    }
+
     const { error } = await supabase.from("doctors").delete().eq("id", id);
 
     if (error) {

@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { Sparkles } from "lucide-react";
 
 interface PageHeroProps {
   eyebrow: string;
@@ -12,11 +11,8 @@ export default function PageHero({ eyebrow, title, description, children }: Page
   return (
     <section className="page-hero">
       <div className="wrap">
-        <div className="page-hero-content">
-          <div className="tag-badge">
-            <Sparkles size={14} />
-            <span>{eyebrow}</span>
-          </div>
+        <div className="head">
+          <span className="tag">{eyebrow}</span>
           <h1>{title}</h1>
           <p>{description}</p>
           {children}

@@ -92,7 +92,7 @@ export default async function BlogPostPage({ params }: PageProps) {
       <Navbar />
       <main style={{ minHeight: "80vh", paddingTop: "20px" }}>
         {/* Article Header & Breadcrumbs */}
-        <section style={{ background: "rgba(24, 66, 50, 0.04)", padding: "50px 0 36px" }}>
+        <section style={{ padding: "40px 0 20px" }}>
           <div className="wrap">
             <div style={{ maxWidth: "800px", margin: "0 auto" }}>
               <Link
@@ -150,13 +150,13 @@ export default async function BlogPostPage({ params }: PageProps) {
         </section>
 
         {/* Article Body */}
-        <article style={{ padding: "50px 0 80px" }}>
+        <article style={{ padding: "30px 0 80px" }}>
           <div className="wrap">
             <div
               style={{
                 maxWidth: "800px",
                 margin: "0 auto",
-                background: "#ffffff",
+                background: "var(--cream-card)",
                 padding: "48px 40px",
                 borderRadius: "24px",
                 border: "1px solid var(--border)",
@@ -185,7 +185,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                 </div>
               )}
               <div style={{ display: "flex", flexDirection: "column", gap: "22px" }}>
-                {post.content.map((paragraph, index) => (
+                {(Array.isArray(post.content) ? post.content : [String(post.content || "")]).map((paragraph, index) => (
                   <p
                     key={index}
                     style={{

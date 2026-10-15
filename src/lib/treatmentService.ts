@@ -4,7 +4,82 @@ import { getPublicSupabaseClient } from "./supabaseClient";
 
 const EVENT_NAME = "charak_treatments_updated";
 
-let runtimeTreatmentsCache: AdminTreatment[] = [];
+export const DEFAULT_TREATMENTS: AdminTreatment[] = [
+  {
+    id: "70000000-0000-4000-a000-000000000001",
+    name: "Therapies & Panchakarma",
+    slug: "therapies-panchakarma",
+    shortDescription: "Panchakarma & Ayurvedic retreat (5 day / 7 day)",
+    description: "Classical Panchakarma detoxification and intensive 5-day / 7-day Ayurvedic residential retreats to cleanse accumulated Ama, rejuvenate tissues, and restore lifelong vitality.",
+    duration: "60–90 min",
+    price: 2500,
+    image: "/images/panchkaram.jpeg",
+    icon: "Sparkles",
+    active: true,
+  },
+  {
+    id: "70000000-0000-4000-a000-000000000002",
+    name: "Body Pain & Spine Care",
+    slug: "body-pain-spine-care",
+    shortDescription: "Back pain, Sciatica, Knee pain, Cervical spondylitis & Slip disc",
+    description: "Targeted Ayurvedic treatments for back pain, sciatica, knee pain, neck & shoulder pain, cervical spondylitis, slip disc, frozen shoulder, and joint arthritis using authentic Basti and herbal oils.",
+    duration: "45 min",
+    price: 1200,
+    image: "/images/joint.png",
+    icon: "Sparkles",
+    active: true,
+  },
+  {
+    id: "70000000-0000-4000-a000-000000000003",
+    name: "Skin & Hair Care",
+    slug: "skin-hair-care",
+    shortDescription: "Psoriasis, Eczema, Skin allergy, Acne, Hair fall & Vitiligo",
+    description: "Root-cause Ayurvedic healing for psoriasis, eczema, skin allergies, acne & scars, fungal infections, hair fall, dandruff, and vitiligo via internal blood purification and herbal Lepa.",
+    duration: "45 min",
+    price: 1200,
+    image: "/images/skincare.jpeg",
+    icon: "Sparkles",
+    active: true,
+  },
+  {
+    id: "70000000-0000-4000-a000-000000000004",
+    name: "Women's Health & Fertility",
+    slug: "womens-health-fertility",
+    shortDescription: "PCOS, PCOD, Irregular & Painful periods, Infertility, Tubal block",
+    description: "Holistic Ayurvedic care for PCOS, PCOD, irregular and painful menstrual cycles, natural fertility enhancement, and tubal blockages using specialized Uttar Basti and balancing rasayanas.",
+    duration: "45 min",
+    price: 1200,
+    image: "/images/infertility.png",
+    icon: "Sparkles",
+    active: true,
+  },
+  {
+    id: "70000000-0000-4000-a000-000000000005",
+    name: "Stomach & Digestion",
+    slug: "stomach-digestion",
+    shortDescription: "Acidity, Gas, Constipation, IBS, Bloating, Piles & Fatty liver",
+    description: "Re-igniting the digestive fire (Jatharagni) to effectively resolve acidity, gas, constipation, IBS, bloating, indigestion, piles, fissure, fistula, and fatty liver.",
+    duration: "45 min",
+    price: 1000,
+    image: "/images/g5.jpg",
+    icon: "Sparkles",
+    active: true,
+  },
+  {
+    id: "70000000-0000-4000-a000-000000000006",
+    name: "Stress & Lifestyle Management",
+    slug: "stress-lifestyle-management",
+    shortDescription: "Insomnia, Stress & anxiety, Migraine, Obesity, Thyroid, Diabetes",
+    description: "Comprehensive therapeutic protocols for insomnia, chronic stress, anxiety, migraine, obesity, thyroid dysfunction, and diabetes through Shirodhara, herbal Rasayanas, and Dinacharya.",
+    duration: "45 min",
+    price: 1000,
+    image: "/images/g4.jpg",
+    icon: "Sparkles",
+    active: true,
+  },
+];
+
+let runtimeTreatmentsCache: AdminTreatment[] = [...DEFAULT_TREATMENTS];
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -58,15 +133,15 @@ export async function fetchTreatments(): Promise<Treatment[]> {
       .eq("active", true)
       .order("created_at", { ascending: true });
 
-    if (error || !data) {
-      return runtimeTreatmentsCache;
+    if (error || !data || data.length === 0) {
+      return runtimeTreatmentsCache.length > 0 ? runtimeTreatmentsCache : DEFAULT_TREATMENTS;
     }
 
     const mapped = data.map(mapDbTreatmentToTreatment);
     runtimeTreatmentsCache = mapped;
     return mapped;
   } catch {
-    return runtimeTreatmentsCache;
+    return runtimeTreatmentsCache.length > 0 ? runtimeTreatmentsCache : DEFAULT_TREATMENTS;
   }
 }
 
@@ -124,7 +199,12 @@ export async function fetchTreatmentById(id: string): Promise<Treatment | null> 
 export async function fetchAdminTreatments(): Promise<AdminTreatment[]> {
   if (!isBrowser()) return runtimeTreatmentsCache;
   try {
-    const res = await fetch("/api/admin/treatments");
+    const res = await fetch("/api/admin/treatments", {
+      credentials: "include",
+      headers: {
+        "x-admin-auth": "authenticated_admin",
+      },
+    });
     const json = await res.json().catch(() => ({}));
     if (json.ok && Array.isArray(json.data)) {
       const mapped = json.data.map(mapDbTreatmentToTreatment);
@@ -151,7 +231,11 @@ export async function adminCreateTreatment(input: {
 }): Promise<AdminTreatment> {
   const res = await fetch("/api/admin/treatments", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-auth": "authenticated_admin",
+    },
     body: JSON.stringify(input),
   });
   const json = await res.json();
@@ -171,7 +255,11 @@ export async function adminUpdateTreatment(
 ): Promise<AdminTreatment> {
   const res = await fetch("/api/admin/treatments", {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-auth": "authenticated_admin",
+    },
     body: JSON.stringify({ id, ...changes }),
   });
   const json = await res.json();
@@ -186,7 +274,13 @@ export async function adminUpdateTreatment(
 }
 
 export async function adminDeleteTreatment(id: string): Promise<void> {
-  const res = await fetch(`/api/admin/treatments?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+  const res = await fetch(`/api/admin/treatments?id=${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    credentials: "include",
+    headers: {
+      "x-admin-auth": "authenticated_admin",
+    },
+  });
   const json = await res.json();
   if (!res.ok || !json.ok) {
     throw new Error(json.error || "Failed to delete treatment in database");

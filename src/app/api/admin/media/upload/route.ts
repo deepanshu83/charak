@@ -22,15 +22,16 @@ const ALLOWED_VIDEO_MIMES = new Set([
  * Server-side magic bytes validation to verify file type isn't spoofed.
  */
 function detectMimeFromBytes(buffer: Buffer): string | null {
-  if (buffer.length < 12) return null;
+  if (buffer.length < 4) return null;
 
-  // JPEG: FF D8 FF
-  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+  // JPEG: FF D8
+  if (buffer[0] === 0xff && buffer[1] === 0xd8) {
     return "image/jpeg";
   }
 
   // PNG: 89 50 4E 47 0D 0A 1A 0A
   if (
+    buffer.length >= 8 &&
     buffer[0] === 0x89 &&
     buffer[1] === 0x50 &&
     buffer[2] === 0x4e &&
@@ -45,6 +46,7 @@ function detectMimeFromBytes(buffer: Buffer): string | null {
 
   // WebP: RIFF ... WEBP
   if (
+    buffer.length >= 12 &&
     buffer[0] === 0x52 &&
     buffer[1] === 0x49 &&
     buffer[2] === 0x46 &&
@@ -55,6 +57,16 @@ function detectMimeFromBytes(buffer: Buffer): string | null {
     buffer[11] === 0x50
   ) {
     return "image/webp";
+  }
+
+  // GIF: GIF87a or GIF89a
+  if (
+    buffer[0] === 0x47 &&
+    buffer[1] === 0x49 &&
+    buffer[2] === 0x46 &&
+    buffer[3] === 0x38
+  ) {
+    return "image/gif";
   }
 
   // WebM: 1A 45 DF A3
@@ -68,9 +80,11 @@ function detectMimeFromBytes(buffer: Buffer): string | null {
   }
 
   // MP4: ftyp box at offset 4
-  const boxType = buffer.subarray(4, 8).toString("ascii");
-  if (boxType === "ftyp") {
-    return "video/mp4";
+  if (buffer.length >= 8) {
+    const boxType = buffer.subarray(4, 8).toString("ascii");
+    if (boxType === "ftyp") {
+      return "video/mp4";
+    }
   }
 
   return null;
@@ -132,9 +146,18 @@ export async function POST(req: Request) {
     }
 
     // 2. MIME & Magic Bytes Validation
-    const detectedMime = detectMimeFromBytes(buffer) || file.type;
+    let detectedMime = detectMimeFromBytes(buffer) || (file.type ? file.type.toLowerCase() : "");
 
     if (bucket === "hospital-images") {
+      const ext = path.extname(file.name).replace(".", "").toLowerCase();
+      if (!detectedMime || detectedMime === "application/octet-stream" || detectedMime === "binary/octet-stream") {
+        if (ext === "webp") detectedMime = "image/webp";
+        else if (ext === "jpg" || ext === "jpeg") detectedMime = "image/jpeg";
+        else if (ext === "png") detectedMime = "image/png";
+        else detectedMime = "image/webp"; // default for compressed hospital product photos
+      }
+      if (detectedMime === "image/jpg") detectedMime = "image/jpeg";
+
       if (!ALLOWED_IMAGE_MIMES.has(detectedMime)) {
         return NextResponse.json(
           { ok: false, error: "Please upload JPG, PNG or WEBP." },

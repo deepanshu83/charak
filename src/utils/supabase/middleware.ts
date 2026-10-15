@@ -1,18 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
+import { verifyAdminSessionToken, WHITELISTED_ADMIN_EMAILS } from "@/lib/adminSessionToken";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseKey =
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
   "";
-
-// Fallback authorized admin emails
-const WHITELISTED_ADMIN_EMAILS = new Set([
-  "admin@charakayurvedapilani.com",
-  "admin@charak.com",
-  "deepanshu@charak.com",
-]);
 
 export const createClient = async (request: NextRequest) => {
   let cookiesToSetOnRedirect: Array<{ name: string; value: string; options?: Record<string, unknown> }> = [];
@@ -81,8 +75,16 @@ export const createClient = async (request: NextRequest) => {
     }
 
     const adminSessionCookie = request.cookies.get("charak_admin_session")?.value;
-    if (adminSessionCookie === "authenticated_admin") {
-      return supabaseResponse;
+    if (adminSessionCookie) {
+      const sessionRes = await verifyAdminSessionToken(adminSessionCookie);
+      if (
+        sessionRes.valid &&
+        sessionRes.email &&
+        (WHITELISTED_ADMIN_EMAILS.has(sessionRes.email.toLowerCase()) ||
+          sessionRes.email.toLowerCase().includes("admin@"))
+      ) {
+        return supabaseResponse;
+      }
     }
 
     // 1. Not logged in -> Redirect to /admin/login
@@ -125,14 +127,24 @@ export const createClient = async (request: NextRequest) => {
   }
 
   // If already logged in as authorized admin and navigating to /admin/login -> Redirect to /admin
-  if (isLoginPage && user && !isTestNonAdmin) {
-    const userEmail = (user.email || "").toLowerCase();
-    const isAuthorized =
-      user.app_metadata?.role === "admin" ||
-      WHITELISTED_ADMIN_EMAILS.has(userEmail);
+  if (isLoginPage && !isTestNonAdmin) {
+    const adminSessionCookie = request.cookies.get("charak_admin_session")?.value;
+    if (adminSessionCookie) {
+      const sessionRes = await verifyAdminSessionToken(adminSessionCookie);
+      if (sessionRes.valid) {
+        return makeRedirect(new URL("/admin", request.url));
+      }
+    }
 
-    if (isAuthorized) {
-      return makeRedirect(new URL("/admin", request.url));
+    if (user) {
+      const userEmail = (user.email || "").toLowerCase();
+      const isAuthorized =
+        user.app_metadata?.role === "admin" ||
+        WHITELISTED_ADMIN_EMAILS.has(userEmail);
+
+      if (isAuthorized) {
+        return makeRedirect(new URL("/admin", request.url));
+      }
     }
   }
 

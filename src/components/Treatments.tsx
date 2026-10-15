@@ -14,27 +14,39 @@ interface TreatmentItem {
 const DEFAULT_TREATMENTS: TreatmentItem[] = [
   {
     num: "01",
-    title: "Panchakarma",
-    desc: "Classical five-fold detox to cleanse deep toxins and restore balance.",
+    title: "Therapies & Panchakarma",
+    desc: "Classical five-fold detox & 5-day / 7-day rejuvenating Ayurvedic retreats.",
     image: "/images/panchkaram.jpeg",
   },
   {
     num: "02",
-    title: "Skin Care",
-    desc: "Acne, eczema, psoriasis, pigmentation and hair fall, treated from within.",
-    image: "/images/skincare.jpeg",
-  },
-  {
-    num: "03",
-    title: "Joint Care",
-    desc: "Arthritis, back pain and stiffness eased with herbal oils and Basti.",
+    title: "Body Pain & Spine",
+    desc: "Relief for back pain, sciatica, knee pain, cervical spondylitis & joint arthritis.",
     image: "/images/joint.png",
   },
   {
+    num: "03",
+    title: "Skin & Hair Care",
+    desc: "Root-cause care for psoriasis, eczema, acne, hair fall, dandruff & vitiligo.",
+    image: "/images/skincare.jpeg",
+  },
+  {
     num: "04",
-    title: "Infertility Care",
-    desc: "Gentle support for male and female fertility, PCOD and hormones.",
+    title: "Women's Health",
+    desc: "Gentle support for PCOS, PCOD, irregular & painful periods and fertility.",
     image: "/images/infertility.png",
+  },
+  {
+    num: "05",
+    title: "Stomach & Digestion",
+    desc: "Resolving acidity, gas, constipation, IBS, bloating, piles & fatty liver.",
+    image: "/images/g5.jpg",
+  },
+  {
+    num: "06",
+    title: "Stress & Lifestyle",
+    desc: "Therapies for insomnia, anxiety, migraine, obesity, thyroid & diabetes.",
+    image: "/images/g4.jpg",
   },
 ];
 
@@ -50,14 +62,17 @@ export default function Treatments({ onSelectConcern }: TreatmentsProps) {
     async function load() {
       try {
         const data = await fetchTreatments();
-        if (isMounted && data && data.length >= 4) {
+        if (isMounted && data && data.length > 0) {
           setItems(
-            data.slice(0, 4).map((t, idx) => ({
-              num: String(idx + 1).padStart(2, "0"),
-              title: t.name,
-              desc: t.shortDescription || t.description,
-              image: t.image || DEFAULT_TREATMENTS[idx].image,
-            }))
+            data.map((t, idx) => {
+              const fallback = DEFAULT_TREATMENTS[idx % DEFAULT_TREATMENTS.length]?.image || "/images/panchkaram.jpeg";
+              return {
+                num: String(idx + 1).padStart(2, "0"),
+                title: t.name,
+                desc: t.shortDescription || t.description,
+                image: t.image || fallback,
+              };
+            })
           );
         }
       } catch (err) {

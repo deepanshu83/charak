@@ -3,7 +3,7 @@
 # ==============================================================================
 node_modules/
 /.pnp
-.pnp.js
+.pnp.*
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
@@ -21,15 +21,20 @@ node_modules/
 .env*.local
 *.env
 *.env.*
-!/.env.example
+*.env.bak
+*.env.local.bak
+*.env.local.audit_bak
+!.env.example
 
 # ==============================================================================
-# Next.js Build Outputs & Caches
+# Next.js, Vercel & Turbopack
 # ==============================================================================
 .next/
 out/
 build/
 dist/
+.turbo/
+.vercel/
 *.tsbuildinfo
 next-env.d.ts
 
@@ -75,16 +80,17 @@ coverage/
 .nyc_output/
 
 # ==============================================================================
-# Agent Scratchpads & Temporary Artifacts
+# Agent Scratchpads, AI Tools & Supabase Temporary Artifacts
 # ==============================================================================
 .agents/
 .gemini/
 scratch/
 tmp/
 temp/
+supabase/.temp/
 
 # ==============================================================================
-# Certificates & Private Keys
+# Certificates, Keys & Private Credentials
 # ==============================================================================
 *.pem
 *.key

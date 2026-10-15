@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import BrandHeader from "@/components/ui/BrandHeader";
 import ProductListing from "@/components/catalog/ProductListing";
 
@@ -22,7 +23,9 @@ export const metadata: Metadata = {
 export default function ProductsPage() {
   return (
     <BrandHeader>
-      <ProductListing />
+      <Suspense fallback={<div style={{ minHeight: "60vh", background: "#fbfaf6" }} />}>
+        <ProductListing />
+      </Suspense>
     </BrandHeader>
   );
 }

@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { fetchGalleryItems } from "@/lib/galleryService";
 
 interface GalleryCard {
@@ -9,6 +11,12 @@ interface GalleryCard {
   cat: "therapy" | "clinic" | "herbs" | string;
   image: string;
   alt: string;
+}
+
+interface GalleryProps {
+  limit?: number;
+  showTabs?: boolean;
+  showViewMore?: boolean;
 }
 
 const DEFAULT_GALLERY: GalleryCard[] = [
@@ -19,7 +27,11 @@ const DEFAULT_GALLERY: GalleryCard[] = [
   { id: "g5", cat: "clinic", image: "/images/g5.jpg", alt: "Herbal dispensary" },
 ];
 
-export default function Gallery() {
+export default function Gallery({
+  limit,
+  showTabs = true,
+  showViewMore = false,
+}: GalleryProps = {}) {
   const [items, setItems] = useState<GalleryCard[]>(DEFAULT_GALLERY);
   const [filter, setFilter] = useState<string>("all");
   const [activeImage, setActiveImage] = useState<string | null>(null);
@@ -50,6 +62,7 @@ export default function Gallery() {
   }, []);
 
   const filtered = items.filter((item) => filter === "all" || item.cat === filter);
+  const displayedItems = limit ? filtered.slice(0, limit) : filtered;
 
   return (
     <section className="wrap" id="gallery">
@@ -58,56 +71,73 @@ export default function Gallery() {
         <h2>A glimpse of Charak</h2>
       </div>
 
-      <div className="gtabs" id="gtabs">
-        <button
-          className={filter === "all" ? "on" : ""}
-          onClick={() => setFilter("all")}
-          type="button"
-        >
-          All
-        </button>
-        <button
-          className={filter === "therapy" ? "on" : ""}
-          onClick={() => setFilter("therapy")}
-          type="button"
-        >
-          Therapies
-        </button>
-        <button
-          className={filter === "clinic" ? "on" : ""}
-          onClick={() => setFilter("clinic")}
-          type="button"
-        >
-          Clinic
-        </button>
-        <button
-          className={filter === "herbs" ? "on" : ""}
-          onClick={() => setFilter("herbs")}
-          type="button"
-        >
-          Herbs
-        </button>
-      </div>
-
-      <div className="ggrid" id="ggrid">
-        {filtered.map((item) => (
-          <figure
-            key={item.id}
-            className="g"
-            data-cat={item.cat}
-            onClick={() => setActiveImage(item.image)}
+      {showTabs && (
+        <div className="gtabs" id="gtabs">
+          <button
+            className={filter === "all" ? "on" : ""}
+            onClick={() => setFilter("all")}
+            type="button"
           >
-            <Image
-              src={item.image}
-              alt={item.alt}
-              width={300}
-              height={400}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              loading="lazy"
-            />
-          </figure>
-        ))}
-      </div>
+            All
+          </button>
+          <button
+            className={filter === "therapy" ? "on" : ""}
+            onClick={() => setFilter("therapy")}
+            type="button"
+          >
+            Therapies
+          </button>
+          <button
+            className={filter === "clinic" ? "on" : ""}
+            onClick={() => setFilter("clinic")}
+            type="button"
+          >
+            Clinic
+          </button>
+          <button
+            className={filter === "herbs" ? "on" : ""}
+            onClick={() => setFilter("herbs")}
+            type="button"
+          >
+            Herbs
+          </button>
+        </div>
+      )}
+
+      {displayedItems.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "48px 20px", color: "var(--muted)" }}>
+          <p style={{ fontSize: "1rem" }}>No photographs found in this category currently.</p>
+        </div>
+      ) : (
+        <div className="ggrid" id="ggrid">
+          {displayedItems.map((item) => (
+            <figure
+              key={item.id}
+              className="g"
+              data-cat={item.cat}
+              onClick={() => setActiveImage(item.image)}
+            >
+              <Image
+                src={item.image}
+                alt={item.alt}
+                width={300}
+                height={400}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                loading="lazy"
+              />
+            </figure>
+          ))}
+        </div>
+      )}
+
+      {showViewMore && (
+        <div style={{ textAlign: "center", marginTop: "36px" }}>
+          <Link href="/gallery" className="btn sm">
+            <span>View More Photos</span>
+            <ArrowRight size={14} />
+          </Link>
+        </div>
+      )}
 
       {activeImage && (
         <div className="lb open" onClick={() => setActiveImage(null)}>

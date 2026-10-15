@@ -9,6 +9,7 @@ import { fetchDoctorBySlug, fetchDoctors } from "@/lib/doctorService";
 import {
   Stethoscope,
   Calendar,
+  Clock,
   ArrowLeft,
   UserCheck,
   MapPin,
@@ -89,7 +90,7 @@ export default async function DoctorDetailPage({ params }: PageProps) {
       <Navbar />
       <main style={{ minHeight: "80vh", paddingTop: "20px" }}>
         {/* Breadcrumb Header */}
-        <section style={{ background: "rgba(24, 66, 50, 0.04)", padding: "40px 0 30px" }}>
+        <section style={{ padding: "40px 0 20px" }}>
           <div className="wrap">
             <Link
               href="/doctors"
@@ -130,7 +131,7 @@ export default async function DoctorDetailPage({ params }: PageProps) {
         </section>
 
         {/* Doctor Detail Section */}
-        <section style={{ padding: "50px 0 80px" }}>
+        <section style={{ padding: "30px 0 80px" }}>
           <div className="wrap split-grid">
             {/* Doctor Photo */}
             <div>
@@ -174,7 +175,7 @@ export default async function DoctorDetailPage({ params }: PageProps) {
               {/* Consultation Card */}
               <div
                 style={{
-                  background: "#ffffff",
+                  background: "var(--cream-card)",
                   borderRadius: "18px",
                   border: "1px solid var(--border)",
                   padding: "24px",
@@ -185,9 +186,38 @@ export default async function DoctorDetailPage({ params }: PageProps) {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
                   <span style={{ fontSize: "0.9rem", color: "var(--ink-light)" }}>Consultation Fee:</span>
                   <strong style={{ fontSize: "1.4rem", color: "var(--green)" }}>
-                    ₹{doctor.consultationFee.toLocaleString("en-IN")}
+                    ₹{(doctor.consultationFee ?? 1200).toLocaleString("en-IN")}
                   </strong>
                 </div>
+
+                {(doctor.availability || doctor.timings) && (
+                  <div
+                    style={{
+                      background: "rgba(24, 66, 50, 0.05)",
+                      borderRadius: "12px",
+                      padding: "12px 14px",
+                      marginBottom: "16px",
+                      fontSize: "0.85rem",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "6px",
+                      border: "1px solid rgba(24, 66, 50, 0.08)",
+                    }}
+                  >
+                    {doctor.availability && (
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "var(--green)", fontWeight: 600 }}>
+                        <Calendar size={14} color="var(--gold)" />
+                        <span>Availability: <b style={{ color: "var(--green)" }}>{doctor.availability}</b></span>
+                      </div>
+                    )}
+                    {doctor.timings && (
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "var(--ink-light)" }}>
+                        <Clock size={14} color="var(--gold)" />
+                        <span>Timings: <b>{doctor.timings}</b></span>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <Link
                   href={`/appointment?doctor=${doctor.id}`}
@@ -201,7 +231,7 @@ export default async function DoctorDetailPage({ params }: PageProps) {
                   }}
                 >
                   <Calendar size={16} />
-                  <span>Book Appointment with {doctor.name.split(" ")[0]}</span>
+                  <span>Book Appointment with {doctor.name ? doctor.name.split(" ")[0] : "Doctor"}</span>
                 </Link>
               </div>
             </div>
@@ -271,7 +301,7 @@ export default async function DoctorDetailPage({ params }: PageProps) {
                   gap: "16px",
                   marginTop: "28px",
                   padding: "20px",
-                  background: "rgba(24, 66, 50, 0.03)",
+                  background: "var(--cream-card)",
                   borderRadius: "16px",
                   border: "1px solid var(--border)",
                 }}

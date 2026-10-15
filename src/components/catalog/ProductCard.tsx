@@ -68,7 +68,7 @@ export default function ProductCard({ product }: { product: Product }) {
           <div className="mvp-price-wrap">
             <span className="mvp-price-curr">₹</span>
             <strong className="mvp-price-val">
-              {product.price.toLocaleString("en-IN")}
+              {(product.price ?? 0).toLocaleString("en-IN")}
             </strong>
           </div>
 

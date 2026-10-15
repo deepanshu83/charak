@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { type NextRequest } from "next/server";
 import type { Database } from "@/types/database.types";
+import { verifyAdminSessionToken, WHITELISTED_ADMIN_EMAILS } from "@/lib/adminSessionToken";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey =
@@ -32,6 +33,7 @@ const registeredAdminEmails = new Set<string>([
   "admin@charakayurvedapilani.com",
   "admin@charak.com",
   "deepanshu@charak.com",
+  ...(process.env.ADMIN_EMAIL ? [process.env.ADMIN_EMAIL.toLowerCase().trim()] : []),
 ]);
 
 // Test token for test suites and automated verification
@@ -148,7 +150,7 @@ export async function verifyAdminRequest(
     console.error("[Admin Auth] Verification error:", err);
   }
 
-  // Check for admin session cookie
+  // Check for cryptographically signed admin session cookie
   let adminSessionCookie: string | null = null;
   if (request && "cookies" in request) {
     adminSessionCookie = (request as NextRequest).cookies.get("charak_admin_session")?.value || null;
@@ -162,22 +164,37 @@ export async function verifyAdminRequest(
     }
   }
 
-  if (adminSessionCookie === "authenticated_admin") {
-    return {
-      authorized: true,
-      status: 200,
-      user: {
-        id: "00000000-0000-4000-a000-000000000001",
-        email: "admin@charakayurvedapilani.com",
-      },
-      adminRecord: {
-        id: "adm-1",
-        userId: "00000000-0000-4000-a000-000000000001",
-        email: "admin@charakayurvedapilani.com",
-        role: "admin",
-        active: true,
-      },
-    };
+  // Also check standard request Cookie header directly (crucial for App Router route handlers)
+  if (!adminSessionCookie && request) {
+    const rawCookie = request.headers.get("cookie") || "";
+    const match = rawCookie.match(/(?:^|;\s*)charak_admin_session=([^;]+)/);
+    if (match) {
+      adminSessionCookie = decodeURIComponent(match[1].trim());
+    }
+  }
+
+  if (adminSessionCookie) {
+    const sessionVerification = await verifyAdminSessionToken(adminSessionCookie);
+    if (sessionVerification.valid && sessionVerification.email) {
+      const verifiedEmail = sessionVerification.email.toLowerCase();
+      if (registeredAdminEmails.has(verifiedEmail) || WHITELISTED_ADMIN_EMAILS.has(verifiedEmail)) {
+        return {
+          authorized: true,
+          status: 200,
+          user: {
+            id: "00000000-0000-4000-a000-000000000001",
+            email: verifiedEmail,
+          },
+          adminRecord: {
+            id: "adm-session-1",
+            userId: "00000000-0000-4000-a000-000000000001",
+            email: verifiedEmail,
+            role: "admin",
+            active: true,
+          },
+        };
+      }
+    }
   }
 
   // If no user could be verified

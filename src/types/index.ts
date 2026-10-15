@@ -100,6 +100,8 @@ export interface Doctor {
   experience: string;
   bio?: string;
   detailedBio?: string;
+  availability?: string;
+  timings?: string;
   location: string;
   image: string;
   storagePath?: string;

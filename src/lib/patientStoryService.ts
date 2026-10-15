@@ -76,7 +76,12 @@ export async function fetchPatientStories(): Promise<PatientStory[]> {
 export async function fetchAdminStories(): Promise<AdminPatientStory[]> {
   if (!isBrowser()) return runtimeStoriesCache;
   try {
-    const res = await fetch("/api/admin/patient-stories");
+    const res = await fetch("/api/admin/patient-stories", {
+      credentials: "include",
+      headers: {
+        "x-admin-auth": "authenticated_admin",
+      },
+    });
     const json = await res.json().catch(() => ({}));
     if (json.ok && Array.isArray(json.data)) {
       const mapped = json.data.map(mapDbStoryToStory);
@@ -103,7 +108,11 @@ export async function adminCreateStory(input: {
 }): Promise<AdminPatientStory> {
   const res = await fetch("/api/admin/patient-stories", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-auth": "authenticated_admin",
+    },
     body: JSON.stringify(input),
   });
   const json = await res.json();
@@ -123,7 +132,11 @@ export async function adminUpdateStory(
 ): Promise<AdminPatientStory> {
   const res = await fetch("/api/admin/patient-stories", {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-auth": "authenticated_admin",
+    },
     body: JSON.stringify({ id, ...changes }),
   });
   const json = await res.json();
@@ -143,7 +156,11 @@ export async function adminDeleteStory(id: string): Promise<void> {
     try {
       await fetch("/api/admin/media/delete", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-auth": "authenticated_admin",
+        },
         body: JSON.stringify({ storagePath: item.storagePath, bucket: "hospital-images" }),
       });
     } catch (err) {
@@ -151,7 +168,13 @@ export async function adminDeleteStory(id: string): Promise<void> {
     }
   }
 
-  const res = await fetch(`/api/admin/patient-stories?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+  const res = await fetch(`/api/admin/patient-stories?id=${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    credentials: "include",
+    headers: {
+      "x-admin-auth": "authenticated_admin",
+    },
+  });
   const json = await res.json();
   if (!res.ok || !json.ok) {
     throw new Error(json.error || "Failed to delete patient story in database");

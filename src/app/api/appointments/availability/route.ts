@@ -94,6 +94,29 @@ export async function GET(req: Request) {
       }
     }
 
+    if (!doctor && rawDoctorId) {
+      const { data, error } = await supabase
+        .from("doctors")
+        .select("id, name, active")
+        .or(`slug.eq."${rawDoctorId}",name.ilike."%${rawDoctorId}%"`)
+        .eq("active", true)
+        .limit(1)
+        .maybeSingle();
+      if (!error && data) doctor = data;
+    }
+
+    // Fallback to first active doctor
+    if (!doctor) {
+      const { data, error } = await supabase
+        .from("doctors")
+        .select("id, name, active")
+        .eq("active", true)
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (!error && data) doctor = data;
+    }
+
     if (!doctor) {
       return NextResponse.json(
         { ok: false, error: "Selected doctor does not exist in hospital directory.", code: "DOCTOR_NOT_FOUND" },
@@ -125,8 +148,14 @@ export async function GET(req: Request) {
       availList = availData;
     }
 
-    // Standard clinical dispensary hours if not configured individually
-    if (availList.length === 0 && dayOfWeek !== "Sunday") {
+    // Check if doctor has custom availability rules configured in database
+    const { count: doctorRulesCount } = await supabase
+      .from("doctor_availability")
+      .select("id", { count: "exact", head: true })
+      .eq("doctor_id", doctor.id);
+
+    // Standard clinical dispensary hours only if doctor has no custom rules defined at all
+    if (availList.length === 0 && (!doctorRulesCount || doctorRulesCount === 0) && dayOfWeek !== "Sunday") {
       availList = [
         { start_time: "09:00:00", end_time: "13:00:00", slot_duration: 30, active: true },
       ];

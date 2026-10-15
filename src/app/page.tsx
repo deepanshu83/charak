@@ -10,7 +10,7 @@ import HealingJourney from "@/components/HealingJourney";
 import Approach from "@/components/Approach";
 import Reviews from "@/components/Reviews";
 import Gallery from "@/components/Gallery";
-import FAQ from "@/components/FAQ";
+import HomeBlogPreview from "@/components/HomeBlogPreview";
 import ContactForm from "@/components/ContactForm";
 import Footer from "@/components/Footer";
 import MobileBar from "@/components/MobileBar";
@@ -29,8 +29,8 @@ export default function Home() {
         <HealingJourney />
         <Approach />
         <Reviews />
-        <Gallery />
-        <FAQ />
+        <Gallery limit={4} showTabs={false} showViewMore={true} />
+        <HomeBlogPreview />
         <ContactForm selectedConcern={selectedConcern} />
       </main>
       <Footer />

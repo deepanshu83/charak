@@ -4,7 +4,7 @@ import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MobileBar from "@/components/MobileBar";
-import { Sparkles, CheckCircle2, ShieldCheck, HeartHandshake, Compass, Leaf, Calendar } from "lucide-react";
+import { CheckCircle2, ShieldCheck, HeartHandshake, Compass, Leaf, Calendar } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Our Approach | Charak Ayurveda Pilani",
@@ -41,17 +41,12 @@ export default function OurApproachPage() {
       <Navbar />
       <main style={{ minHeight: "80vh", paddingTop: "20px" }}>
         {/* Page Hero Banner */}
-        <section style={{ background: "rgba(24, 66, 50, 0.04)", padding: "60px 0 40px" }}>
+        <section style={{ padding: "60px 0 30px" }}>
           <div className="wrap">
-            <div style={{ maxWidth: "760px", margin: "0 auto", textAlign: "center" }}>
-              <div className="tag-badge">
-                <Sparkles size={14} />
-                <span>Philosophy & Tradition</span>
-              </div>
-              <h1 style={{ fontSize: "clamp(2.4rem, 5vw, 3.8rem)", marginBottom: "16px" }}>
-                Our Approach to Healing
-              </h1>
-              <p style={{ color: "var(--ink-light)", fontSize: "1.15rem", lineHeight: 1.7 }}>
+            <div className="head">
+              <span className="tag">Philosophy &amp; Tradition</span>
+              <h1>Our Approach to Healing</h1>
+              <p>
                 Named with deep reverence after Acharya Charak, our clinic adheres strictly to classical Ayurvedic principles — treating the individual, not just the disease.
               </p>
             </div>
@@ -59,7 +54,7 @@ export default function OurApproachPage() {
         </section>
 
         {/* Philosophy Intro */}
-        <section style={{ padding: "60px 0" }}>
+        <section style={{ padding: "40px 0 60px" }}>
           <div className="wrap split-grid">
             <div className="approach-frame">
               <Image
@@ -72,7 +67,7 @@ export default function OurApproachPage() {
             </div>
 
             <div>
-              <span className="tag-badge">Vedic Heritage</span>
+              <span className="tag">Vedic Heritage</span>
               <h2 style={{ fontSize: "2.4rem", marginBottom: "16px" }}>
                 Root Cause Healing Over Symptom Suppression
               </h2>
@@ -90,7 +85,7 @@ export default function OurApproachPage() {
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", color: "var(--ink)" }}>
                   <CheckCircle2 size={18} color="var(--gold)" />
-                  <span>Personalized diet and lifestyle (Dinacharya & Ritucharya)</span>
+                  <span>Personalized diet and lifestyle (Dinacharya &amp; Ritucharya)</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px", color: "var(--ink)" }}>
                   <CheckCircle2 size={18} color="var(--gold)" />
@@ -102,10 +97,10 @@ export default function OurApproachPage() {
         </section>
 
         {/* The 4 Clinical Pillars */}
-        <section style={{ background: "rgba(24, 66, 50, 0.02)", padding: "60px 0" }}>
+        <section style={{ padding: "40px 0 80px" }}>
           <div className="wrap">
-            <div className="sec-head">
-              <span className="tag-badge">Methodology</span>
+            <div className="head">
+              <span className="tag">Methodology</span>
               <h2>Four Pillars of Our Clinical Practice</h2>
               <p>Every consultation and treatment protocol is guided by these four foundational standards.</p>
             </div>
@@ -117,7 +112,7 @@ export default function OurApproachPage() {
                   <div
                     key={i}
                     style={{
-                      background: "#ffffff",
+                      background: "var(--cream-card)",
                       borderRadius: "16px",
                       padding: "32px 24px",
                       border: "1px solid var(--border)",

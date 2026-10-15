@@ -6,9 +6,9 @@ import Footer from "@/components/Footer";
 import MobileBar from "@/components/MobileBar";
 import { fetchDoctors } from "@/lib/doctorService";
 import {
-  Sparkles,
   Stethoscope,
   Calendar,
+  Clock,
   ArrowRight,
   UserCheck,
 } from "lucide-react";
@@ -30,17 +30,12 @@ export default async function DoctorsPage() {
       <Navbar />
       <main style={{ minHeight: "80vh", paddingTop: "20px" }}>
         {/* Page Hero Banner */}
-        <section style={{ background: "rgba(24, 66, 50, 0.04)", padding: "60px 0 40px" }}>
+        <section style={{ padding: "60px 0 30px" }}>
           <div className="wrap">
-            <div style={{ maxWidth: "760px", margin: "0 auto", textAlign: "center" }}>
-              <div className="tag-badge">
-                <Sparkles size={14} />
-                <span>Expert Medical Leadership</span>
-              </div>
-              <h1 style={{ fontSize: "clamp(2.4rem, 5vw, 3.8rem)", marginBottom: "16px" }}>
-                Our Ayurvedic Physicians
-              </h1>
-              <p style={{ color: "var(--ink-light)", fontSize: "1.15rem", lineHeight: 1.7 }}>
+            <div className="head">
+              <span className="tag">Expert Medical Leadership</span>
+              <h1>Our Ayurvedic Physicians</h1>
+              <p>
                 Dedicated to restoring vibrant health through classical Vedic pulse diagnosis, compassionate clinical care, and time-tested natural healing protocols.
               </p>
             </div>
@@ -48,14 +43,14 @@ export default async function DoctorsPage() {
         </section>
 
         {/* Doctors Directory Grid */}
-        <section style={{ padding: "60px 0 80px" }}>
+        <section style={{ padding: "40px 0 80px" }}>
           <div className="wrap">
             {doctors.length === 0 ? (
               <div
                 style={{
                   textAlign: "center",
                   padding: "60px 20px",
-                  background: "#ffffff",
+                  background: "var(--cream-card)",
                   borderRadius: "20px",
                   border: "1px dashed var(--border)",
                   maxWidth: "540px",
@@ -90,7 +85,7 @@ export default async function DoctorsPage() {
                     <div
                       key={doctor.id}
                       style={{
-                        background: "#ffffff",
+                        background: "var(--cream-card)",
                         borderRadius: "20px",
                         border: "1px solid var(--border)",
                         boxShadow: "var(--shadow-sm)",
@@ -187,12 +182,42 @@ export default async function DoctorsPage() {
                               fontSize: "0.92rem",
                               color: "var(--ink-light)",
                               lineHeight: 1.6,
-                              marginBottom: "20px",
+                              marginBottom: "16px",
                               flexGrow: 1,
                             }}
                           >
                             {doctor.bio}
                           </p>
+                        )}
+
+                        {/* Availability & Timings */}
+                        {(doctor.availability || doctor.timings) && (
+                          <div
+                            style={{
+                              background: "rgba(24, 66, 50, 0.05)",
+                              borderRadius: "12px",
+                              padding: "10px 14px",
+                              marginBottom: "16px",
+                              fontSize: "0.82rem",
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "5px",
+                              border: "1px solid rgba(24, 66, 50, 0.08)",
+                            }}
+                          >
+                            {doctor.availability && (
+                              <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--green)", fontWeight: 600 }}>
+                                <Calendar size={13} color="var(--gold)" />
+                                <span>Availability: <b style={{ color: "var(--green)" }}>{doctor.availability}</b></span>
+                              </div>
+                            )}
+                            {doctor.timings && (
+                              <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--ink-light)" }}>
+                                <Clock size={13} color="var(--gold)" />
+                                <span>Timings: <b>{doctor.timings}</b></span>
+                              </div>
+                            )}
+                          </div>
                         )}
 
                         {/* Actions */}

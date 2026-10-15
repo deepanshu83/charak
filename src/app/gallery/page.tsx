@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import Gallery from "@/components/Gallery";
 import Footer from "@/components/Footer";
 import MobileBar from "@/components/MobileBar";
-import { Sparkles, Calendar, Phone } from "lucide-react";
+import { Calendar, Phone } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Gallery | Charak Ayurveda Pilani",
@@ -18,17 +18,12 @@ export default function GalleryPage() {
       <Navbar />
       <main style={{ minHeight: "80vh", paddingTop: "20px" }}>
         {/* Page Hero Banner */}
-        <section style={{ background: "rgba(24, 66, 50, 0.04)", padding: "60px 0 40px" }}>
+        <section style={{ padding: "60px 0 30px" }}>
           <div className="wrap">
-            <div style={{ maxWidth: "760px", margin: "0 auto", textAlign: "center" }}>
-              <div className="tag-badge">
-                <Sparkles size={14} />
-                <span>Sanctuary &amp; Therapies</span>
-              </div>
-              <h1 style={{ fontSize: "clamp(2.4rem, 5vw, 3.8rem)", marginBottom: "16px" }}>
-                Clinic Gallery
-              </h1>
-              <p style={{ color: "var(--ink-light)", fontSize: "1.15rem", lineHeight: 1.7 }}>
+            <div className="head">
+              <span className="tag">Sanctuary &amp; Therapies</span>
+              <h1>Clinic Gallery</h1>
+              <p>
                 Take a visual tour of our healing spaces, time-honored Panchakarma therapies, and sacred medicinal herbs at Charak Ayurveda in Vidyavihar, Pilani.
               </p>
             </div>
