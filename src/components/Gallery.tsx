@@ -19,13 +19,7 @@ interface GalleryProps {
   showViewMore?: boolean;
 }
 
-const DEFAULT_GALLERY: GalleryCard[] = [
-  { id: "g1", cat: "therapy", image: "/images/g1.jpg", alt: "Panchakarma therapy" },
-  { id: "g2", cat: "clinic", image: "/images/g2.jpg", alt: "Clinic sanctuary" },
-  { id: "g3", cat: "herbs", image: "/images/g3.jpg", alt: "Classical Ayurvedic herbs" },
-  { id: "g4", cat: "therapy", image: "/images/g4.jpg", alt: "Therapeutic massage" },
-  { id: "g5", cat: "clinic", image: "/images/g5.jpg", alt: "Herbal dispensary" },
-];
+const DEFAULT_GALLERY: GalleryCard[] = [];
 
 export default function Gallery({
   limit,
@@ -50,6 +44,8 @@ export default function Gallery({
               alt: item.caption || item.title,
             }))
           );
+        } else if (isMounted) {
+          setItems([]);
         }
       } catch (err) {
         console.warn("[Gallery] Notice loading from database:", err);
@@ -60,6 +56,11 @@ export default function Gallery({
       isMounted = false;
     };
   }, []);
+
+  // If on home page and no photos uploaded yet, hide gallery section cleanly
+  if (showViewMore && items.length === 0) {
+    return null;
+  }
 
   const filtered = items.filter((item) => filter === "all" || item.cat === filter);
   const displayedItems = limit ? filtered.slice(0, limit) : filtered;
@@ -105,8 +106,23 @@ export default function Gallery({
       )}
 
       {displayedItems.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "48px 20px", color: "var(--muted)" }}>
-          <p style={{ fontSize: "1rem" }}>No photographs found in this category currently.</p>
+        <div
+          style={{
+            textAlign: "center",
+            padding: "54px 20px",
+            background: "var(--cream-card)",
+            borderRadius: "20px",
+            border: "1px dashed var(--border)",
+            maxWidth: "560px",
+            margin: "0 auto",
+          }}
+        >
+          <h3 style={{ fontSize: "1.25rem", marginBottom: "8px", color: "var(--green)" }}>
+            New photographs coming soon
+          </h3>
+          <p style={{ color: "var(--ink-light)", fontSize: "0.95rem", lineHeight: 1.6 }}>
+            Our clinic healing spaces, Panchakarma therapy suites, and herbal dispensary photographs are currently being updated.
+          </p>
         </div>
       ) : (
         <div className="ggrid" id="ggrid">

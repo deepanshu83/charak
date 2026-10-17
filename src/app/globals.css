@@ -1260,7 +1260,7 @@ footer p {
     box-shadow: 14px 14px 0 rgba(192, 138, 62, 0.28);
   }
   .tgrid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
   .steps {
     grid-template-columns: repeat(4, 1fr);

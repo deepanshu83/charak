@@ -124,6 +124,21 @@ export interface Treatment {
   active?: boolean;
 }
 
+export interface BlogFAQ {
+  q: string;
+  a: string;
+}
+
+export interface BlogSource {
+  name: string;
+  url?: string;
+}
+
+export interface BlogInternalLink {
+  label: string;
+  href: string;
+}
+
 export interface Blog {
   id: string;
   title: string;
@@ -139,6 +154,14 @@ export interface Blog {
   storagePath?: string;
   published?: boolean;
   publishedAt?: string | null;
+  metaTitle?: string;
+  metaDescription?: string;
+  primaryKeyword?: string;
+  secondaryKeywords?: string[];
+  searchIntent?: string;
+  faqs?: BlogFAQ[];
+  sources?: BlogSource[];
+  internalLinks?: BlogInternalLink[];
 }
 
 export interface PatientStory {

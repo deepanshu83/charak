@@ -8,9 +8,9 @@ import { fetchBlogs } from "@/lib/blogService";
 import { Clock, ArrowRight, BookOpen } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Ayurveda Health Blog | Charak Ayurveda Pilani",
+  title: "Ayurveda Health Blogs & Clinical Guides | Charak Ayurveda Pilani",
   description:
-    "Educational articles on Tridoshas, Panchakarma detox, natural joint care, Dinacharya daily routines, and holistic Ayurvedic skin care.",
+    "10 evidence-aware Ayurvedic health guides on Panchakarma, Skin Care, Infertility, Joint Pain, Gut Health, and Stress Management by doctors at Charak Ayurveda Pilani.",
 };
 
 export default async function BlogListPage() {
@@ -130,6 +130,12 @@ export default async function BlogListPage() {
                           </span>
                         </div>
                       </div>
+
+                      {post.author && (
+                        <div style={{ fontSize: "0.8rem", color: "var(--terra)", fontWeight: 500, marginBottom: "8px" }}>
+                          {post.author}
+                        </div>
+                      )}
 
                       <h2
                         style={{

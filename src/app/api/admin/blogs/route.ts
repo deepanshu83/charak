@@ -22,24 +22,25 @@ interface FallbackBlog {
   updated_at: string;
 }
 
-let fallbackBlogs: FallbackBlog[] = [
-  {
-    id: "b1",
-    title: "Understanding Tridoshas: Vata, Pitta, and Kapha",
-    slug: "understanding-tridoshas-vata-pitta-kapha",
-    excerpt: "Discover how the three biological humors govern physical constitution in classical Ayurveda.",
-    content: "According to the classical teachings of Acharya Charak in the Charaka Samhita, every individual is born with a unique constitutional blueprint termed Prakriti.",
-    category: "Tridoshas & Prakriti",
-    author: "Dr. Rajesh Sharma",
-    read_time: "5 min read",
-    featured_image: "/images/g3.jpg",
-    storage_path: null,
-    published: true,
-    published_at: "2026-10-10T10:00:00Z",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-];
+import { BLOG_POSTS } from "@/data/blogs";
+
+let fallbackBlogs: FallbackBlog[] = BLOG_POSTS.map((b) => ({
+  id: b.id,
+  title: b.title,
+  slug: b.slug,
+  excerpt: b.excerpt,
+  content: Array.isArray(b.content) ? b.content.join("\n\n") : (b.excerpt || ""),
+  category: b.category,
+  author: b.author,
+  read_time: b.readTime,
+  featured_image: b.featuredImage || null,
+  storage_path: b.storagePath || null,
+  published: b.published ?? true,
+  published_at: b.publishedAt || new Date().toISOString(),
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+}));
+
 
 function isSchemaCacheError(err?: { code?: string; message?: string } | null): boolean {
   if (!err) return false;
