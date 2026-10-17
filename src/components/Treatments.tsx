@@ -110,8 +110,8 @@ export default function Treatments({ onSelectConcern }: TreatmentsProps) {
               <Image
                 src={t.image}
                 alt={t.title}
-                width={300}
-                height={150}
+                width={360}
+                height={200}
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 loading="lazy"
               />

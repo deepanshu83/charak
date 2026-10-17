@@ -99,25 +99,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="admin-wrapper">
-      {/* Top Security & Session Notice Bar */}
-      <div className="admin-notice-bar">
-        <div className="wrap notice-content">
-          <div className="notice-left">
-            <ShieldCheck size={16} />
-            <span>
-              <strong>Secure Admin Console:</strong> Authenticated as{" "}
-              <span className="text-amber-300 font-medium">{adminEmail}</span> (Role: Admin)
-            </span>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <Link href="/" className="notice-exit-link" target="_blank">
-              <Home size={15} /> Exit to Public Website
-            </Link>
-          </div>
-        </div>
-      </div>
-
       {/* Clean Minimal Top Header */}
       <header className="admin-header">
         <div className="admin-header-inner">

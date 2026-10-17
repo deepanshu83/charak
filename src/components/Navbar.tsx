@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ShoppingBag, ShieldCheck } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 
 export default function Navbar() {
@@ -66,10 +66,6 @@ export default function Navbar() {
             <Link href="/appointment" className="btn sm" onClick={closeMenu}>
               Book Consultation
             </Link>
-            <Link href="/admin" className="btn ghost sm" onClick={closeMenu}>
-              <ShieldCheck size={14} />
-              <span>Admin Portal</span>
-            </Link>
           </div>
         </nav>
 
@@ -87,15 +83,6 @@ export default function Navbar() {
 
           <Link href="/appointment" className="btn sm">
             Book Consultation
-          </Link>
-
-          <Link
-            href="/admin"
-            className="nav-admin-btn"
-            id="nav-admin-btn"
-            title="Admin Portal"
-          >
-            Admin
           </Link>
         </div>
 

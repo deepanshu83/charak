@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Lock } from "lucide-react";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -10,7 +11,17 @@ export default function Footer() {
           Charak<em>Ayurveda</em>
         </Link>
         <p>Panchakarma, Skin Care, Joint Care &amp; Infertility Center</p>
-        <small>© {year} Charak Ayurveda. All rights reserved.</small>
+        <div className="footer-bottom-row">
+          <span>© {year} Charak Ayurveda. All rights reserved.</span>
+          <Link
+            href="/admin"
+            title="Clinic Staff Portal"
+            aria-label="Staff Portal"
+            className="footer-staff-lock"
+          >
+            <Lock size={11} strokeWidth={1.8} />
+          </Link>
+        </div>
       </div>
     </footer>
   );

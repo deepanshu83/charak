@@ -136,8 +136,8 @@ export default function Gallery({
               <Image
                 src={item.image}
                 alt={item.alt}
-                width={300}
-                height={400}
+                width={500}
+                height={375}
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 loading="lazy"
               />
