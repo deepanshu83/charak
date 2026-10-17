@@ -13,13 +13,14 @@ export default function Footer() {
         <p>Panchakarma, Skin Care, Joint Care &amp; Infertility Center</p>
         <div className="footer-bottom-row">
           <span>© {year} Charak Ayurveda. All rights reserved.</span>
+          <span className="footer-divider">•</span>
           <Link
             href="/admin"
-            title="Clinic Staff Portal"
-            aria-label="Staff Portal"
-            className="footer-staff-lock"
+            title="Doctor & Clinic Admin Portal"
+            className="footer-admin-link"
           >
-            <Lock size={11} strokeWidth={1.8} />
+            <Lock size={14} strokeWidth={2} />
+            <span>Admin Login</span>
           </Link>
         </div>
       </div>
