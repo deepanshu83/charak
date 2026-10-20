@@ -29,10 +29,14 @@ interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
+// Feature flags: set to true to show Products/Orders in admin navigation
+const SHOW_PRODUCTS = false;
+const SHOW_ORDERS = false;
+
 const navLinks = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/products", label: "Products", icon: Boxes },
-  { href: "/admin/orders", label: "Orders", icon: ClipboardList },
+  ...(SHOW_PRODUCTS ? [{ href: "/admin/products", label: "Products", icon: Boxes }] : []),
+  ...(SHOW_ORDERS ? [{ href: "/admin/orders", label: "Orders", icon: ClipboardList }] : []),
   { href: "/admin/appointments", label: "Appointments", icon: CalendarCheck },
   { href: "/admin/doctors", label: "Doctors", icon: Stethoscope },
   { href: "/admin/treatments", label: "Treatments", icon: HeartPulse },

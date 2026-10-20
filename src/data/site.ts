@@ -85,7 +85,7 @@ export const faqs = [
 
 export const treatmentCategories = [
   {
-    title: "1. THERAPIES",
+    title: "1. PANCHAKARMA",
     summary: "Authentic classical Panchakarma therapies and residential rejuvenating Ayurvedic retreat programs to cleanse cellular toxins and reboot vitality.",
     conditions: [
       "Panchakarma (Classical 5-fold detoxification)",

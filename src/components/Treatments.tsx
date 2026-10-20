@@ -14,7 +14,7 @@ interface TreatmentItem {
 const DEFAULT_TREATMENTS: TreatmentItem[] = [
   {
     num: "01",
-    title: "Therapies & Panchakarma",
+    title: "Panchakarma",
     desc: "Classical five-fold detox & 5-day / 7-day rejuvenating Ayurvedic retreats.",
     image: "/images/panchkaram.jpeg",
   },

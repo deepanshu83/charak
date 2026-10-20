@@ -22,6 +22,10 @@ import { fetchAdminOrders, subscribeOrders } from "@/lib/orderService";
 import { fetchAdminProducts, subscribeProducts } from "@/lib/productService";
 import type { Appointment, Order, Product } from "@/types";
 
+// Feature flags: hide UI sections temporarily without removing underlying logic
+const SHOW_PRODUCTS = false;
+const SHOW_ORDERS = false;
+
 export default function AdminDashboard() {
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -109,7 +113,7 @@ export default function AdminDashboard() {
         <div>
           <Badge variant="gold">Pilani Dispensary &bull; Operations</Badge>
           <h1 style={{ marginTop: "6px" }}>Hospital &amp; Dispensary Dashboard</h1>
-          <p>Real-time Supabase operations overview for patient appointments, orders, clinical care, and stock.</p>
+          <p>Real-time Supabase operations overview for patient appointments, consultations, and clinical care.</p>
         </div>
         <div className="header-quick-actions" style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <Button
@@ -120,11 +124,13 @@ export default function AdminDashboard() {
           >
             Refresh
           </Button>
-          <Link href="/admin/products">
-            <Button variant="primary" size="sm" icon={<Plus size={15} />}>
-              Add Product
-            </Button>
-          </Link>
+          {SHOW_PRODUCTS && (
+            <Link href="/admin/products">
+              <Button variant="primary" size="sm" icon={<Plus size={15} />}>
+                Add Product
+              </Button>
+            </Link>
+          )}
           <Link href="/appointment" target="_blank">
             <Button variant="ghost" size="sm" icon={<Eye size={15} />}>
               Test Booking
@@ -134,59 +140,72 @@ export default function AdminDashboard() {
       </div>
 
       {/* KPI Cards Grid */}
-      <div className="admin-kpi-grid">
-        {/* Card 1: Total Products */}
-        <div className="kpi-card">
-          <div className="kpi-header">
-            <span className="kpi-title">Formulations</span>
-            <div className="kpi-icon-wrap">
-              <Boxes size={20} />
+      <div
+        className="admin-kpi-grid"
+        style={{
+          gridTemplateColumns: (SHOW_PRODUCTS && SHOW_ORDERS)
+            ? undefined
+            : "repeat(auto-fit, minmax(220px, 1fr))",
+        }}
+      >
+        {/* Card 1: Total Products (Hidden temporarily) */}
+        {SHOW_PRODUCTS && (
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <span className="kpi-title">Formulations</span>
+              <div className="kpi-icon-wrap">
+                <Boxes size={20} />
+              </div>
+            </div>
+            <div className="kpi-value">{totalProducts}</div>
+            <div className="kpi-footer">
+              <span>
+                {activeProducts} active &bull; {outOfStockCount} out of stock
+              </span>
+              <Link href="/admin/products" className="kpi-link">
+                Manage →
+              </Link>
             </div>
           </div>
-          <div className="kpi-value">{totalProducts}</div>
-          <div className="kpi-footer">
-            <span>
-              {activeProducts} active &bull; {outOfStockCount} out of stock
-            </span>
-            <Link href="/admin/products" className="kpi-link">
-              Manage →
-            </Link>
-          </div>
-        </div>
+        )}
 
-        {/* Card 2: Total Orders */}
-        <div className="kpi-card">
-          <div className="kpi-header">
-            <span className="kpi-title">Dispensary Orders</span>
-            <div className="kpi-icon-wrap">
-              <ShoppingBag size={20} />
+        {/* Card 2: Total Orders (Hidden temporarily) */}
+        {SHOW_ORDERS && (
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <span className="kpi-title">Dispensary Orders</span>
+              <div className="kpi-icon-wrap">
+                <ShoppingBag size={20} />
+              </div>
+            </div>
+            <div className="kpi-value">{totalOrders}</div>
+            <div className="kpi-footer">
+              <span>₹{totalRevenue.toLocaleString("en-IN")} total volume</span>
+              <Link href="/admin/orders" className="kpi-link">
+                View orders →
+              </Link>
             </div>
           </div>
-          <div className="kpi-value">{totalOrders}</div>
-          <div className="kpi-footer">
-            <span>₹{totalRevenue.toLocaleString("en-IN")} total volume</span>
-            <Link href="/admin/orders" className="kpi-link">
-              View orders →
-            </Link>
-          </div>
-        </div>
+        )}
 
-        {/* Card 3: Pending Orders */}
-        <div className="kpi-card highlight-card">
-          <div className="kpi-header">
-            <span className="kpi-title">Pending Orders</span>
-            <div className="kpi-icon-wrap warning-icon">
-              <Clock size={20} />
+        {/* Card 3: Pending Orders (Hidden temporarily) */}
+        {SHOW_ORDERS && (
+          <div className="kpi-card highlight-card">
+            <div className="kpi-header">
+              <span className="kpi-title">Pending Orders</span>
+              <div className="kpi-icon-wrap warning-icon">
+                <Clock size={20} />
+              </div>
+            </div>
+            <div className="kpi-value">{pendingOrders}</div>
+            <div className="kpi-footer">
+              <span>{processingOrders} in processing</span>
+              <Link href="/admin/orders" className="kpi-link">
+                Fulfill →
+              </Link>
             </div>
           </div>
-          <div className="kpi-value">{pendingOrders}</div>
-          <div className="kpi-footer">
-            <span>{processingOrders} in processing</span>
-            <Link href="/admin/orders" className="kpi-link">
-              Fulfill →
-            </Link>
-          </div>
-        </div>
+        )}
 
         {/* Card 4: Today's Appointments */}
         <div className="kpi-card highlight-card">
@@ -207,6 +226,25 @@ export default function AdminDashboard() {
           </div>
         </div>
 
+        {/* Consultation KPI: Pending slots (Shown when orders are hidden) */}
+        {!SHOW_ORDERS && (
+          <div className="kpi-card highlight-card">
+            <div className="kpi-header">
+              <span className="kpi-title">Pending Consultations</span>
+              <div className="kpi-icon-wrap warning-icon">
+                <Clock size={20} />
+              </div>
+            </div>
+            <div className="kpi-value">{pendingAppointments}</div>
+            <div className="kpi-footer">
+              <span>Awaiting confirmation</span>
+              <Link href="/admin/appointments" className="kpi-link">
+                Review slots →
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* Card 5: Upcoming Appointments */}
         <div className="kpi-card">
           <div className="kpi-header">
@@ -223,10 +261,35 @@ export default function AdminDashboard() {
             </Link>
           </div>
         </div>
+
+        {/* Consultation KPI: All-time consultations (Shown when orders are hidden) */}
+        {!SHOW_ORDERS && (
+          <div className="kpi-card">
+            <div className="kpi-header">
+              <span className="kpi-title">Total Consultations</span>
+              <div className="kpi-icon-wrap">
+                <CheckCircle2 size={20} />
+              </div>
+            </div>
+            <div className="kpi-value">{totalAppointments}</div>
+            <div className="kpi-footer">
+              <span>Lifetime bookings recorded</span>
+              <Link href="/admin/appointments" className="kpi-link">
+                View history →
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* TODAY'S SCHEDULE & LOW-STOCK PRODUCTS (Specific Polish Additions) */}
-      <div className="dashboard-columns-grid" style={{ marginBottom: "28px" }}>
+      <div
+        className="dashboard-columns-grid"
+        style={{
+          marginBottom: "28px",
+          gridTemplateColumns: SHOW_PRODUCTS ? undefined : "1fr",
+        }}
+      >
         {/* Today's Schedule */}
         <Card className="dashboard-section-card">
           <div className="section-card-header">
@@ -281,132 +344,141 @@ export default function AdminDashboard() {
           )}
         </Card>
 
-        {/* Low-Stock Products Warning */}
-        <Card className="dashboard-section-card">
-          <div className="section-card-header">
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <AlertTriangle size={18} color="var(--terra)" />
-                <h2 style={{ margin: 0 }}>Low-Stock Formulations</h2>
+        {/* Low-Stock Products Warning (Hidden temporarily) */}
+        {SHOW_PRODUCTS && (
+          <Card className="dashboard-section-card">
+            <div className="section-card-header">
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <AlertTriangle size={18} color="var(--terra)" />
+                  <h2 style={{ margin: 0 }}>Low-Stock Formulations</h2>
+                </div>
+                <p>Items with &le; 5 units requiring restock</p>
               </div>
-              <p>Items with &le; 5 units requiring restock</p>
+              <Link href="/admin/products" className="view-all-link">
+                Inventory ({products.length}) <ArrowRight size={14} />
+              </Link>
             </div>
-            <Link href="/admin/products" className="view-all-link">
-              Inventory ({products.length}) <ArrowRight size={14} />
-            </Link>
-          </div>
 
-          {lowStockProducts.length === 0 ? (
-            <div className="empty-mini-state" style={{ padding: "28px 16px", textAlign: "center", color: "var(--green)" }}>
-              <CheckCircle2 size={28} style={{ opacity: 0.7, margin: "0 auto 8px", color: "var(--green)" }} />
-              <p style={{ margin: 0, fontWeight: 500 }}>All herbal formulations well-stocked (&gt; 5 units in dispensary).</p>
-            </div>
-          ) : (
-            <div className="admin-table-wrapper">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Product</th>
-                    <th>Category</th>
-                    <th>Stock Remaining</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lowStockProducts.map((p) => (
-                    <tr key={p.id}>
-                      <td>
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                          {p.image && (
-                            <Image
-                              src={p.image}
-                              alt={p.name}
-                              width={32}
-                              height={32}
-                              style={{ borderRadius: "6px", objectFit: "cover" }}
-                            />
-                          )}
-                          <strong style={{ fontSize: "0.9rem" }}>{p.name}</strong>
-                        </div>
-                      </td>
-                      <td>
-                        <span style={{ fontSize: "0.82rem", color: "var(--ink-light)" }}>{p.category}</span>
-                      </td>
-                      <td>
-                        {p.stock <= 0 ? (
-                          <Badge variant="danger" size="sm">Out of stock</Badge>
-                        ) : (
-                          <Badge variant="warning" size="sm">{p.stock} left</Badge>
-                        )}
-                      </td>
-                      <td>
-                        <Link href="/admin/products">
-                          <Button variant="outline" size="sm">
-                            Restock
-                          </Button>
-                        </Link>
-                      </td>
+            {lowStockProducts.length === 0 ? (
+              <div className="empty-mini-state" style={{ padding: "28px 16px", textAlign: "center", color: "var(--green)" }}>
+                <CheckCircle2 size={28} style={{ opacity: 0.7, margin: "0 auto 8px", color: "var(--green)" }} />
+                <p style={{ margin: 0, fontWeight: 500 }}>All herbal formulations well-stocked (&gt; 5 units in dispensary).</p>
+              </div>
+            ) : (
+              <div className="admin-table-wrapper">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Category</th>
+                      <th>Stock Remaining</th>
+                      <th>Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </Card>
+                  </thead>
+                  <tbody>
+                    {lowStockProducts.map((p) => (
+                      <tr key={p.id}>
+                        <td>
+                          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                            {p.image && (
+                              <Image
+                                src={p.image}
+                                alt={p.name}
+                                width={32}
+                                height={32}
+                                style={{ borderRadius: "6px", objectFit: "cover" }}
+                              />
+                            )}
+                            <strong style={{ fontSize: "0.9rem" }}>{p.name}</strong>
+                          </div>
+                        </td>
+                        <td>
+                          <span style={{ fontSize: "0.82rem", color: "var(--ink-light)" }}>{p.category}</span>
+                        </td>
+                        <td>
+                          {p.stock <= 0 ? (
+                            <Badge variant="danger" size="sm">Out of stock</Badge>
+                          ) : (
+                            <Badge variant="warning" size="sm">{p.stock} left</Badge>
+                          )}
+                        </td>
+                        <td>
+                          <Link href="/admin/products">
+                            <Button variant="outline" size="sm">
+                              Restock
+                            </Button>
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+        )}
       </div>
 
-      {/* Two Column Quick Previews */}
-      <div className="dashboard-columns-grid">
-        {/* Recent Orders Preview */}
-        <div className="dashboard-section-card">
-          <div className="section-card-header">
-            <div>
-              <h2>Recent Dispensary Orders</h2>
-              <p>Registered customer dispensary orders</p>
+      {/* Quick Previews Section */}
+      <div
+        className="dashboard-columns-grid"
+        style={{
+          gridTemplateColumns: SHOW_ORDERS ? undefined : "1fr",
+        }}
+      >
+        {/* Recent Orders Preview (Hidden temporarily) */}
+        {SHOW_ORDERS && (
+          <div className="dashboard-section-card">
+            <div className="section-card-header">
+              <div>
+                <h2>Recent Dispensary Orders</h2>
+                <p>Registered customer dispensary orders</p>
+              </div>
+              <Link href="/admin/orders" className="view-all-link">
+                View All ({orders.length}) <ArrowRight size={14} />
+              </Link>
             </div>
-            <Link href="/admin/orders" className="view-all-link">
-              View All ({orders.length}) <ArrowRight size={14} />
-            </Link>
-          </div>
 
-          {recentOrders.length === 0 ? (
-            <div className="empty-mini-state">No orders placed yet.</div>
-          ) : (
-            <div className="admin-table-wrapper">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Items</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentOrders.map((order) => (
-                    <tr key={order.id}>
-                      <td>
-                        <strong>{order.id}</strong>
-                      </td>
-                      <td>
-                        <div>{order.customerName}</div>
-                        <small className="text-muted">{order.phone}</small>
-                      </td>
-                      <td>{order.items.length} items</td>
-                      <td>
-                        <strong>₹{order.total.toLocaleString("en-IN")}</strong>
-                      </td>
-                      <td>
-                        <StatusBadge status={order.status} />
-                      </td>
+            {recentOrders.length === 0 ? (
+              <div className="empty-mini-state">No orders placed yet.</div>
+            ) : (
+              <div className="admin-table-wrapper">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Order ID</th>
+                      <th>Customer</th>
+                      <th>Items</th>
+                      <th>Total</th>
+                      <th>Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+                  </thead>
+                  <tbody>
+                    {recentOrders.map((order) => (
+                      <tr key={order.id}>
+                        <td>
+                          <strong>{order.id}</strong>
+                        </td>
+                        <td>
+                          <div>{order.customerName}</div>
+                          <small className="text-muted">{order.phone}</small>
+                        </td>
+                        <td>{order.items.length} items</td>
+                        <td>
+                          <strong>₹{order.total.toLocaleString("en-IN")}</strong>
+                        </td>
+                        <td>
+                          <StatusBadge status={order.status} />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Recent Appointments Preview */}
         <div className="dashboard-section-card">
