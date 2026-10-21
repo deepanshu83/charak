@@ -41,9 +41,9 @@ CREATE TABLE IF NOT EXISTS public.doctors (
 ALTER TABLE public.doctors ADD COLUMN IF NOT EXISTS slug TEXT;
 ALTER TABLE public.doctors ADD COLUMN IF NOT EXISTS designation TEXT;
 ALTER TABLE public.doctors ADD COLUMN IF NOT EXISTS detailed_bio TEXT;
-ALTER TABLE public.doctors ADD COLUMN IF NOT EXISTS storage_path TEXT;
-ALTER TABLE public.doctors ADD COLUMN IF NOT EXISTS consultation_fee NUMERIC(10, 2) NOT NULL DEFAULT 1200;
+ALTER TABLE public.doctors ADD COLUMN IF NOT EXISTS consultation_fee NUMERIC(10, 2) NOT NULL DEFAULT 500;
 ALTER TABLE public.doctors ADD COLUMN IF NOT EXISTS display_order INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE public.doctors ADD COLUMN IF NOT EXISTS treatment_ids TEXT[] DEFAULT '{}';
 
 DROP TRIGGER IF EXISTS tr_doctors_updated_at ON public.doctors;
 CREATE TRIGGER tr_doctors_updated_at

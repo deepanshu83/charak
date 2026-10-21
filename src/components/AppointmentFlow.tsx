@@ -967,7 +967,7 @@ export default function AppointmentFlow() {
                         onChange={(e) =>
                           setPatientForm({ ...patientForm, email: e.target.value })
                         }
-                        placeholder="priya@example.com"
+                        placeholder="priya@gmail.com"
                         error={formErrors.email}
                       />
                     </div>

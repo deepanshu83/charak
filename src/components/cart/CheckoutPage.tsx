@@ -199,7 +199,7 @@ export default function CheckoutPage() {
                     required
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="ramesh@example.com"
+                    placeholder="ramesh@gmail.com"
                     error={errors.email}
                   />
                 </div>

@@ -1,6 +1,6 @@
 import type { Blog } from "@/types";
 
-export interface BlogPost extends Blog {}
+export type BlogPost = Blog;
 
 export const BLOG_POSTS: BlogPost[] = [
   {
