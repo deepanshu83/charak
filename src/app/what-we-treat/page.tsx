@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -50,52 +51,136 @@ export default function WhatWeTreatPage() {
               {categories.map((cat, idx) => (
                 <div
                   key={idx}
+                  className="treatment-category-card"
                   style={{
-                    background: "var(--cream-card)",
-                    borderRadius: "18px",
-                    padding: "32px 28px",
+                    background: "#ffffff",
+                    borderRadius: "20px",
+                    overflow: "hidden",
                     border: "1px solid var(--border)",
                     boxShadow: "var(--shadow-sm)",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "space-between",
+                    transition: "transform 0.3s ease, box-shadow 0.3s ease",
                   }}
                 >
-                  <div>
-                    <h3 style={{ fontSize: "1.45rem", color: "var(--green)", marginBottom: "10px" }}>
-                      {cat.title}
-                    </h3>
-                    <p style={{ color: "var(--ink-light)", fontSize: "0.95rem", lineHeight: 1.6, marginBottom: "18px" }}>
-                      {cat.summary}
-                    </p>
-
-                    <div style={{ marginBottom: "16px" }}>
-                      <div style={{ fontSize: "0.82rem", textTransform: "uppercase", letterSpacing: "1px", color: "var(--gold)", fontWeight: 600, marginBottom: "8px" }}>
-                        Common Conditions Addressed:
-                      </div>
-                      <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "6px" }}>
-                        {cat.conditions.map((cond, i) => (
-                          <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: "8px", fontSize: "0.9rem", color: "var(--ink)" }}>
-                            <CheckCircle2 size={16} color="var(--gold)" style={{ flexShrink: 0, marginTop: "3px" }} />
-                            <span>{cond}</span>
-                          </li>
-                        ))}
-                      </ul>
+                  {/* Card Media Header */}
+                  <div
+                    style={{
+                      position: "relative",
+                      width: "100%",
+                      height: "210px",
+                      overflow: "hidden",
+                      backgroundColor: "var(--cream)",
+                    }}
+                  >
+                    <Image
+                      src={cat.image || "/images/panchkaram.jpeg"}
+                      alt={cat.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      style={{ objectFit: "cover", transition: "transform 0.5s ease" }}
+                      className="treatment-img-banner"
+                    />
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        background:
+                          "linear-gradient(to top, rgba(16, 44, 34, 0.85) 0%, rgba(16, 44, 34, 0.25) 55%, transparent 100%)",
+                      }}
+                    />
+                    <div style={{ position: "absolute", bottom: "16px", left: "20px", right: "20px" }}>
+                      <span
+                        style={{
+                          display: "inline-block",
+                          fontSize: "0.72rem",
+                          fontWeight: 700,
+                          textTransform: "uppercase",
+                          letterSpacing: "1px",
+                          color: "var(--gold)",
+                          background: "rgba(16, 44, 34, 0.88)",
+                          padding: "3px 10px",
+                          borderRadius: "20px",
+                          backdropFilter: "blur(4px)",
+                          border: "1px solid rgba(194, 139, 56, 0.35)",
+                          marginBottom: "6px",
+                        }}
+                      >
+                        Speciality {String(idx + 1).padStart(2, "0")}
+                      </span>
+                      <h3
+                        style={{
+                          fontSize: "1.35rem",
+                          color: "#ffffff",
+                          margin: 0,
+                          fontWeight: 600,
+                          textShadow: "0 2px 4px rgba(0,0,0,0.5)",
+                        }}
+                      >
+                        {cat.title}
+                      </h3>
                     </div>
                   </div>
 
-                  <div style={{ borderTop: "1px solid rgba(24, 66, 50, 0.08)", paddingTop: "16px", marginTop: "16px" }}>
-                    <div style={{ fontSize: "0.82rem", color: "var(--ink-muted)", marginBottom: "12px" }}>
-                      <b>Therapies:</b> {cat.treatments}
+                  {/* Card Body */}
+                  <div
+                    style={{
+                      padding: "24px 24px 20px",
+                      display: "flex",
+                      flexDirection: "column",
+                      flex: 1,
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <div>
+                      <p style={{ color: "var(--ink-light)", fontSize: "0.95rem", lineHeight: 1.6, marginBottom: "18px" }}>
+                        {cat.summary}
+                      </p>
+
+                      <div style={{ marginBottom: "16px" }}>
+                        <div
+                          style={{
+                            fontSize: "0.82rem",
+                            textTransform: "uppercase",
+                            letterSpacing: "1px",
+                            color: "var(--gold)",
+                            fontWeight: 600,
+                            marginBottom: "8px",
+                          }}
+                        >
+                          Common Conditions Addressed:
+                        </div>
+                        <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "6px", margin: 0, padding: 0 }}>
+                          {cat.conditions.map((cond, i) => (
+                            <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: "8px", fontSize: "0.9rem", color: "var(--ink)" }}>
+                              <CheckCircle2 size={16} color="var(--gold)" style={{ flexShrink: 0, marginTop: "3px" }} />
+                              <span>{cond}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                    <Link
-                      href="/appointment"
-                      className="treatment-card-btn"
-                      style={{ display: "inline-flex" }}
-                    >
-                      <span>Book Consultation for this condition</span>
-                      <ArrowRight size={14} />
-                    </Link>
+
+                    <div style={{ borderTop: "1px solid rgba(24, 66, 50, 0.08)", paddingTop: "16px", marginTop: "16px" }}>
+                      <div style={{ fontSize: "0.82rem", color: "var(--ink-muted)", marginBottom: "12px", lineHeight: 1.5 }}>
+                        <b style={{ color: "var(--green)" }}>Therapies:</b> {cat.treatments}
+                      </div>
+                      <Link
+                        href="/appointment"
+                        className="treatment-card-btn"
+                        style={{
+                          display: "inline-flex",
+                          width: "100%",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <span>Book Consultation for this condition</span>
+                        <ArrowRight size={14} />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               ))}

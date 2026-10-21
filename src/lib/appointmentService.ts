@@ -31,6 +31,8 @@ export interface BookAppointmentInput {
   date: string;
   time: string;
   notes?: string;
+  paymentStatus?: string;
+  razorpayPaymentId?: string;
 }
 
 const EVENT_NAME = "charak_appointments_updated";

@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Cormorant_Garamond, Jost } from "next/font/google";
 import { CartProvider } from "@/lib/cart-store";
 import { ToastProvider } from "@/components/ui/ToastContext";
@@ -124,6 +125,10 @@ export default function RootLayout({
         <ToastProvider>
           <CartProvider initialProducts={getProducts()}>{children}</CartProvider>
         </ToastProvider>
+        <Script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   );

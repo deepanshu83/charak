@@ -39,6 +39,8 @@ export async function POST(req: Request) {
       date,
       time,
       notes,
+      paymentStatus,
+      razorpayPaymentId,
     } = body;
 
     // 1. INPUT VALIDATION
@@ -264,7 +266,18 @@ export async function POST(req: Request) {
     const endM = (endMinutes % 60).toString().padStart(2, "0");
     const endTime = `${endH}:${endM}`;
 
+    // Combine notes with payment reference if available
+    let combinedNotes = notes ? String(notes).trim() : "";
+    if (razorpayPaymentId) {
+      combinedNotes = combinedNotes
+        ? `${combinedNotes}\n[Razorpay Payment ID: ${razorpayPaymentId}]`
+        : `[Razorpay Payment ID: ${razorpayPaymentId}]`;
+    }
+
     // 5. INSERT APPOINTMENT RECORD
+    const initialPaymentStatus =
+      paymentStatus === "PAID" || paymentStatus === "MOCK_PAID" ? paymentStatus : "PENDING";
+
     const newRow: AppointmentInsert = {
       patient_name: cleanName,
       phone: cleanPhone,
@@ -275,8 +288,8 @@ export async function POST(req: Request) {
       start_time: cleanTime,
       end_time: endTime,
       status: "CONFIRMED",
-      payment_status: "PENDING",
-      notes: notes ? String(notes).trim() : null,
+      payment_status: initialPaymentStatus,
+      notes: combinedNotes || null,
     };
 
     const { data: created, error: insertError } = await supabase

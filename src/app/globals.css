@@ -880,6 +880,38 @@ header, #top {
   text-decoration: none;
 }
 
+.treatment-category-card {
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+}
+
+.treatment-category-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 32px rgba(24, 66, 50, 0.12);
+}
+
+.treatment-category-card:hover .treatment-img-banner {
+  transform: scale(1.06);
+}
+
+.treatment-card-btn {
+  background: var(--green);
+  color: #ffffff;
+  padding: 11px 18px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  border: 1px solid transparent;
+}
+
+.treatment-card-btn:hover {
+  background: var(--deep);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(24, 66, 50, 0.2);
+}
+
 /* ==========================================================================
    DOSHA EXPLORER SECTION
    ========================================================================== */

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   Clock,
@@ -206,10 +207,22 @@ export default function TreatmentManager() {
               return (
                 <tr key={t.id}>
                   <td>
-                    <div className="treatment-name-cell">
-                      <div className="treatment-icon-wrap">
-                        <HeartPulse size={18} />
-                      </div>
+                    <div className="treatment-name-cell" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                      {t.image ? (
+                        <div style={{ width: 44, height: 44, borderRadius: 8, overflow: "hidden", position: "relative", flexShrink: 0, border: "1px solid var(--border)", background: "var(--cream)" }}>
+                          <Image
+                            src={t.image}
+                            alt={t.name}
+                            width={44}
+                            height={44}
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          />
+                        </div>
+                      ) : (
+                        <div className="treatment-icon-wrap">
+                          <HeartPulse size={18} />
+                        </div>
+                      )}
                       <div>
                         <strong>{t.name}</strong>
                         {t.slug && <span className="text-muted text-xs" style={{ display: "block" }}>/{t.slug}</span>}
@@ -387,6 +400,12 @@ export default function TreatmentManager() {
                 storagePath: "",
               }));
             }}
+          />
+          <Input
+            label="Or Image URL / Local Path"
+            value={form.image}
+            onChange={(e) => setForm({ ...form, image: e.target.value })}
+            placeholder="e.g. /images/panchkaram.jpeg or https://..."
           />
 
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
