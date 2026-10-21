@@ -148,16 +148,11 @@ export async function GET(req: Request) {
       availList = availData;
     }
 
-    // Check if doctor has custom availability rules configured in database
-    const { count: doctorRulesCount } = await supabase
-      .from("doctor_availability")
-      .select("id", { count: "exact", head: true })
-      .eq("doctor_id", doctor.id);
-
-    // Standard clinical dispensary hours only if doctor has no custom rules defined at all
-    if (availList.length === 0 && (!doctorRulesCount || doctorRulesCount === 0) && dayOfWeek !== "Sunday") {
+    // Standard clinical dispensary hours fallback if no specific slots configured
+    if (availList.length === 0) {
       availList = [
         { start_time: "09:00:00", end_time: "13:00:00", slot_duration: 30, active: true },
+        { start_time: "16:00:00", end_time: "19:00:00", slot_duration: 30, active: true },
       ];
     }
 

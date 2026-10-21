@@ -153,7 +153,7 @@ export default async function DoctorDetailPage({ params }: PageProps) {
                     alt={`${doctor.name} - ${doctor.title}`}
                     fill
                     sizes="(max-width: 1024px) 100vw, 50vw"
-                    style={{ objectFit: "cover" }}
+                    style={{ objectFit: "cover", objectPosition: "top center" }}
                     priority
                   />
                 ) : (
@@ -186,7 +186,7 @@ export default async function DoctorDetailPage({ params }: PageProps) {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
                   <span style={{ fontSize: "0.9rem", color: "var(--ink-light)" }}>Consultation Fee:</span>
                   <strong style={{ fontSize: "1.4rem", color: "var(--green)" }}>
-                    ₹{(doctor.consultationFee ?? 1200).toLocaleString("en-IN")}
+                    ₹{(doctor.consultationFee ?? 500).toLocaleString("en-IN")}
                   </strong>
                 </div>
 

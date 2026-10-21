@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminSupabaseClient, getServerPublicSupabaseClient, hasServiceRoleKey } from "@/lib/supabaseServer";
 import { verifyAdminRequest } from "@/lib/adminAuthServer";
+import { attachDoctorMetadata, extractDoctorMetadata } from "@/lib/doctorService";
 import type { Database } from "@/types/database.types";
 
 type DoctorUpdate = Database["public"]["Tables"]["doctors"]["Update"];
@@ -59,7 +60,16 @@ export async function GET(req: Request) {
       return NextResponse.json({ ok: false, error: availError.message }, { status: 400 });
     }
 
-    return NextResponse.json({ ok: true, data: { doctors, availabilities } });
+    const enrichedDoctors = (doctors || []).map((doc) => {
+      const meta = extractDoctorMetadata(doc.detailed_bio);
+      return {
+        ...doc,
+        treatment_ids: meta.treatmentIds,
+        treatmentIds: meta.treatmentIds,
+      };
+    });
+
+    return NextResponse.json({ ok: true, data: { doctors: enrichedDoctors, availabilities } });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Internal server error";
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
@@ -107,6 +117,7 @@ export async function POST(req: Request) {
       consultationFee,
       displayOrder,
       active,
+      treatmentIds,
     } = body;
 
     if (!name || typeof name !== "string" || !name.trim()) {
@@ -122,6 +133,11 @@ export async function POST(req: Request) {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
 
+    let finalDetailedBio = detailedBio?.trim() || bio?.trim() || "";
+    if (Array.isArray(treatmentIds)) {
+      finalDetailedBio = attachDoctorMetadata(finalDetailedBio, { treatmentIds });
+    }
+
     const newRow = {
       name: name.trim(),
       slug: generatedSlug,
@@ -130,10 +146,10 @@ export async function POST(req: Request) {
       qualification: qualification?.trim() || "BAMS",
       experience: experience?.trim() || "10 years",
       bio: bio?.trim() || "",
-      detailed_bio: detailedBio?.trim() || bio?.trim() || "",
+      detailed_bio: finalDetailedBio,
       image: image?.trim() || "",
       storage_path: storagePath || null,
-      consultation_fee: Number(consultationFee) || 1200,
+      consultation_fee: Number(consultationFee) || 500,
       display_order: Number(displayOrder) || 0,
       active: active !== false,
     };
@@ -207,6 +223,7 @@ export async function PUT(req: Request) {
       consultationFee,
       displayOrder,
       active,
+      treatmentIds,
     } = body;
 
     if (!id) {
@@ -226,7 +243,21 @@ export async function PUT(req: Request) {
     if (qualification !== undefined) updates.qualification = String(qualification).trim();
     if (experience !== undefined) updates.experience = String(experience).trim();
     if (bio !== undefined) updates.bio = String(bio).trim();
-    if (detailedBio !== undefined) updates.detailed_bio = String(detailedBio).trim();
+
+    if (detailedBio !== undefined || treatmentIds !== undefined) {
+      let baseBio = detailedBio !== undefined ? String(detailedBio).trim() : "";
+      if (!baseBio) {
+        const { data: currentDoc } = await supabase.from("doctors").select("detailed_bio").eq("id", id).single();
+        const extracted = extractDoctorMetadata(currentDoc?.detailed_bio);
+        baseBio = extracted.cleanBio;
+      }
+      if (Array.isArray(treatmentIds)) {
+        updates.detailed_bio = attachDoctorMetadata(baseBio, { treatmentIds });
+      } else {
+        updates.detailed_bio = baseBio;
+      }
+    }
+
     if (image !== undefined) updates.image = String(image).trim();
     if (storagePath !== undefined) updates.storage_path = storagePath;
     if (consultationFee !== undefined) updates.consultation_fee = Number(consultationFee);

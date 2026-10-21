@@ -164,6 +164,24 @@ export default function AppointmentFlow() {
   const selectedTreatment =
     treatments.find((t) => t.id === selectedTreatmentId) || treatments[0] || null;
 
+  const sortedDoctors = useMemo(() => {
+    return [...doctors].sort((a, b) => {
+      const aMatches = a.treatmentIds?.includes(selectedTreatmentId) ? 1 : 0;
+      const bMatches = b.treatmentIds?.includes(selectedTreatmentId) ? 1 : 0;
+      return bMatches - aMatches;
+    });
+  }, [doctors, selectedTreatmentId]);
+
+  const handleContinueToDoctor = () => {
+    const matchingDoctor = doctors.find((d) =>
+      d.treatmentIds && d.treatmentIds.includes(selectedTreatmentId)
+    );
+    if (matchingDoctor) {
+      setSelectedDoctorId(matchingDoctor.id);
+    }
+    setStep(2);
+  };
+
   const availableSlotsCount = allSlots.filter((s) => s.isAvailable).length;
 
   const validatePatientForm = (): boolean => {
@@ -596,7 +614,7 @@ export default function AppointmentFlow() {
                     <span />
                     <Button
                       variant="primary"
-                      onClick={() => setStep(2)}
+                      onClick={handleContinueToDoctor}
                       icon={<ArrowRight size={16} />}
                       iconPosition="right"
                     >
@@ -623,8 +641,10 @@ export default function AppointmentFlow() {
                     />
                   ) : (
                     <div className="choice-cards-grid">
-                      {doctors.map((doc) => {
+                      {sortedDoctors.map((doc) => {
                         const isSelected = selectedDoctorId === doc.id;
+                        const isSpecialistForSelected =
+                          Boolean(doc.treatmentIds && doc.treatmentIds.includes(selectedTreatmentId));
                         return (
                           <div
                             key={doc.id}
@@ -648,28 +668,64 @@ export default function AppointmentFlow() {
                                 width={60}
                                 height={60}
                                 className="doctor-avatar"
+                                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center" }}
                               />
                             </div>
                             <div className="choice-card-body" style={{ flex: 1 }}>
-                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "8px", flexWrap: "wrap" }}>
                                 <h3>{doc.name}</h3>
-                                {isSelected && (
-                                  <Badge variant="success" size="sm">
-                                    Selected
-                                  </Badge>
-                                )}
+                                <div style={{ display: "flex", gap: "5px", alignItems: "center" }}>
+                                  {isSpecialistForSelected && (
+                                    <Badge variant="gold" size="sm">
+                                      Specialist
+                                    </Badge>
+                                  )}
+                                  {isSelected && (
+                                    <Badge variant="success" size="sm">
+                                      Selected
+                                    </Badge>
+                                  )}
+                                </div>
                               </div>
                               <p className="doctor-title">{doc.title}</p>
                               <p className="doctor-meta">
                                 {doc.qualifications} &bull; {doc.experience}
                               </p>
+
+                              {/* Treatment/Consultation Tags */}
+                              {doc.treatmentIds && doc.treatmentIds.length > 0 && (
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", margin: "6px 0 8px 0" }}>
+                                  {doc.treatmentIds.map((tid) => {
+                                    const tr = treatments.find((t) => t.id === tid);
+                                    if (!tr) return null;
+                                    const isMatch = tid === selectedTreatmentId;
+                                    return (
+                                      <span
+                                        key={tid}
+                                        style={{
+                                          fontSize: "0.72rem",
+                                          padding: "2px 7px",
+                                          borderRadius: "4px",
+                                          background: isMatch ? "rgba(197, 160, 89, 0.2)" : "rgba(24, 66, 50, 0.06)",
+                                          color: isMatch ? "#8a6416" : "var(--green)",
+                                          fontWeight: isMatch ? 700 : 500,
+                                          border: isMatch ? "1px solid rgba(197, 160, 89, 0.4)" : "1px solid rgba(24, 66, 50, 0.12)",
+                                        }}
+                                      >
+                                        {tr.name}
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              )}
+
                               <div className="choice-card-meta">
                                 <span>
                                   <MapPin size={13} style={{ verticalAlign: "-2px", marginRight: "3px" }} />
                                   {doc.location}
                                 </span>
                                 <strong>
-                                  Fee: ₹{(doc.consultationFee ?? 1200).toLocaleString("en-IN")}
+                                  Fee: ₹{(doc.consultationFee ?? 500).toLocaleString("en-IN")}
                                 </strong>
                               </div>
                             </div>
@@ -705,7 +761,7 @@ export default function AppointmentFlow() {
                   <div className="step-header">
                     <Badge variant="gold">Step 3 of 7</Badge>
                     <h2>Select Consultation Date</h2>
-                    <p>Appointments available Monday through Sunday (9:00 AM – 7:30 PM).</p>
+                    <p>Appointments available Monday through Sunday (9:00 AM – 7:00 PM).</p>
                   </div>
 
                   <div className="date-cards-grid">
@@ -713,8 +769,6 @@ export default function AppointmentFlow() {
                       const dateObj = new Date(`${dStr}T00:00:00`);
                       const isToday =
                         new Date().toISOString().split("T")[0] === dStr;
-                      const dateSlots = getAllDoctorSlots(selectedDoctorId, dStr);
-                      const freeCount = dateSlots.filter((s) => s.isAvailable).length;
                       const isSelected = selectedDate === dStr;
 
                       return (
@@ -739,10 +793,10 @@ export default function AppointmentFlow() {
                           <span
                             className="slot-badge"
                             style={{
-                              color: freeCount > 0 ? "var(--green)" : "var(--terra)",
+                              color: "var(--green)",
                             }}
                           >
-                            {freeCount > 0 ? `${freeCount} available` : "Fully booked"}
+                            Slots Available
                           </span>
                           {isToday && <span className="today-tag">Today</span>}
                         </button>

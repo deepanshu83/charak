@@ -22,6 +22,7 @@ import {
   adminDeleteAvailability,
   adminDeleteDoctor,
   adminUpdateDoctor,
+  CLINIC_TREATMENTS,
   fetchAdminDoctors,
   fetchDoctorAvailability,
   type AdminDoctor,
@@ -54,6 +55,7 @@ interface DoctorFormState {
   image: string;
   storagePath?: string;
   active: boolean;
+  treatmentIds: string[];
 }
 
 const emptyDoctorForm: DoctorFormState = {
@@ -63,13 +65,14 @@ const emptyDoctorForm: DoctorFormState = {
   specialization: "Panchakarma & Pulse Diagnosis",
   qualification: "BAMS, MD (Ayurveda)",
   experience: "10+ Years",
-  consultationFee: 1200,
+  consultationFee: 500,
   displayOrder: 0,
   bio: "",
   detailedBio: "",
   image: "",
   storagePath: "",
   active: true,
+  treatmentIds: [],
 };
 
 export default function DoctorManager() {
@@ -140,13 +143,14 @@ export default function DoctorManager() {
       specialization: doc.specialization || doc.title || "Ayurvedic Medicine",
       qualification: doc.qualifications || "",
       experience: doc.experience || "",
-      consultationFee: doc.consultationFee || 1200,
+      consultationFee: doc.consultationFee || 500,
       displayOrder: doc.displayOrder ?? 0,
       bio: doc.bio || "",
       detailedBio: doc.detailedBio || doc.bio || "",
       image: doc.image || "",
       storagePath: doc.storagePath || "",
       active: doc.active !== false,
+      treatmentIds: Array.isArray(doc.treatmentIds) ? [...doc.treatmentIds] : [],
     });
     setIsDoctorModalOpen(true);
   };
@@ -178,6 +182,7 @@ export default function DoctorManager() {
           image: doctorForm.image,
           storagePath: doctorForm.storagePath || undefined,
           active: doctorForm.active,
+          treatmentIds: doctorForm.treatmentIds,
         });
         toast.success("Doctor Updated", `"${doctorForm.name}" updated successfully.`);
       } else {
@@ -195,6 +200,7 @@ export default function DoctorManager() {
           image: doctorForm.image,
           storagePath: doctorForm.storagePath || undefined,
           active: doctorForm.active,
+          treatmentIds: doctorForm.treatmentIds,
         });
         toast.success("Doctor Added", `"${created.name}" is now part of the medical directory.`);
       }
@@ -333,7 +339,7 @@ export default function DoctorManager() {
                         width={64}
                         height={64}
                         className="doctor-avatar-img"
-                        style={{ objectFit: "cover" }}
+                        style={{ objectFit: "cover", objectPosition: "top center" }}
                       />
                     ) : (
                       <div
@@ -381,10 +387,38 @@ export default function DoctorManager() {
                   </div>
                   {doc.slug && (
                     <div className="spec-row">
-                      <span className="spec-label">Profile URL:</span>
-                      <span className="spec-val">/doctors/{doc.slug}</span>
+                      <span className="spec-label">Public Page:</span>
+                      <Link
+                        href={`/doctors/${doc.slug}`}
+                        target="_blank"
+                        className="admin-doc-public-link"
+                      >
+                        <span>View Profile</span>
+                        <ExternalLink size={11} />
+                      </Link>
                     </div>
                   )}
+                </div>
+
+                {/* Assigned Consultations (6 Treatments) */}
+                <div className="doctor-consult-chips-box">
+                  <div className="consult-chips-label">Assigned Consultations:</div>
+                  <div className="consult-chips-grid">
+                    {doc.treatmentIds && doc.treatmentIds.length > 0 ? (
+                      doc.treatmentIds.map((tid) => {
+                        const treat = CLINIC_TREATMENTS.find((t) => t.id === tid);
+                        return (
+                          <span key={tid} className="consult-tag-badge">
+                            {treat?.name || "Consultation"}
+                          </span>
+                        );
+                      })
+                    ) : (
+                      <span className="consult-tag-badge all-consults">
+                        All Clinical Consultations
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Consultation Fee Controls */}
@@ -456,32 +490,32 @@ export default function DoctorManager() {
                   </div>
                 </div>
 
-                {/* Action Buttons */}
-                <div style={{ display: "flex", gap: "8px", marginTop: "16px", paddingTop: "12px", borderTop: "1px solid var(--border)" }}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                {/* Overhauled Compact Action Buttons */}
+                <div className="admin-doc-actions-grid">
+                  <button
+                    type="button"
+                    className="admin-doc-action-btn edit-btn"
                     onClick={() => handleOpenEditDoctor(doc)}
-                    icon={<Edit2 size={13} />}
                   >
-                    Edit Profile
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                    <Edit2 size={12} />
+                    <span>Edit Profile</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`admin-doc-action-btn ${doc.active !== false ? "toggle-btn active" : "toggle-btn inactive"}`}
                     onClick={() => handleToggleDoctorActive(doc)}
                   >
-                    {doc.active !== false ? "Deactivate" : "Activate"}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                    <span>{doc.active !== false ? "Deactivate" : "Activate"}</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-doc-action-btn delete-btn"
                     onClick={() => handleDeleteDoctor(doc.id, doc.name)}
-                    icon={<Trash2 size={13} />}
-                    style={{ color: "var(--crimson)", marginLeft: "auto" }}
+                    title={`Delete ${doc.name}`}
                   >
-                    Delete
-                  </Button>
+                    <Trash2 size={12} />
+                    <span>Delete</span>
+                  </button>
                 </div>
               </div>
             );
@@ -570,13 +604,42 @@ export default function DoctorManager() {
             rows={2}
           />
 
-          <Textarea
-            label="Detailed Bio (Shown on doctor detail page)"
-            value={doctorForm.detailedBio}
-            onChange={(e) => setDoctorForm({ ...doctorForm, detailedBio: e.target.value })}
-            placeholder="Detailed background, hospital affiliations, research, and clinical philosophy..."
-            rows={4}
-          />
+          <div className="admin-treatment-assignment-section">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "4px" }}>
+              <label style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--ink)" }}>
+                Assigned Consultations / Specializations (6 Clinical Focus Areas)
+              </label>
+              <span style={{ fontSize: "0.75rem", color: "var(--gold)", fontWeight: 600 }}>
+                {doctorForm.treatmentIds.length} of {CLINIC_TREATMENTS.length} selected
+              </span>
+            </div>
+            <p style={{ fontSize: "0.78rem", color: "var(--ink-light)", marginBottom: "10px", lineHeight: "1.4" }}>
+              Select which clinical therapies patients can book with this doctor. Recommended specialists will appear first during booking.
+            </p>
+            <div className="admin-treatment-checkbox-grid">
+              {CLINIC_TREATMENTS.map((treat) => {
+                const isChecked = doctorForm.treatmentIds.includes(treat.id);
+                return (
+                  <label
+                    key={treat.id}
+                    className={`treatment-checkbox-item ${isChecked ? "active" : ""}`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={(e) => {
+                        const next = e.target.checked
+                          ? [...doctorForm.treatmentIds, treat.id]
+                          : doctorForm.treatmentIds.filter((id) => id !== treat.id);
+                        setDoctorForm({ ...doctorForm, treatmentIds: next });
+                      }}
+                    />
+                    <span className="treatment-item-name">{treat.name}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
 
           <div>
             <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "8px", color: "var(--ink)" }}>

@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  ShoppingBag,
   Menu,
   X,
   ChevronRight,
@@ -12,11 +11,9 @@ import {
   Phone,
   MessageCircle,
 } from "lucide-react";
-import { useCart } from "@/lib/cart-store";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { itemCount } = useCart();
   const pathname = usePathname();
 
   const closeMenu = () => setIsOpen(false);
@@ -74,36 +71,13 @@ export default function Navbar() {
 
           {/* Desktop Right CTAs */}
           <div className="nav-cta hide-m">
-            <Link
-              href="/cart"
-              className="nav-cart-btn"
-              id="nav-cart-btn"
-              aria-label={`Shopping Cart (${itemCount})`}
-            >
-              <ShoppingBag size={15} />
-              <span>Cart</span>
-              {itemCount > 0 && <span className="cart-badge">{itemCount}</span>}
-            </Link>
-
             <Link href="/appointment" className="btn sm">
               Book Consultation
             </Link>
           </div>
 
-          {/* Mobile Right Controls: Quick Cart + Modern Toggle Button */}
+          {/* Mobile Right Controls: Modern Toggle Button */}
           <div className="mobile-header-actions">
-            <Link
-              href="/cart"
-              className="mobile-cart-icon-btn"
-              aria-label={`Shopping Cart (${itemCount} items)`}
-              onClick={closeMenu}
-            >
-              <ShoppingBag size={18} />
-              {itemCount > 0 && (
-                <span className="mobile-cart-badge">{itemCount}</span>
-              )}
-            </Link>
-
             <button
               type="button"
               className="mobile-menu-toggle-btn"

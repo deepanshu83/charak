@@ -138,7 +138,7 @@ export default function Gallery({
                 alt={item.alt}
                 width={500}
                 height={375}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center" }}
                 loading="lazy"
               />
             </figure>

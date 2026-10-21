@@ -100,8 +100,9 @@ export default async function DoctorsPage() {
                         style={{
                           position: "relative",
                           width: "100%",
-                          height: "260px",
+                          height: "320px",
                           background: "rgba(24, 66, 50, 0.05)",
+                          overflow: "hidden",
                         }}
                       >
                         {doctor.image ? (
@@ -110,7 +111,7 @@ export default async function DoctorsPage() {
                             alt={`${doctor.name} - ${doctor.title}`}
                             fill
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            style={{ objectFit: "cover" }}
+                            style={{ objectFit: "cover", objectPosition: "top center" }}
                             loading="lazy"
                           />
                         ) : (

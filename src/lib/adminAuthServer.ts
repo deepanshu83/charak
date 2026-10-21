@@ -57,8 +57,8 @@ export async function verifyAdminRequest(
     }
   }
 
-  // Check for test tokens (used by automated integration tests)
-  if (bearerToken === TEST_ADMIN_TOKEN) {
+  // Check for test tokens (used by automated integration tests in test environment only)
+  if (process.env.NODE_ENV === "test" && bearerToken === TEST_ADMIN_TOKEN) {
     return {
       authorized: true,
       status: 200,
@@ -76,7 +76,7 @@ export async function verifyAdminRequest(
     };
   }
 
-  if (bearerToken === TEST_NON_ADMIN_TOKEN) {
+  if (process.env.NODE_ENV === "test" && bearerToken === TEST_NON_ADMIN_TOKEN) {
     return {
       authorized: false,
       status: 403,

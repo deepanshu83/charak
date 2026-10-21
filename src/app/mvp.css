@@ -1262,16 +1262,20 @@
 
 .doctor-avatar-wrap {
   position: relative;
-  width: 58px;
-  height: 58px;
+  width: 68px;
+  height: 68px;
   border-radius: 50%;
   overflow: hidden;
   border: 2px solid var(--border-gold);
   flex-shrink: 0;
+  background: rgba(24, 66, 50, 0.06);
 }
 
 .doctor-avatar {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+  object-position: top center;
 }
 
 .doctor-title {
@@ -2565,70 +2569,246 @@
 
 .admin-doctor-card,
 .admin-story-card {
-  background: #fff;
+  background: #ffffff;
   border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: var(--shadow-sm);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.admin-doctor-header {
+.admin-doctor-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(24, 66, 50, 0.08);
+  border-color: rgba(24, 66, 50, 0.22);
+}
+
+.doctor-header-row {
   display: flex;
+  gap: 14px;
   align-items: center;
-  gap: 16px;
 }
 
-.admin-doctor-card h3 {
-  font: 600 1.25rem var(--font-serif);
-  color: var(--green);
-  margin: 0;
-}
-
-.admin-doctor-fee-box {
+.doctor-avatar-wrap {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid var(--gold);
   background: var(--cream);
-  padding: 12px 16px;
-  border-radius: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.fee-display-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
 }
 
-.fee-display-row strong {
-  color: var(--green);
+.doctor-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.doctor-info-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.doctor-info-col h3 {
+  font-family: var(--font-serif);
   font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--green);
+  margin: 0 0 3px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.fee-edit-row {
+.doctor-title-txt {
+  font-size: 0.8rem;
+  color: var(--ink-light);
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* Specifications Box */
+.doctor-specs-box {
+  background: #fbf9f5;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.spec-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 8px;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.spec-label {
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: #8c8273;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  min-width: 90px;
+  flex-shrink: 0;
+}
+
+.spec-val {
+  color: var(--ink);
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.admin-doc-public-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #8a6416;
+  background: rgba(197, 160, 89, 0.15);
+  border: 1px solid rgba(197, 160, 89, 0.3);
+  padding: 2px 7px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.admin-doc-public-link:hover {
+  background: var(--gold);
+  color: #ffffff;
+}
+
+/* Assigned Consultations Chips */
+.doctor-consult-chips-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.consult-chips-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #7d7568;
+}
+
+.consult-chips-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.consult-tag-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  background: rgba(24, 66, 50, 0.07);
+  color: var(--green);
+  border: 1px solid rgba(24, 66, 50, 0.14);
+}
+
+.consult-tag-badge.all-consults {
+  background: rgba(197, 160, 89, 0.1);
+  color: #8a6416;
+  border-color: rgba(197, 160, 89, 0.25);
+}
+
+/* Consultation Fee Controls */
+.fee-management-box {
+  background: #f7f3eb;
+  border: 1px solid rgba(197, 160, 89, 0.2);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fee-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #7d7568;
+}
+
+.fee-display-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fee-amount {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.fee-edit-btn {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-light);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.fee-edit-btn:hover {
+  color: var(--green);
+  border-color: var(--green);
+  background: rgba(24, 66, 50, 0.06);
+}
+
+.fee-edit-group {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.fee-input {
-  width: 90px;
-  padding: 6px 8px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
-
-.admin-doctor-schedule h4 {
-  font-size: 0.8rem;
+.fee-currency-prefix {
+  font-weight: 700;
   color: var(--green);
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
-.schedule-pills {
+.fee-cancel-btn {
+  background: transparent;
+  border: none;
+  color: var(--ink-light);
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* Schedule overview in admin card */
+.doc-schedule-overview {
+  margin-top: 2px;
+}
+
+.schedule-pills-wrap {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -2640,10 +2820,131 @@
   gap: 4px;
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 4px 8px;
-  font-size: 0.75rem;
+  border-radius: 8px;
+  padding: 3px 7px;
+  font-size: 0.74rem;
   color: var(--ink-light);
+}
+
+/* Action Buttons Grid - Cleanly Proportioned & Never Overflows */
+.admin-doc-actions-grid {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr 0.85fr;
+  gap: 6px;
+  padding-top: 14px;
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  width: 100%;
+}
+
+.admin-doc-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 8px;
+  border-radius: 8px;
+  font-size: 0.77rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.admin-doc-action-btn.edit-btn {
+  background: #ffffff;
+  color: var(--green);
+  border-color: rgba(24, 66, 50, 0.25);
+}
+
+.admin-doc-action-btn.edit-btn:hover {
+  background: var(--green);
+  color: #ffffff;
+  border-color: var(--green);
+}
+
+.admin-doc-action-btn.toggle-btn.active {
+  background: rgba(200, 140, 40, 0.08);
+  color: #8c5d12;
+  border-color: rgba(200, 140, 40, 0.25);
+}
+
+.admin-doc-action-btn.toggle-btn.active:hover {
+  background: rgba(200, 140, 40, 0.16);
+}
+
+.admin-doc-action-btn.toggle-btn.inactive {
+  background: rgba(46, 125, 50, 0.08);
+  color: #2e7d32;
+  border-color: rgba(46, 125, 50, 0.25);
+}
+
+.admin-doc-action-btn.toggle-btn.inactive:hover {
+  background: rgba(46, 125, 50, 0.16);
+}
+
+.admin-doc-action-btn.delete-btn {
+  background: rgba(180, 40, 40, 0.06);
+  color: #b42828;
+  border-color: rgba(180, 40, 40, 0.2);
+}
+
+.admin-doc-action-btn.delete-btn:hover {
+  background: #b42828;
+  color: #ffffff;
+}
+
+/* Modal Consultation Checklist */
+.admin-treatment-assignment-section {
+  background: #faf7f2;
+  border: 1px solid rgba(197, 160, 89, 0.25);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.admin-treatment-checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+@media (max-width: 600px) {
+  .admin-treatment-checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.treatment-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: var(--ink);
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.treatment-checkbox-item:hover {
+  border-color: var(--green);
+}
+
+.treatment-checkbox-item.active {
+  background: rgba(24, 66, 50, 0.06);
+  border-color: var(--green);
+  color: var(--green);
+  font-weight: 600;
+}
+
+.treatment-checkbox-item input[type="checkbox"] {
+  accent-color: var(--green);
+  width: 15px;
+  height: 15px;
 }
 
 .treatment-name-cell {

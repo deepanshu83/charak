@@ -109,6 +109,7 @@ export interface Doctor {
   displayOrder?: number;
   active?: boolean;
   availableTimes: Record<string, string[]>;
+  treatmentIds?: string[];
 }
 
 export interface Treatment {
