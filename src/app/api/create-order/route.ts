@@ -61,13 +61,14 @@ export async function POST(req: Request) {
       currency: order.currency,
       key_id: keyId,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[Razorpay create-order error]:", error);
 
-    const statusCode = error?.statusCode || 500;
+    const err = error as { statusCode?: number; error?: { description?: string }; message?: string };
+    const statusCode = err?.statusCode || 500;
     const errorMessage =
-      error?.error?.description ||
-      error?.message ||
+      err?.error?.description ||
+      err?.message ||
       "Failed to create Razorpay order.";
 
     return NextResponse.json(

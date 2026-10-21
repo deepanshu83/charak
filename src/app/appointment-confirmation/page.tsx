@@ -23,6 +23,8 @@ interface ConfirmedAppointment {
   date: string;
   time: string;
   status: string;
+  paymentStatus?: string;
+  notes?: string;
 }
 
 function AppointmentConfirmationContent() {
@@ -124,6 +126,23 @@ function AppointmentConfirmationContent() {
                   {appointment?.time ? `${appointment.time} hrs` : "Morning Session"}
                 </strong>
               </div>
+
+              <div className="flex justify-between items-center">
+                <span className="flex items-center gap-2 text-stone-600">
+                  <ShieldCheck size={15} /> Payment:
+                </span>
+                <span
+                  className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                    appointment?.paymentStatus === "PAID"
+                      ? "bg-emerald-100 text-emerald-800"
+                      : "bg-amber-100 text-amber-800"
+                  }`}
+                >
+                  {appointment?.paymentStatus === "PAID"
+                    ? "Paid Online (Razorpay)"
+                    : "Payable at Reception"}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -132,8 +151,9 @@ function AppointmentConfirmationContent() {
             <div>
               <strong>Hospital Arrival Instructions</strong>
               <p className="mt-0.5 text-stone-600">
-                Please arrive 10 minutes prior to your consulting time at Birla Hospital Road, Vidyavihar, Pilani.
-                Consultation fees are paid directly at reception.
+                {appointment?.paymentStatus === "PAID"
+                  ? "Your consultation fee has been settled via Razorpay. Please arrive 10 minutes prior to your consulting time at Birla Hospital Road, Vidyavihar, Pilani and quote your Reference ID."
+                  : "Please arrive 10 minutes prior to your consulting time at Birla Hospital Road, Vidyavihar, Pilani. Consultation fees are paid directly at reception."}
               </p>
             </div>
           </div>

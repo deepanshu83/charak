@@ -17,6 +17,9 @@ import {
   Printer,
   RotateCcw,
   ShieldCheck,
+  CreditCard,
+  Building2,
+  Lock,
 } from "lucide-react";
 import {
   bookAppointment,
@@ -30,6 +33,7 @@ import {
 import { fetchDoctors } from "@/lib/doctorService";
 import { fetchTreatments } from "@/lib/treatmentService";
 import { getTodayIST } from "@/lib/appointmentAvailability";
+import { launchRazorpayCheckout } from "@/lib/razorpayClient";
 import type { Doctor, Treatment } from "@/types";
 import {
   Badge,
@@ -66,6 +70,7 @@ export default function AppointmentFlow() {
   const [selectedDoctorId, setSelectedDoctorId] = useState<string>(
     doctors[0]?.id || "doc-1"
   );
+  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "pay_at_clinic">("razorpay");
 
   // Fetch live active doctors & treatments from Supabase on mount
   useEffect(() => {
@@ -180,7 +185,93 @@ export default function AppointmentFlow() {
     return Object.keys(errs).length === 0;
   };
 
+  const handlePayWithRazorpay = async () => {
+    if (!selectedTime) {
+      toast.error("Please select a time slot", "A consultation time slot is required.");
+      return;
+    }
+
+    const feeInRupees = selectedDoctor?.consultationFee ?? 500;
+    const feeInPaise = Math.round(feeInRupees * 100);
+
+    setIsSubmitting(true);
+
+    try {
+      await launchRazorpayCheckout({
+        amountPaise: feeInPaise,
+        currency: "INR",
+        description: `Consultation with ${selectedDoctor?.name || "Senior Ayurvedic Physician"}`,
+        prefill: {
+          name: patientForm.fullName.trim(),
+          email: patientForm.email.trim(),
+          contact: patientForm.phone.trim(),
+        },
+        notes: {
+          doctorId: selectedDoctorId,
+          doctorName: selectedDoctor?.name || "",
+          treatmentId: selectedTreatmentId,
+          treatmentName: selectedTreatment?.name || "",
+          appointmentDate: selectedDate,
+          appointmentTime: selectedTime,
+        },
+        onSuccess: async (verifyResult, raw) => {
+          try {
+            const confirmation = await bookAppointment({
+              patientName: patientForm.fullName.trim(),
+              phone: patientForm.phone.trim(),
+              email: patientForm.email.trim() || undefined,
+              doctorId: selectedDoctorId,
+              treatmentId: selectedTreatmentId,
+              date: selectedDate,
+              time: selectedTime,
+              notes: patientForm.notes.trim() || undefined,
+              paymentStatus: "PAID",
+              razorpayPaymentId: raw.razorpay_payment_id,
+            });
+
+            setCreatedAppointment(confirmation);
+            try {
+              localStorage.setItem("charak-last-appointment", JSON.stringify(confirmation));
+            } catch {
+              // Ignore
+            }
+            setStep(7);
+            toast.success(
+              "Payment Verified & Appointment Confirmed!",
+              `Ref: ${confirmation.id} • Razorpay ID: ${raw.razorpay_payment_id}`
+            );
+          } catch (bookErr: unknown) {
+            const msg = bookErr instanceof Error ? bookErr.message : "Payment verified but slot encountered a conflict. Please contact clinic reception.";
+            toast.error("Slot Conflict", msg);
+          } finally {
+            setIsSubmitting(false);
+          }
+        },
+        onError: (errMsg) => {
+          setIsSubmitting(false);
+          toast.error("Payment Notice", errMsg);
+        },
+        onDismiss: () => {
+          setIsSubmitting(false);
+          toast.warning(
+            "Payment Window Closed",
+            "Payment checkout was dismissed. You can retry online payment or choose to pay at the clinic."
+          );
+        },
+      });
+    } catch (err: unknown) {
+      setIsSubmitting(false);
+      const msg = err instanceof Error ? err.message : "Failed to start Razorpay checkout.";
+      toast.error("Payment Error", msg);
+    }
+  };
+
   const handleConfirmAppointment = async () => {
+    if (paymentMethod === "razorpay") {
+      await handlePayWithRazorpay();
+      return;
+    }
+
     if (!selectedTime) {
       toast.error("Please select a time slot", "A consultation time slot is required.");
       return;
@@ -328,9 +419,14 @@ export default function AppointmentFlow() {
               <div className="order-summary-box">
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
                   <h3 style={{ margin: 0 }}>Consultation Summary</h3>
-                  <Badge variant={createdAppointment.status === "CONFIRMED" ? "success" : "gold"}>
-                    {createdAppointment.status || "CONFIRMED"}
-                  </Badge>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                    <Badge variant={createdAppointment.status === "CONFIRMED" ? "success" : "gold"}>
+                      {createdAppointment.status || "CONFIRMED"}
+                    </Badge>
+                    <Badge variant={createdAppointment.paymentStatus === "PAID" ? "success" : "gold"} dot={createdAppointment.paymentStatus === "PAID"}>
+                      {createdAppointment.paymentStatus === "PAID" ? "Paid via Razorpay" : "Payment at Reception"}
+                    </Badge>
+                  </div>
                 </div>
 
                 <div className="order-details-grid">
@@ -369,12 +465,14 @@ export default function AppointmentFlow() {
                     <strong>{createdAppointment.time}</strong>
                   </div>
                   <div>
-                    <span>Location:</span>
-                    <strong>Birla Hospital Road, Vidyavihar, Pilani</strong>
+                    <span>Payment Status:</span>
+                    <strong style={{ color: createdAppointment.paymentStatus === "PAID" ? "var(--green)" : "var(--terra)" }}>
+                      {createdAppointment.paymentStatus === "PAID" ? "Paid Online (Razorpay)" : "Pending at Reception"}
+                    </strong>
                   </div>
                   <div>
                     <span>Consultation Fee:</span>
-                    <strong>₹{(selectedDoctor?.consultationFee ?? 1200).toLocaleString("en-IN")}</strong>
+                    <strong>₹{(selectedDoctor?.consultationFee ?? 500).toLocaleString("en-IN")}</strong>
                   </div>
                 </div>
 
@@ -389,7 +487,7 @@ export default function AppointmentFlow() {
                       color: "var(--ink-light)",
                     }}
                   >
-                    <strong style={{ color: "var(--ink)" }}>Health Concerns noted:</strong>{" "}
+                    <strong style={{ color: "var(--ink)" }}>Appointment Details &amp; Notes:</strong>{" "}
                     {createdAppointment.notes}
                   </div>
                 )}
@@ -398,7 +496,15 @@ export default function AppointmentFlow() {
               <div className="prototype-status-note">
                 <Info size={16} />
                 <span>
-                  <strong>Preparation for Nadi Pariksha:</strong> Please arrive 10 minutes early with any previous medical reports. Avoid heavy meals 2 hours prior to pulse assessment.
+                  {createdAppointment.paymentStatus === "PAID" ? (
+                    <>
+                      <strong>Payment Receipt Confirmed:</strong> Your consultation fee has been settled via Razorpay Secure Checkout. Please arrive 10 minutes prior to your scheduled consultation time.
+                    </>
+                  ) : (
+                    <>
+                      <strong>Preparation for Nadi Pariksha:</strong> Please arrive 10 minutes early. Consultation fee of ₹{(selectedDoctor?.consultationFee ?? 500).toLocaleString("en-IN")} is settled directly at the hospital reception.
+                    </>
+                  )}
                 </span>
               </div>
 
@@ -905,11 +1011,85 @@ export default function AppointmentFlow() {
                     )}
                   </div>
 
-                  <div className="prototype-status-note">
-                    <Info size={16} />
-                    <span>
-                      <strong>Consultation Note:</strong> No online payment is charged at this step. Consultation fee is settled directly at the hospital reception upon arrival. Clicking Confirm reserves your slot in the clinical schedule.
-                    </span>
+                  {/* Payment Method Selector */}
+                  <div className="payment-method-section" style={{ marginTop: "20px", marginBottom: "20px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                      <span style={{ fontSize: "0.88rem", fontWeight: 600, color: "var(--ink)" }}>
+                        Select Payment Option
+                      </span>
+                      <span style={{ fontSize: "0.75rem", color: "var(--ink-muted)", display: "flex", alignItems: "center", gap: "4px" }}>
+                        <Lock size={12} style={{ color: "var(--green)" }} /> 256-Bit SSL Encrypted
+                      </span>
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "12px" }}>
+                      {/* Option 1: Razorpay Online Payment */}
+                      <div
+                        onClick={() => setPaymentMethod("razorpay")}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") setPaymentMethod("razorpay");
+                        }}
+                        style={{
+                          border: paymentMethod === "razorpay" ? "2px solid var(--green)" : "1px solid var(--border)",
+                          background: paymentMethod === "razorpay" ? "rgba(24, 66, 50, 0.04)" : "var(--cream)",
+                          borderRadius: "14px",
+                          padding: "16px",
+                          cursor: "pointer",
+                          position: "relative",
+                          transition: "all 0.2s ease",
+                          boxShadow: paymentMethod === "razorpay" ? "0 4px 12px rgba(24, 66, 50, 0.08)" : "none",
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                            <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "rgba(24, 66, 50, 0.1)", display: "grid", placeItems: "center" }}>
+                              <CreditCard size={16} style={{ color: "var(--green)" }} />
+                            </div>
+                            <strong style={{ fontSize: "0.95rem", color: "var(--green)" }}>Pay Online (Razorpay)</strong>
+                          </div>
+                          <span style={{ fontSize: "0.68rem", background: "var(--gold)", color: "#fff", padding: "2px 8px", borderRadius: "10px", fontWeight: 700, letterSpacing: "0.03em" }}>
+                            RECOMMENDED
+                          </span>
+                        </div>
+                        <p style={{ fontSize: "0.8rem", color: "var(--ink-muted)", margin: "0 0 8px", lineHeight: 1.4 }}>
+                          Instant slot confirmation via UPI (GPay, PhonePe, Paytm), Debit/Credit Cards &amp; NetBanking.
+                        </p>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.72rem", color: "var(--green)", fontWeight: 600 }}>
+                          <ShieldCheck size={14} /> Official Razorpay Checkout
+                        </div>
+                      </div>
+
+                      {/* Option 2: Pay at Clinic */}
+                      <div
+                        onClick={() => setPaymentMethod("pay_at_clinic")}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") setPaymentMethod("pay_at_clinic");
+                        }}
+                        style={{
+                          border: paymentMethod === "pay_at_clinic" ? "2px solid var(--green)" : "1px solid var(--border)",
+                          background: paymentMethod === "pay_at_clinic" ? "rgba(24, 66, 50, 0.04)" : "var(--cream)",
+                          borderRadius: "14px",
+                          padding: "16px",
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                          boxShadow: paymentMethod === "pay_at_clinic" ? "0 4px 12px rgba(24, 66, 50, 0.08)" : "none",
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                          <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "rgba(194, 91, 56, 0.1)", display: "grid", placeItems: "center" }}>
+                            <Building2 size={16} style={{ color: "var(--terra)" }} />
+                          </div>
+                          <strong style={{ fontSize: "0.95rem", color: "var(--ink)" }}>Pay at Hospital</strong>
+                        </div>
+                        <p style={{ fontSize: "0.8rem", color: "var(--ink-muted)", margin: 0, lineHeight: 1.4 }}>
+                          Settle ₹{(selectedDoctor?.consultationFee ?? 500).toLocaleString("en-IN")} at hospital reception desk beside Birla Hospital upon arrival.
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="step-actions">
@@ -921,16 +1101,32 @@ export default function AppointmentFlow() {
                     >
                       Edit Details
                     </Button>
-                    <Button
-                      variant="gold"
-                      onClick={handleConfirmAppointment}
-                      disabled={isSubmitting}
-                      isLoading={isSubmitting}
-                      icon={<CheckCircle2 size={18} />}
-                      id="confirm-booking-btn"
-                    >
-                      {isSubmitting ? "Confirming..." : "Confirm Appointment"}
-                    </Button>
+
+                    {paymentMethod === "razorpay" ? (
+                      <Button
+                        variant="gold"
+                        onClick={handlePayWithRazorpay}
+                        disabled={isSubmitting}
+                        isLoading={isSubmitting}
+                        icon={<ShieldCheck size={18} />}
+                        id="razorpay-pay-btn"
+                      >
+                        {isSubmitting
+                          ? "Connecting to Razorpay..."
+                          : `Pay ₹${(selectedDoctor?.consultationFee ?? 500).toLocaleString("en-IN")} via Razorpay`}
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="primary"
+                        onClick={handleConfirmAppointment}
+                        disabled={isSubmitting}
+                        isLoading={isSubmitting}
+                        icon={<CheckCircle2 size={18} />}
+                        id="confirm-booking-btn"
+                      >
+                        {isSubmitting ? "Confirming..." : "Confirm Booking (Pay at Clinic)"}
+                      </Button>
+                    )}
                   </div>
                 </div>
               )}

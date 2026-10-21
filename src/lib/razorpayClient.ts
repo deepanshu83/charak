@@ -3,9 +3,17 @@
  * Handles script loading, order creation, checkout modal display, and signature verification.
  */
 
+export interface RazorpayInstance {
+  open: () => void;
+  on: (event: string, handler: (response: RazorpayFailurePayload) => void) => void;
+  close?: () => void;
+}
+
+export type RazorpayConstructor = new (options: Record<string, unknown>) => RazorpayInstance;
+
 declare global {
   interface Window {
-    Razorpay?: any;
+    Razorpay?: RazorpayConstructor;
   }
 }
 
@@ -226,16 +234,17 @@ export async function launchRazorpayCheckout(
           });
 
           options.onSuccess(verifyResult, response);
-        } catch (verifyErr: any) {
-          options.onError(
-            verifyErr?.message ||
-              "Payment received but verification failed. Please contact reception."
-          );
+        } catch (verifyErr: unknown) {
+          const msg =
+            verifyErr instanceof Error
+              ? verifyErr.message
+              : "Payment received but verification failed. Please contact reception.";
+          options.onError(msg);
         }
       },
     };
 
-    const rzpInstance = new window.Razorpay(razorpayOptions);
+    const rzpInstance = new window.Razorpay(razorpayOptions as unknown as Record<string, unknown>);
 
     // Handle payment.failed event
     rzpInstance.on("payment.failed", (response: RazorpayFailurePayload) => {
@@ -248,7 +257,11 @@ export async function launchRazorpayCheckout(
 
     // Open Razorpay Standard Checkout modal
     rzpInstance.open();
-  } catch (err: any) {
-    options.onError(err?.message || "Failed to initiate payment checkout.");
+  } catch (err: unknown) {
+    const msg =
+      err instanceof Error
+        ? err.message
+        : "Failed to initiate payment checkout.";
+    options.onError(msg);
   }
 }

@@ -92,13 +92,14 @@ export async function POST(req: Request) {
       order_id: orderId,
       payment_id: paymentId,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[Razorpay verify-payment error]:", error);
+    const msg = error instanceof Error ? error.message : "Internal server error verifying payment.";
     return NextResponse.json(
       {
         ok: false,
         success: false,
-        error: error?.message || "Internal server error verifying payment.",
+        error: msg,
       },
       { status: 500 }
     );
