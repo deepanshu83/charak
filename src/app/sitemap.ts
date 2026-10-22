@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { fetchProducts } from "@/lib/productService";
 import { fetchBlogs } from "@/lib/blogService";
+import { fetchDoctors } from "@/lib/doctorService";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://charakayurvedapilani.com";
@@ -63,6 +64,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     {
+      url: `${siteUrl}/what-we-treat`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
+      url: `${siteUrl}/video-testimonials`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    {
       url: `${siteUrl}/privacy-policy`,
       lastModified: now,
       changeFrequency: "monthly",
@@ -88,6 +101,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
+  // Dynamic doctors
+  const doctors = await fetchDoctors().catch(() => []);
+  const doctorList = doctors || [];
+  const doctorRoutes: MetadataRoute.Sitemap = doctorList.map((d) => ({
+    url: `${siteUrl}/doctors/${d.slug || d.id}`,
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: 0.85,
+  }));
+
   // Dynamic products
   const products = await fetchProducts().catch(() => []);
   const productList: { slug: string }[] = products || [];
@@ -108,5 +131,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticRoutes, ...productRoutes, ...blogRoutes];
+  return [...staticRoutes, ...doctorRoutes, ...productRoutes, ...blogRoutes];
 }
