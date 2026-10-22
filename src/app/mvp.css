@@ -1596,9 +1596,21 @@
 .admin-brand a {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font: 600 1.5rem var(--font-serif);
   color: var(--green);
+}
+
+.admin-brand-logo-img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #ffffff;
+  padding: 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .admin-brand em {
@@ -2058,20 +2070,35 @@
 .search-box {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 8px 14px;
-  min-width: 320px;
+  border-radius: 20px;
+  padding: 0 14px;
+  height: 38px;
+  min-width: 260px;
+  max-width: 360px;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.search-box:focus-within {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(24, 66, 50, 0.08);
 }
 
 .search-box input {
-  border: 0;
-  outline: none;
-  font-size: 0.88rem;
-  width: 100%;
-  font-family: inherit;
+  border: 0 !important;
+  outline: none !important;
+  font-size: 0.86rem !important;
+  width: 100% !important;
+  font-family: inherit !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  height: 100% !important;
+  box-shadow: none !important;
+  color: var(--ink) !important;
 }
 
 .filter-pill-group {
@@ -4026,13 +4053,21 @@ textarea:focus-visible {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: 68px;
+  height: 68px;
   border-radius: 50%;
-  background: #f4efe6;
+  background: #ffffff;
   color: var(--green);
   margin-bottom: 14px;
-  border: 1px solid rgba(200, 155, 60, 0.3);
+  border: 1.5px solid rgba(200, 155, 60, 0.35);
+  box-shadow: 0 6px 16px rgba(31, 77, 58, 0.08);
+}
+
+.admin-login-logo-img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  display: block;
 }
 
 .admin-login-header h1 {

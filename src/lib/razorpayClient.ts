@@ -194,8 +194,13 @@ export async function launchRazorpayCheckout(
 
     const keyId =
       orderData.key_id ||
-      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ||
-      "rzp_test_TqQLYoIiSQSV0s";
+      process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+
+    if (!keyId) {
+      throw new Error(
+        "Razorpay Key ID is not configured. Please set NEXT_PUBLIC_RAZORPAY_KEY_ID in your environment variables."
+      );
+    }
 
     // 3. Configure Razorpay Standard Modal options
     const razorpayOptions = {
@@ -204,7 +209,7 @@ export async function launchRazorpayCheckout(
       currency: orderData.currency,
       name: "Charak Ayurveda Clinic",
       description: options.description || "Ayurvedic Doctor Consultation",
-      image: "/favicon.ico",
+      image: "/logo.png",
       order_id: orderData.order_id,
       prefill: {
         name: options.prefill?.name || "",

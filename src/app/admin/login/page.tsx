@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Lock, Mail, ShieldAlert, Loader2, ArrowLeft, ShieldCheck } from "lucide-react";
 
 function AdminLoginForm() {
@@ -70,7 +71,14 @@ function AdminLoginForm() {
       <div className="admin-login-card">
         <div className="admin-login-header">
           <div className="admin-login-logo">
-            <ShieldCheck size={32} className="admin-login-icon" />
+            <Image
+              src="/logo.png"
+              alt="Charak Ayurveda Logo"
+              width={42}
+              height={42}
+              priority
+              className="admin-login-logo-img"
+            />
           </div>
           <h1>Charak Ayurveda</h1>
           <p className="admin-login-subtitle">Hospital Operations & Administration Console</p>

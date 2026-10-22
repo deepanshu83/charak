@@ -72,14 +72,16 @@ export async function POST(req: Request) {
     if (appointmentId && typeof appointmentId === "string" && isUUID(appointmentId)) {
       try {
         const supabase = getAdminSupabaseClient();
-        await supabase
-          .from("appointments")
-          .update({
-            payment_status: "PAID",
-            status: "CONFIRMED",
-            notes: body.notes ? String(body.notes) : undefined,
-          })
-          .eq("id", appointmentId);
+        if (supabase) {
+          await supabase
+            .from("appointments")
+            .update({
+              payment_status: "PAID",
+              status: "CONFIRMED",
+              notes: body.notes ? String(body.notes) : undefined,
+            })
+            .eq("id", appointmentId);
+        }
       } catch (dbError) {
         console.warn("[Razorpay verify] Note: Appointment DB update warning:", dbError);
       }

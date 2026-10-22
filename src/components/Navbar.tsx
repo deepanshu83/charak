@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   Menu,
@@ -48,8 +49,18 @@ export default function Navbar() {
     <>
       <header id="top">
         <div className="wrap nav">
-          <Link href="/" className="logo" onClick={closeMenu}>
-            Charak<em>Ayurveda</em>
+          <Link href="/" className="logo" onClick={closeMenu} aria-label="Charak Ayurveda Home">
+            <Image
+              src="/logo.png"
+              alt="Charak Ayurveda Logo"
+              width={40}
+              height={40}
+              priority
+              className="logo-img"
+            />
+            <span className="logo-brand-text">
+              Charak<em>Ayurveda</em>
+            </span>
           </Link>
 
           {/* Desktop Navigation Links */}

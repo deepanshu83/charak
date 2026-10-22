@@ -349,12 +349,34 @@ header, #top {
 
 .logo {
   font-family: var(--font-serif), 'Cormorant Garamond', Georgia, serif;
-  font-size: 1.6rem;
+  font-size: 1.55rem;
   font-weight: 600;
   color: var(--green);
   display: inline-flex;
   align-items: center;
+  gap: 10px;
   text-decoration: none;
+  line-height: 1;
+}
+
+.logo-img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+  border-radius: 50%;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.logo:hover .logo-img {
+  transform: scale(1.08) rotate(2deg);
+}
+
+.logo-brand-text {
+  display: inline-flex;
+  align-items: baseline;
+  line-height: 1;
 }
 
 .logo em {
@@ -1390,11 +1412,59 @@ footer {
 footer .logo {
   color: #ffffff;
   font-size: 1.6rem;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  justify-content: center;
+  gap: 12px;
+}
+
+.footer-logo-img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+  background: #ffffff;
+  border-radius: 50%;
+  padding: 3px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+footer .logo:hover .footer-logo-img {
+  transform: scale(1.1) rotate(4deg);
 }
 
 footer p {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+}
+
+.footer-address-line {
+  font-size: 0.82rem;
+  color: #a4b7a9;
+  max-width: 680px;
+  margin: 4px auto 14px;
+  line-height: 1.5;
+}
+
+.footer-policy-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  margin: 12px 0 16px;
+}
+
+.footer-policy-row a {
+  color: #d1ded5;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-policy-row a:hover {
+  color: var(--gold);
+  text-decoration: underline;
 }
 
 .footer-bottom-row {
@@ -1402,8 +1472,8 @@ footer p {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  margin-top: 14px;
-  font-size: 0.88rem;
+  margin-top: 8px;
+  font-size: 0.86rem;
   color: #9fb0a3;
   flex-wrap: wrap;
 }
@@ -1601,7 +1671,12 @@ footer p {
     display: flex;
   }
   .logo {
-    font-size: 1.45rem;
+    font-size: 1.35rem;
+    gap: 8px;
+  }
+  .logo-img {
+    width: 34px;
+    height: 34px;
   }
   .hero {
     padding: 26px 0 10px;
@@ -1681,7 +1756,12 @@ footer p {
 /* Small phones */
 @media (max-width: 360px) {
   .logo {
-    font-size: 1.35rem;
+    font-size: 1.25rem;
+    gap: 6px;
+  }
+  .logo-img {
+    width: 30px;
+    height: 30px;
   }
   .stats b {
     font-size: 2rem;

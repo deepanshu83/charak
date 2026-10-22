@@ -61,6 +61,10 @@ export const metadata: Metadata = {
       "Classical Ayurvedic care and authentic Panchakarma therapies beside Birla Hospital, Vidyavihar, Pilani.",
     images: ["/images/ourApproach.jpeg"],
   },
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
   alternates: {
     canonical: "https://charakayurvedapilani.com",
   },
@@ -71,14 +75,14 @@ const jsonLd = {
   "@type": "MedicalBusiness",
   name: "Charak Ayurveda",
   url: "https://charakayurvedapilani.com",
-  logo: "https://charakayurvedapilani.com/images/ourApproach.jpeg",
+  logo: "https://charakayurvedapilani.com/logo.png",
   image: "https://charakayurvedapilani.com/images/ourApproach.jpeg",
   description:
     "Classical Panchakarma, skin disorders, chronic joint care and holistic Ayurvedic consultation in Pilani, Rajasthan.",
-  telephone: "+91 98765 43210",
+  telephone: "+91 88528 87717",
   address: {
     "@type": "PostalAddress",
-    streetAddress: "Birla Hospital Road, Vidyavihar",
+    streetAddress: "6A, Beside Birla Hospital, Shyam Vatika, Vidyavihar",
     addressLocality: "Pilani",
     addressRegion: "Rajasthan",
     postalCode: "333031",

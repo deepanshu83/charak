@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import NextImage from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Boxes,
@@ -119,7 +120,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
             <div className="admin-brand">
               <Link href="/admin">
-                Charak<em>Ayurveda</em>
+                <NextImage
+                  src="/logo.png"
+                  alt="Charak Ayurveda Logo"
+                  width={28}
+                  height={28}
+                  className="admin-brand-logo-img"
+                />
+                <span>
+                  Charak<em>Ayurveda</em>
+                </span>
                 <span className="admin-pill">Admin Console</span>
               </Link>
             </div>
