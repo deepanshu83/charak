@@ -38,6 +38,7 @@ export async function POST(req: Request) {
       state,
       pincode,
       items,
+      paymentStatus,
     } = body;
 
     // 1. CUSTOMER INPUT VALIDATION
@@ -226,7 +227,7 @@ export async function POST(req: Request) {
       pincode: cleanPincode,
       subtotal: calculatedSubtotal,
       total: calculatedTotal,
-      payment_status: "PENDING",
+      payment_status: paymentStatus === "PAID" ? "PAID" : "PENDING",
       order_status: "PENDING",
     };
 

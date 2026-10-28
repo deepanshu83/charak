@@ -86,7 +86,7 @@ export const faqs = [
 export const treatmentCategories = [
   {
     title: "1. PANCHAKARMA",
-    image: "/images/panchkaram.jpeg",
+    image: "/images/treatments/panchakarma.jpg",
     summary: "Authentic classical Panchakarma therapies and residential rejuvenating Ayurvedic retreat programs to cleanse cellular toxins and reboot vitality.",
     conditions: [
       "Panchakarma (Classical 5-fold detoxification)",
@@ -96,7 +96,7 @@ export const treatmentCategories = [
   },
   {
     title: "2. BODY PAIN",
-    image: "/images/joint.png",
+    image: "/images/treatments/body-pain.jpg",
     summary: "Targeted Ayurvedic pain rehabilitation to lubricate joints, soothe inflamed nerves, and restore pain-free spine and joint movement.",
     conditions: [
       "Back pain",
@@ -112,7 +112,7 @@ export const treatmentCategories = [
   },
   {
     title: "3. SKIN",
-    image: "/images/skincare.jpeg",
+    image: "/images/treatments/skincare.jpg",
     summary: "Treating the internal root cause by cooling Rakta-Pitta, detoxifying liver and blood, and restoring radiant scalp and skin health.",
     conditions: [
       "Psoriasis",
@@ -128,7 +128,7 @@ export const treatmentCategories = [
   },
   {
     title: "4. WOMEN'S HEALTH",
-    image: "/images/infertility.png",
+    image: "/images/treatments/womens-health.jpg",
     summary: "Natural reproductive organ nourishment, menstrual cycle normalization, and hormonal equilibrium through gentle Ayurvedic therapies.",
     conditions: [
       "PCOS",
@@ -142,7 +142,7 @@ export const treatmentCategories = [
   },
   {
     title: "5. STOMACH AND DIGESTION",
-    image: "/images/g5.jpg",
+    image: "/images/treatments/digestion.jpg",
     summary: "Kindling the digestive fire (Jatharagni) to clear gut toxins (Ama) and permanently resolve gastrointestinal dysfunctions.",
     conditions: [
       "Acidity and gas",
@@ -156,7 +156,7 @@ export const treatmentCategories = [
   },
   {
     title: "6. STRESS AND LIFESTYLE",
-    image: "/images/g4.jpg",
+    image: "/images/treatments/stress-lifestyle.jpg",
     summary: "Calming an overstimulated nervous system, regulating metabolic balance, and managing chronic modern lifestyle disorders.",
     conditions: [
       "Insomnia",

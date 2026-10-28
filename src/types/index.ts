@@ -71,6 +71,8 @@ export interface CreateOrderInput {
   items: OrderItem[];
   subtotal?: number;
   total?: number;
+  paymentStatus?: PaymentStatus;
+  razorpayPaymentId?: string;
 }
 
 export type AppointmentStatus = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "NO_SHOW";

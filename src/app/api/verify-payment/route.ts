@@ -87,6 +87,24 @@ export async function POST(req: Request) {
       }
     }
 
+    // If pharmacy store order ID was passed, update order payment status in Supabase
+    const storeOrderId = body.store_order_id || body.order_db_id;
+    if (storeOrderId && typeof storeOrderId === "string" && isUUID(storeOrderId)) {
+      try {
+        const supabase = getAdminSupabaseClient();
+        if (supabase) {
+          await supabase
+            .from("orders")
+            .update({
+              payment_status: "PAID",
+            })
+            .eq("id", storeOrderId);
+        }
+      } catch (dbError) {
+        console.warn("[Razorpay verify] Note: Store order DB update warning:", dbError);
+      }
+    }
+
     return NextResponse.json({
       ok: true,
       success: true,

@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     description:
       "Comprehensive classical Ayurvedic treatments and therapies in Pilani, Rajasthan.",
     url: "https://charakayurvedapilani.com/what-we-treat",
-    images: [{ url: "/images/panchkaram.jpeg", alt: "Ayurvedic Treatments Charak" }],
+    images: [{ url: "/images/treatments/panchakarma.jpg", alt: "Ayurvedic Treatments Charak" }],
   },
 };
 
@@ -75,7 +75,7 @@ export default function WhatWeTreatPage() {
                     }}
                   >
                     <Image
-                      src={cat.image || "/images/panchkaram.jpeg"}
+                      src={cat.image || "/images/treatments/panchakarma.jpg"}
                       alt={cat.title}
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

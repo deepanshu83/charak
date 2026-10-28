@@ -11,7 +11,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "Oct 12, 2026",
     readTime: "5 min read",
     author: "Dr. Ramraj Sharma (Panchakarma Specialist)",
-    featuredImage: "/images/panchkaram.jpeg",
+    featuredImage: "/images/blogs/panchakarma.jpg",
     excerpt:
       "Understand Panchakarma therapies, preparation, aftercare and safety. Learn why an individual assessment matters before starting treatment in Pilani.",
     metaTitle: "Panchakarma in Pilani: Therapies & Safety | Charak Ayurveda",
@@ -90,7 +90,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "Oct 13, 2026",
     readTime: "5 min read",
     author: "Dr. Anuja Singhai (Women's Health & Skin Care)",
-    featuredImage: "/images/skincare.jpeg",
+    featuredImage: "/images/blogs/acne-skincare.jpg",
     excerpt:
       "Learn common causes of acne, how to care for acne-prone skin, why marks linger and when professional evaluation can help in Pilani.",
     metaTitle: "Acne & Pimples: Causes and Care in Pilani | Charak Ayurveda",
@@ -168,7 +168,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "Oct 13, 2026",
     readTime: "5 min read",
     author: "Dr. Ramraj Sharma (Panchakarma & Skin Care)",
-    featuredImage: "/images/skincare.jpeg",
+    featuredImage: "/images/blogs/psoriasis-eczema.jpg",
     excerpt:
       "Understand common differences between psoriasis and eczema, everyday skin-care steps, warning signs and why correct diagnosis matters.",
     metaTitle: "Psoriasis vs Eczema: Symptoms & Care | Charak Ayurveda Pilani",
@@ -246,7 +246,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "Oct 14, 2026",
     readTime: "5 min read",
     author: "Dr. Anuja Singhai (Gynaecology & Fertility Specialist)",
-    featuredImage: "/images/infertility.png",
+    featuredImage: "/images/blogs/fertility-care.jpg",
     excerpt:
       "Learn common reasons for difficulty conceiving, which evaluations may be discussed, when to seek help and how to approach supportive care safely.",
     metaTitle: "Infertility: Causes, Tests & Next Steps | Charak Ayurveda Pilani",
@@ -324,7 +324,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "Oct 14, 2026",
     readTime: "5 min read",
     author: "Dr. Varij Pandey (Orthopaedic Care Specialist)",
-    featuredImage: "/images/joint.png",
+    featuredImage: "/images/blogs/joint-spine-pain.jpg",
     excerpt:
       "Explore common causes of back, neck, knee and joint pain, safe movement tips, warning signs and when assessment is important in Pilani.",
     metaTitle: "Back, Neck & Joint Pain: What Helps? | Charak Ayurveda Pilani",
@@ -402,7 +402,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "Oct 15, 2026",
     readTime: "5 min read",
     author: "Dr. Ramraj Sharma (Lifestyle Disorders Specialist)",
-    featuredImage: "/images/g3.jpg",
+    featuredImage: "/images/blogs/diabetes-habits.jpg",
     excerpt:
       "Practical habits for food, movement, sleep and monitoring that support diabetes and blood-pressure care—without replacing prescribed treatment.",
     metaTitle: "Diabetes & BP: Lifestyle Support in Pilani | Charak Ayurveda",
@@ -480,7 +480,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "Oct 15, 2026",
     readTime: "5 min read",
     author: "Dr. Ramraj Sharma (Lifestyle Disorders Specialist)",
-    featuredImage: "/images/g4.jpg",
+    featuredImage: "/images/blogs/stress-insomnia.jpg",
     excerpt:
       "A practical guide to stress, sleep difficulty and sustainable routines for students and professionals, with signs that need clinical support.",
     metaTitle: "Stress & Insomnia Support in Pilani | Charak Ayurveda",
@@ -559,7 +559,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "Oct 16, 2026",
     readTime: "5 min read",
     author: "Dr. Anuja Singhai (Gynaecology & Fertility Specialist)",
-    featuredImage: "/images/infertility.png",
+    featuredImage: "/images/blogs/pcos-pcod.jpg",
     excerpt:
       "Understand PCOS symptoms, irregular periods, acne, metabolic health and fertility questions—and why an individualized medical assessment matters.",
     metaTitle: "PCOS/PCOD: Symptoms & Care in Pilani | Charak Ayurveda",
@@ -637,7 +637,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "Oct 16, 2026",
     readTime: "5 min read",
     author: "Dr. Ramraj Sharma (Panchakarma & Gut Health)",
-    featuredImage: "/images/g5.jpg",
+    featuredImage: "/images/blogs/gut-digestion.jpg",
     excerpt:
       "Learn common causes of bloating, constipation, acidity and IBS-like symptoms, practical habits and digestive warning signs that need medical care.",
     metaTitle: "Bloating, Acidity & IBS: Gut Health Guide | Charak Ayurveda",
@@ -714,7 +714,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "Oct 17, 2026",
     readTime: "5 min read",
     author: "Dr. Ramraj Sharma & Dr. Varij Pandey",
-    featuredImage: "/images/ourApproach.jpeg",
+    featuredImage: "/images/blogs/clinic-pilani.jpg",
     excerpt:
       "Find Charak Ayurveda & Panchakarma Chikitsalaya in Vidyavihar, Pilani. Explore Panchakarma, skin, pain, women’s health, gut and lifestyle concerns.",
     metaTitle: "Ayurveda Clinic Near BITS Pilani & CEERI | Charak Ayurveda",

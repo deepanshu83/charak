@@ -30,6 +30,8 @@ export async function placeOrder(input: CreateOrderInput): Promise<Order> {
       city: input.city,
       state: input.state,
       pincode: input.pincode,
+      paymentStatus: input.paymentStatus,
+      razorpayPaymentId: input.razorpayPaymentId,
       items: input.items.map((i) => ({
         productId: i.productId,
         quantity: i.quantity,
