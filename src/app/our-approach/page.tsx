@@ -55,14 +55,15 @@ export default function OurApproachPage() {
 
         {/* Philosophy Intro */}
         <section style={{ padding: "40px 0 60px" }}>
-          <div className="wrap split-grid">
-            <div className="approach-frame">
+          <div className="wrap split">
+            <div className="frame" style={{ height: "420px", borderRadius: "18px 18px 180px 18px" }}>
               <Image
-                src="/images/ourApproach.jpeg"
-                alt="Charak Ayurveda Sanctuary Vidyavihar"
+                src="/FATHER-AYURVEDA.webp"
+                alt="Father of Ayurveda – Acharya Charak"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                style={{ objectFit: "cover" }}
+                style={{ objectFit: "cover", objectPosition: "center top" }}
+                priority
               />
             </div>
 

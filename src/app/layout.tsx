@@ -62,8 +62,12 @@ export const metadata: Metadata = {
     images: ["/images/ourApproach.jpeg"],
   },
   icons: {
-    icon: "/logo.png",
-    apple: "/logo.png",
+    icon: [
+      { url: "/favicon.ico", sizes: "32x32", type: "image/x-icon" },
+      { url: "/logo.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: { url: "/logo.png", sizes: "180x180", type: "image/png" },
+    shortcut: "/favicon.ico",
   },
   alternates: {
     canonical: "https://charakayurvedapilani.com",
