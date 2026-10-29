@@ -14,6 +14,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import BrandHeader from "@/components/ui/BrandHeader";
+import { formatTime12Hour } from "@/lib/appointmentAvailability";
 
 interface ConfirmedAppointment {
   id: string;
@@ -226,7 +227,7 @@ function AppointmentConfirmationContent() {
                   <Clock size={15} color="var(--green)" /> Time Slot:
                 </span>
                 <strong style={{ color: "var(--green)", fontWeight: 700 }}>
-                  {appointment?.time ? `${appointment.time} hrs` : "Morning Session"}
+                  {appointment?.time ? formatTime12Hour(appointment.time) : "Morning Session"}
                 </strong>
               </div>
 

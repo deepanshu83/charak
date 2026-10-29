@@ -99,3 +99,19 @@ export function isDateInPast(dateStr: string): boolean {
   const today = getTodayIST();
   return dateStr < today;
 }
+
+/**
+ * Formats standard 24-hour time "HH:mm" (e.g. "16:00", "09:30") to 12-hour AM/PM format (e.g. "4:00 PM", "9:30 AM").
+ */
+export function formatTime12Hour(timeStr: string): string {
+  if (!timeStr) return "";
+  if (/(am|pm)/i.test(timeStr)) return timeStr.trim();
+  const parts = timeStr.trim().split(":");
+  if (parts.length < 2) return timeStr;
+  let hour = parseInt(parts[0], 10);
+  const minutes = parts[1].slice(0, 2);
+  if (isNaN(hour)) return timeStr;
+  const ampm = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12 || 12;
+  return `${hour}:${minutes} ${ampm}`;
+}

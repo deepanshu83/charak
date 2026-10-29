@@ -33,7 +33,7 @@ import {
 } from "@/lib/appointmentService";
 import { fetchDoctors } from "@/lib/doctorService";
 import { fetchTreatments } from "@/lib/treatmentService";
-import { getTodayIST } from "@/lib/appointmentAvailability";
+import { getTodayIST, formatTime12Hour } from "@/lib/appointmentAvailability";
 import { launchRazorpayCheckout } from "@/lib/razorpayClient";
 import type { Doctor, Treatment } from "@/types";
 import {
@@ -426,7 +426,7 @@ export default function AppointmentFlow() {
 
               <p className="success-subtext">
                 Your consultation slot has been reserved. The slot{" "}
-                <strong>{createdAppointment.time}</strong> on{" "}
+                <strong>{formatTime12Hour(createdAppointment.time)}</strong> on{" "}
                 <strong>{createdAppointment.date}</strong> is now locked in the schedule.
               </p>
 
@@ -481,7 +481,7 @@ export default function AppointmentFlow() {
                   </div>
                   <div>
                     <span>Time Slot:</span>
-                    <strong>{createdAppointment.time}</strong>
+                    <strong>{formatTime12Hour(createdAppointment.time)}</strong>
                   </div>
                   <div>
                     <span>Payment Status:</span>
@@ -871,12 +871,12 @@ export default function AppointmentFlow() {
                               }}
                               title={
                                 slot.isAvailable
-                                  ? `Select ${slot.time}`
+                                  ? `Select ${formatTime12Hour(slot.time)}`
                                   : "Slot already reserved"
                               }
                             >
                               <Clock size={15} />
-                              <span>{slot.time}</span>
+                              <span>{formatTime12Hour(slot.time)}</span>
                               {!slot.isAvailable && (
                                 <span style={{ fontSize: "0.68rem", opacity: 0.8 }}>
                                   (Full)
@@ -1027,7 +1027,7 @@ export default function AppointmentFlow() {
                             "en-IN",
                             { weekday: "short", day: "numeric", month: "short", year: "numeric" }
                           )}{" "}
-                          at {selectedTime}
+                          at {formatTime12Hour(selectedTime)}
                         </strong>
                       </div>
                       <div>
@@ -1186,7 +1186,7 @@ export default function AppointmentFlow() {
                   )}
                 </strong>
                 <small className="summary-sub">
-                  {selectedTime ? `${selectedTime} hrs` : "Slot pending"}
+                  {selectedTime ? formatTime12Hour(selectedTime) : "Slot pending"}
                 </small>
               </div>
 
