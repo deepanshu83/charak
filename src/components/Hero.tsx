@@ -8,9 +8,9 @@ export default function Hero() {
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
-    // Start fade-out at 8.5s, fully gone at 10s
-    const fadeTimer = setTimeout(() => setFading(true), 8500);
-    const hideTimer = setTimeout(() => setShowOverlay(false), 10000);
+    // Start fade-out at 13.5s, fully gone at 15s
+    const fadeTimer = setTimeout(() => setFading(true), 13500);
+    const hideTimer = setTimeout(() => setShowOverlay(false), 15000);
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(hideTimer);
