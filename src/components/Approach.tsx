@@ -6,11 +6,11 @@ export default function Approach() {
     <section className="wrap split" id="doctor">
       <div className="frame ph6">
         <Image
-          src="/images/ourApproach.jpeg"
-          alt="Ayurvedic care at Charak Ayurveda"
+          src="/FATHER-AYURVEDA.webp"
+          alt="Acharya Charak – Father of Ayurveda"
           width={500}
           height={480}
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }}
           loading="lazy"
         />
       </div>
