@@ -10,6 +10,15 @@ export const metadata: Metadata = {
   title: "Patient Video Testimonials | Charak Ayurveda Pilani",
   description:
     "Watch real patient recovery video stories, Panchakarma milestones, and natural healing experiences at Charak Ayurveda in Vidyavihar, Pilani.",
+  alternates: {
+    canonical: "https://charakayurvedapilani.com/video-testimonials",
+  },
+  openGraph: {
+    title: "Patient Video Testimonials | Charak Ayurveda Pilani",
+    description: "Real patient recovery videos — Panchakarma milestones and natural healing experiences at Charak Ayurveda, Vidyavihar, Pilani.",
+    url: "https://charakayurvedapilani.com/video-testimonials",
+    type: "website",
+  },
 };
 
 export default function VideoTestimonialsPage() {

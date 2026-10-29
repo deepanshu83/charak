@@ -10,6 +10,15 @@ export const metadata: Metadata = {
   title: "Gallery | Charak Ayurveda Pilani",
   description:
     "Explore photo glimpses of Charak Ayurveda clinic in Vidyavihar Pilani, traditional Panchakarma suites, herbal preparations, and peaceful consultation chambers.",
+  alternates: {
+    canonical: "https://charakayurvedapilani.com/gallery",
+  },
+  openGraph: {
+    title: "Gallery | Charak Ayurveda Pilani",
+    description: "Photo glimpses of our Ayurveda clinic, Panchakarma suites, herbal preparations and consultation chambers in Vidyavihar, Pilani.",
+    url: "https://charakayurvedapilani.com/gallery",
+    type: "website",
+  },
 };
 
 export default function GalleryPage() {

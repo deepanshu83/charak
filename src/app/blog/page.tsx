@@ -11,6 +11,15 @@ export const metadata: Metadata = {
   title: "Ayurveda Health Blogs & Clinical Guides | Charak Ayurveda Pilani",
   description:
     "10 evidence-aware Ayurvedic health guides on Panchakarma, Skin Care, Infertility, Joint Pain, Gut Health, and Stress Management by doctors at Charak Ayurveda Pilani.",
+  alternates: {
+    canonical: "https://charakayurvedapilani.com/blog",
+  },
+  openGraph: {
+    title: "Ayurveda Health Blogs & Clinical Guides | Charak Ayurveda Pilani",
+    description: "Evidence-aware Ayurvedic health guides by senior doctors at Charak Ayurveda Pilani — Panchakarma, Skin, Joints, Fertility, Gut & Stress.",
+    url: "https://charakayurvedapilani.com/blog",
+    type: "website",
+  },
 };
 
 export default async function BlogListPage() {

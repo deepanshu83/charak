@@ -58,15 +58,15 @@ export default function RefundPolicyPage() {
           >
             <section>
               <h2 style={{ fontSize: "1.4rem", color: "var(--green)", marginBottom: "12px" }}>
-                1. Doctor Consultation Cancellations &amp; Rescheduling
+                1. Doctor Consultation Fee &amp; Non-Refundable Policy
               </h2>
               <p>
-                We understand that unexpected circumstances arise. We provide a flexible and transparent cancellation policy for pre-booked consultations:
+                All doctor consultations at Charak Ayurveda are booked with confirmed dedicated one-on-one time slots for Nadi Pariksha and personalized clinical assessment:
               </p>
               <ul style={{ paddingLeft: "24px", marginTop: "8px", display: "flex", flexDirection: "column", gap: "6px" }}>
-                <li><strong>Cancellation &gt; 2 Hours Before Slot:</strong> If you cancel your consultation at least 2 hours before the scheduled time slot, you are eligible for a <strong>100% full refund</strong>, or you may choose to reschedule to any mutually available slot without penalty.</li>
-                <li><strong>Cancellation &lt; 2 Hours Before Slot / No-Show:</strong> In case of late cancellation (less than 2 hours prior) or no-show without prior notice, a nominal administrative fee of 20% may be deducted, or the session may be rescheduled upon doctor availability.</li>
-                <li><strong>Doctor Unavailability:</strong> If our doctor is called for emergency medical duty or unavailable due to unforeseen clinic circumstances, you will be offered an immediate 100% refund or priority rescheduling at your preferred slot.</li>
+                <li><strong>Strictly Non-Refundable (परामर्श शुल्क वापस नहीं होगा):</strong> The doctor consultation fee of <strong>₹500</strong> is completely non-refundable once an appointment slot is reserved and paid online via Razorpay.</li>
+                <li><strong>Rescheduling Policy:</strong> If you are unable to attend your appointment due to genuine personal emergencies, you may request to reschedule your consultation to any mutually available date/time by contacting our front desk at least 2 hours in advance. No cancellation refund will be issued.</li>
+                <li><strong>Doctor Unavailability:</strong> In the rare event that a doctor is called away for emergency medical duties or is unavailable, you will receive priority rescheduling to your preferred date and time, or an exception refund processed back to your original payment method.</li>
               </ul>
             </section>
 

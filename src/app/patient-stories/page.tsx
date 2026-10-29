@@ -11,6 +11,15 @@ export const metadata: Metadata = {
   title: "Patient Stories & Testimonials | Charak Ayurveda Pilani",
   description:
     "Read authentic patient healing stories and reviews for Panchakarma detox, chronic skin care, joint pain, and fertility treatments at Charak Ayurveda.",
+  alternates: {
+    canonical: "https://charakayurvedapilani.com/patient-stories",
+  },
+  openGraph: {
+    title: "Patient Stories & Testimonials | Charak Ayurveda Pilani",
+    description: "Authentic patient healing stories — Panchakarma detox, skin care, joint pain, and fertility treatments at Charak Ayurveda Pilani.",
+    url: "https://charakayurvedapilani.com/patient-stories",
+    type: "website",
+  },
 };
 
 export default function PatientStoriesPage() {

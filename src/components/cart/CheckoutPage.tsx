@@ -10,9 +10,12 @@ import {
   LockKeyhole,
   ShieldCheck,
   ShoppingBag,
+  CheckCircle2,
+  Lock,
 } from "lucide-react";
 import { useCart } from "@/lib/cart-store";
 import { placeOrder } from "@/lib/orderService";
+import { launchRazorpayCheckout } from "@/lib/razorpayClient";
 import { useToast } from "@/components/ui/ToastContext";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
@@ -47,6 +50,7 @@ export default function CheckoutPage() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
@@ -72,6 +76,46 @@ export default function CheckoutPage() {
 
     setErrors(errs);
     return Object.keys(errs).length === 0;
+  };
+
+  const handleFinishOrder = async (paymentStatus: "PAID" | "PENDING", razorpayPaymentId?: string) => {
+    const orderItems: OrderItem[] = items.map((item) => {
+      const product = getProduct(item.productId);
+      return {
+        productId: item.productId,
+        name: product?.name || "Herbal Product",
+        quantity: item.quantity,
+        price: product?.price || 0,
+      };
+    });
+
+    const createdOrder = await placeOrder({
+      customerName: form.fullName.trim(),
+      phone: form.phone.trim(),
+      email: form.email.trim(),
+      address: form.address.trim(),
+      city: form.city.trim(),
+      state: form.state.trim(),
+      pincode: form.pincode.trim(),
+      items: orderItems,
+      paymentStatus,
+      razorpayPaymentId,
+    });
+
+    clearCart();
+    try {
+      localStorage.setItem("charak-last-order", JSON.stringify(createdOrder));
+    } catch {
+      // Ignore
+    }
+    success(
+      paymentStatus === "PAID"
+        ? `Order ${createdOrder.id} confirmed and paid via Razorpay!`
+        : `Order ${createdOrder.id} placed successfully.`,
+      paymentStatus === "PAID" ? "Payment Successful" : "Order Placed"
+    );
+
+    router.push(`/order-success/${createdOrder.id}`);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -101,43 +145,46 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
-      const orderItems: OrderItem[] = items.map((item) => {
-        const product = getProduct(item.productId);
-        return {
-          productId: item.productId,
-          name: product?.name || "Herbal Product",
-          quantity: item.quantity,
-          price: product?.price || 0,
-        };
-      });
-
-      const createdOrder = await placeOrder({
-        customerName: form.fullName.trim(),
-        phone: form.phone.trim(),
-        email: form.email.trim(),
-        address: form.address.trim(),
-        city: form.city.trim(),
-        state: form.state.trim(),
-        pincode: form.pincode.trim(),
-        items: orderItems,
-      });
-
-      clearCart();
-      try {
-        localStorage.setItem("charak-last-order", JSON.stringify(createdOrder));
-      } catch {
-        // Ignore
+      if (paymentMethod === "razorpay") {
+        const amountPaise = Math.max(100, Math.round(subtotal * 100));
+        await launchRazorpayCheckout({
+          amountPaise,
+          currency: "INR",
+          description: "Charak Ayurveda Pharmacy Dispensary Order",
+          prefill: {
+            name: form.fullName.trim(),
+            email: form.email.trim(),
+            contact: form.phone.trim(),
+          },
+          notes: {
+            orderType: "pharmacy_cart",
+            customerName: form.fullName.trim(),
+          },
+          onSuccess: async (_verifyResult, raw) => {
+            try {
+              await handleFinishOrder("PAID", raw.razorpay_payment_id);
+            } catch (err) {
+              const msg = err instanceof Error ? err.message : "Error saving confirmed order.";
+              toastError(msg, "Order Error");
+            } finally {
+              setIsSubmitting(false);
+            }
+          },
+          onError: (errMsg) => {
+            setIsSubmitting(false);
+            toastError(errMsg, "Payment Error");
+          },
+          onDismiss: () => {
+            setIsSubmitting(false);
+            toastError("Payment window was closed. You can retry or choose Pay on Delivery.", "Checkout Dismissed");
+          },
+        });
+      } else {
+        await handleFinishOrder("PENDING");
       }
-      success(
-        `Order ${createdOrder.id} placed successfully.`,
-        "Order Placed"
-      );
-
-      router.push(`/order-success/${createdOrder.id}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to place order. Please try again.";
       toastError(msg, "Checkout Error");
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -246,19 +293,86 @@ export default function CheckoutPage() {
               </div>
 
               <div className="mvp-payment-section">
-                <h2>2. Payment &amp; Dispatch Option</h2>
-                <div className="mvp-mock-payment-banner">
-                  <div className="banner-icon">
-                    <CreditCard size={28} />
-                  </div>
-                  <div className="banner-content">
-                    <div className="banner-title">
-                      <strong>Hospital Pharmacy Verification (Pay on Delivery / Collection)</strong>
-                      <span className="badge-tag">PENDING CONFIRMATION</span>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
+                  <h2 style={{ margin: 0 }}>2. Select Payment Method</h2>
+                  <span style={{ fontSize: "0.8rem", color: "var(--ink-muted, #666)", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <Lock size={13} style={{ color: "var(--green, #184232)" }} /> 256-Bit SSL Encrypted
+                  </span>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "14px", marginBottom: "20px" }}>
+                  {/* Option 1: Razorpay Online Payment */}
+                  <div
+                    onClick={() => setPaymentMethod("razorpay")}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") setPaymentMethod("razorpay");
+                    }}
+                    style={{
+                      border: paymentMethod === "razorpay" ? "2px solid #184232" : "1px solid #e5dfd5",
+                      background: paymentMethod === "razorpay" ? "rgba(24, 66, 50, 0.04)" : "#ffffff",
+                      borderRadius: "14px",
+                      padding: "18px",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      boxShadow: paymentMethod === "razorpay" ? "0 4px 14px rgba(24, 66, 50, 0.08)" : "none",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "rgba(24, 66, 50, 0.1)", display: "grid", placeItems: "center" }}>
+                          <CreditCard size={18} style={{ color: "#184232" }} />
+                        </div>
+                        <strong style={{ fontSize: "0.98rem", color: "#184232" }}>Pay Online (Razorpay)</strong>
+                      </div>
+                      <span style={{ fontSize: "0.7rem", background: "#c59b27", color: "#ffffff", padding: "2px 8px", borderRadius: "10px", fontWeight: 700 }}>
+                        RECOMMENDED
+                      </span>
                     </div>
-                    <p>
-                      Your order is registered directly with the hospital pharmacy dispensary with payment status <em>PENDING</em>. Our dispensing team will verify formulation batches and confirm delivery dispatch. Online payment gateway integration is coming soon.
+                    <p style={{ fontSize: "0.82rem", color: "#555", margin: "0 0 10px", lineHeight: 1.45 }}>
+                      Instant confirmation via UPI (Google Pay, PhonePe, Paytm), Debit/Credit Cards &amp; NetBanking.
                     </p>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.75rem", color: "#184232", fontWeight: 600 }}>
+                      <ShieldCheck size={14} /> Official Razorpay Checkout
+                    </div>
+                  </div>
+
+                  {/* Option 2: Pay on Delivery / Dispensary Collection */}
+                  <div
+                    onClick={() => setPaymentMethod("cod")}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") setPaymentMethod("cod");
+                    }}
+                    style={{
+                      border: paymentMethod === "cod" ? "2px solid #184232" : "1px solid #e5dfd5",
+                      background: paymentMethod === "cod" ? "rgba(24, 66, 50, 0.04)" : "#ffffff",
+                      borderRadius: "14px",
+                      padding: "18px",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      boxShadow: paymentMethod === "cod" ? "0 4px 14px rgba(24, 66, 50, 0.08)" : "none",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "rgba(197, 155, 39, 0.12)", display: "grid", placeItems: "center" }}>
+                          <CheckCircle2 size={18} style={{ color: "#c59b27" }} />
+                        </div>
+                        <strong style={{ fontSize: "0.98rem", color: "#184232" }}>Pay on Delivery</strong>
+                      </div>
+                      <span style={{ fontSize: "0.7rem", background: "#f3f4f6", color: "#4b5563", padding: "2px 8px", borderRadius: "10px", fontWeight: 600 }}>
+                        DISPENSARY
+                      </span>
+                    </div>
+                    <p style={{ fontSize: "0.82rem", color: "#555", margin: "0 0 10px", lineHeight: 1.45 }}>
+                      Pay via cash or UPI upon package dispatch / collection at our hospital pharmacy.
+                    </p>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.75rem", color: "#666", fontWeight: 500 }}>
+                      Pharmacy Verification on Dispatch
+                    </div>
                   </div>
                 </div>
               </div>
@@ -272,7 +386,11 @@ export default function CheckoutPage() {
                 id="submit-checkout-btn"
                 icon={<LockKeyhole size={18} />}
               >
-                {isSubmitting ? "Placing Order..." : "Confirm & Place Order"}
+                {isSubmitting
+                  ? "Processing..."
+                  : paymentMethod === "razorpay"
+                  ? `Pay ₹${(subtotal ?? 0).toLocaleString("en-IN")} via Razorpay`
+                  : "Confirm & Place Order (Pay on Delivery)"}
               </Button>
             </div>
 

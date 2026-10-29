@@ -20,6 +20,7 @@ import {
   CreditCard,
   Building2,
   Lock,
+  AlertCircle,
 } from "lucide-react";
 import {
   bookAppointment,
@@ -273,7 +274,7 @@ export default function AppointmentFlow() {
           setIsSubmitting(false);
           toast.warning(
             "Payment Window Closed",
-            "Payment checkout was dismissed. You can retry online payment or choose to pay at the clinic."
+            "Payment checkout was dismissed. Please complete the online Razorpay payment to confirm your booking."
           );
         },
       });
@@ -512,17 +513,9 @@ export default function AppointmentFlow() {
               </div>
 
               <div className="prototype-status-note">
-                <Info size={16} />
+                <ShieldCheck size={16} />
                 <span>
-                  {createdAppointment.paymentStatus === "PAID" ? (
-                    <>
-                      <strong>Payment Receipt Confirmed:</strong> Your consultation fee has been settled via Razorpay Secure Checkout. Please arrive 10 minutes prior to your scheduled consultation time.
-                    </>
-                  ) : (
-                    <>
-                      <strong>Preparation for Nadi Pariksha:</strong> Please arrive 10 minutes early. Consultation fee of ₹{(selectedDoctor?.consultationFee ?? 500).toLocaleString("en-IN")} is settled directly at the hospital reception.
-                    </>
-                  )}
+                  <strong>Consultation Fee Settled (₹500 Paid via Razorpay):</strong> Your appointment is confirmed and verified. Please arrive 10 minutes prior to your scheduled consultation time. <em>(Consultation fee is strictly non-refundable).</em>
                 </span>
               </div>
 
@@ -600,8 +593,8 @@ export default function AppointmentFlow() {
                               </div>
                               <p>{t.description}</p>
                               <div className="choice-card-meta">
-                                <span>Duration: {t.duration}</span>
-                                <strong>₹{(t.price ?? 0).toLocaleString("en-IN")}</strong>
+                                <span>Duration: {t.duration || "45 min"}</span>
+                                <strong style={{ color: "var(--green)", fontWeight: 700 }}>Consultation: ₹500</strong>
                               </div>
                             </div>
                           </div>
@@ -1115,32 +1108,27 @@ export default function AppointmentFlow() {
                         </div>
                       </div>
 
-                      {/* Option 2: Pay at Clinic */}
+                      {/* Non-Refundable Policy Notice */}
                       <div
-                        onClick={() => setPaymentMethod("pay_at_clinic")}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") setPaymentMethod("pay_at_clinic");
-                        }}
                         style={{
-                          border: paymentMethod === "pay_at_clinic" ? "2px solid var(--green)" : "1px solid var(--border)",
-                          background: paymentMethod === "pay_at_clinic" ? "rgba(24, 66, 50, 0.04)" : "var(--cream)",
+                          border: "1px solid rgba(194, 91, 56, 0.35)",
+                          background: "rgba(194, 91, 56, 0.06)",
                           borderRadius: "14px",
                           padding: "16px",
-                          cursor: "pointer",
-                          transition: "all 0.2s ease",
-                          boxShadow: paymentMethod === "pay_at_clinic" ? "0 4px 12px rgba(24, 66, 50, 0.08)" : "none",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          gap: "8px",
                         }}
                       >
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                          <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "rgba(194, 91, 56, 0.1)", display: "grid", placeItems: "center" }}>
-                            <Building2 size={16} style={{ color: "var(--terra)" }} />
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "rgba(194, 91, 56, 0.12)", display: "grid", placeItems: "center", flexShrink: 0 }}>
+                            <AlertCircle size={16} style={{ color: "var(--terra)" }} />
                           </div>
-                          <strong style={{ fontSize: "0.95rem", color: "var(--ink)" }}>Pay at Hospital</strong>
+                          <strong style={{ fontSize: "0.92rem", color: "var(--terra)" }}>Non-Refundable Fee (परामर्श शुल्क वापस नहीं होगा)</strong>
                         </div>
-                        <p style={{ fontSize: "0.8rem", color: "var(--ink-muted)", margin: 0, lineHeight: 1.4 }}>
-                          Settle ₹{(selectedDoctor?.consultationFee ?? 500).toLocaleString("en-IN")} at hospital reception desk beside Birla Hospital upon arrival.
+                        <p style={{ fontSize: "0.8rem", color: "var(--ink)", margin: 0, lineHeight: 1.45 }}>
+                          ₹500 consultation fee is <strong>strictly non-refundable</strong> once paid. Booking is confirmed instantly via Razorpay online checkout.
                         </p>
                       </div>
                     </div>
@@ -1156,31 +1144,18 @@ export default function AppointmentFlow() {
                       Edit Details
                     </Button>
 
-                    {paymentMethod === "razorpay" ? (
-                      <Button
-                        variant="gold"
-                        onClick={handlePayWithRazorpay}
-                        disabled={isSubmitting}
-                        isLoading={isSubmitting}
-                        icon={<ShieldCheck size={18} />}
-                        id="razorpay-pay-btn"
-                      >
-                        {isSubmitting
-                          ? "Connecting to Razorpay..."
-                          : `Pay ₹${(selectedDoctor?.consultationFee ?? 500).toLocaleString("en-IN")} via Razorpay`}
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="primary"
-                        onClick={handleConfirmAppointment}
-                        disabled={isSubmitting}
-                        isLoading={isSubmitting}
-                        icon={<CheckCircle2 size={18} />}
-                        id="confirm-booking-btn"
-                      >
-                        {isSubmitting ? "Confirming..." : "Confirm Booking (Pay at Clinic)"}
-                      </Button>
-                    )}
+                    <Button
+                      variant="gold"
+                      onClick={handlePayWithRazorpay}
+                      disabled={isSubmitting}
+                      isLoading={isSubmitting}
+                      icon={<ShieldCheck size={18} />}
+                      id="razorpay-pay-btn"
+                    >
+                      {isSubmitting
+                        ? "Connecting to Razorpay..."
+                        : `Pay ₹${(selectedDoctor?.consultationFee ?? 500).toLocaleString("en-IN")} via Razorpay (Non-Refundable)`}
+                    </Button>
                   </div>
                 </div>
               )}

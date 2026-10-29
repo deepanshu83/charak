@@ -10,6 +10,15 @@ export const metadata: Metadata = {
   title: "Our Approach | Charak Ayurveda Pilani",
   description:
     "Learn about our classical Ayurvedic medical philosophy, rooted in the teachings of Acharya Charak, focused on root-cause healing and natural harmony.",
+  alternates: {
+    canonical: "https://charakayurvedapilani.com/our-approach",
+  },
+  openGraph: {
+    title: "Our Approach to Healing | Charak Ayurveda Pilani",
+    description: "Classical Ayurvedic healing philosophy rooted in Acharya Charak’s teachings — root-cause treatment, Nadi Pariksha, and natural harmony.",
+    url: "https://charakayurvedapilani.com/our-approach",
+    type: "website",
+  },
 };
 
 export default function OurApproachPage() {

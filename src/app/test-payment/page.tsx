@@ -212,7 +212,7 @@ export default function TestPaymentPage() {
                     border: "1px solid #a7f3d0",
                   }}
                 >
-                  Key: rzp_test_TtCarJLM4XMTit
+                  Razorpay Standard Checkout Active
                 </span>
               </div>
 
