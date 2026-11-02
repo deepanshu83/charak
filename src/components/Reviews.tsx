@@ -13,17 +13,27 @@ const DEFAULT_REVIEWS: ReviewItem[] = [
   {
     id: "rev-1",
     quote: "My joint pain reduced a lot after the Panchakarma course. The doctor explains everything clearly.",
-    author: "Patient, Pilani",
+    author: "Suman Sharma, Pilani",
   },
   {
     id: "rev-2",
     quote: "Years of skin trouble improved with natural treatment and diet advice.",
-    author: "Patient, Vidyavihar",
+    author: "Aman Kumar, Vidyavihar",
   },
   {
     id: "rev-3",
     quote: "Supportive guidance and a peaceful atmosphere throughout our journey.",
-    author: "Patient, Jhunjhunu",
+    author: "Neha Pareek, Jhunjhunu",
+  },
+  {
+    id: "rev-4",
+    quote: "Effective Ayurvedic therapies for chronic cervical pain. Highly recommended clinic in Shekhawati.",
+    author: "Vikram Shekhawat, Chirawa",
+  },
+  {
+    id: "rev-5",
+    quote: "The authentic Nadi Pariksha and herbal rasayanas helped restore my digestive wellness completely.",
+    author: "Priya Goyal, Pilani",
   },
 ];
 
