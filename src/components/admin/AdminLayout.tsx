@@ -128,7 +128,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   className="admin-brand-logo-img"
                 />
                 <span>
-                  Charak<em>Ayurveda</em>
+                  Charak <em>Ayurveda</em>
                 </span>
                 <span className="admin-pill">Admin Console</span>
               </Link>
