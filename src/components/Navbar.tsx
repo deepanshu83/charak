@@ -9,8 +9,6 @@ import {
   X,
   ChevronRight,
   Calendar,
-  Phone,
-  MessageCircle,
   Sparkles,
   UserCheck,
   Package,
@@ -19,7 +17,6 @@ import {
   Image as ImageIcon,
   BookOpen,
   MapPin,
-  Clock,
 } from "lucide-react";
 
 export default function Navbar() {
