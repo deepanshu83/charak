@@ -6,7 +6,7 @@ export default function Approach() {
     <section className="wrap split" id="doctor">
       <div className="frame ph6" style={{ position: "relative", overflow: "hidden" }}>
         <Image
-          src="/FATHER-AYURVEDA.webp"
+          src="/Charaka_%20Father%20of%20Ayurveda.png"
           alt="Acharya Charak – Father of Ayurveda"
           fill
           sizes="(max-width: 768px) 100vw, 500px"

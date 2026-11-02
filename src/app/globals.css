@@ -2013,7 +2013,7 @@ footer p {
   .stats {
     gap: 22px 10px;
   }
-  .tgrid, .rgrid {
+  .tgrid, .rgrid, .steps {
     display: flex;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
@@ -2023,12 +2023,17 @@ footer p {
     padding: 4px 16px 18px;
     scrollbar-width: none;
   }
-  .tgrid::-webkit-scrollbar, .rgrid::-webkit-scrollbar {
+  .tgrid::-webkit-scrollbar, .rgrid::-webkit-scrollbar, .steps::-webkit-scrollbar {
     display: none;
   }
   .t {
     flex: 0 0 280px;
     max-width: 82vw;
+    scroll-snap-align: center;
+  }
+  .steps li {
+    flex: 0 0 260px;
+    max-width: 80vw;
     scroll-snap-align: center;
   }
   blockquote {

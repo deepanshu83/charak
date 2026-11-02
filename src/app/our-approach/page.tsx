@@ -67,7 +67,7 @@ export default function OurApproachPage() {
           <div className="wrap split">
             <div className="frame" style={{ height: "420px", borderRadius: "18px 18px 180px 18px" }}>
               <Image
-                src="/FATHER-AYURVEDA.webp"
+                src="/Charaka_%20Father%20of%20Ayurveda.png"
                 alt="Father of Ayurveda – Acharya Charak"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
