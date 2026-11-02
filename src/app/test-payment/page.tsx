@@ -10,7 +10,6 @@ import {
   CheckCircle2,
   AlertCircle,
   RotateCcw,
-  ExternalLink,
   Lock,
   ArrowRight,
   Info,
@@ -472,7 +471,7 @@ export default function TestPaymentPage() {
                   }}
                 >
                   <div style={{ color: "#74d4a8", fontWeight: 700, marginBottom: "10px" }}>
-                    // Razorpay Signature Verified Payload
+                    {"// Razorpay Signature Verified Payload"}
                   </div>
                   <div style={{ marginBottom: "6px" }}>
                     <span style={{ color: "#f3ba4b" }}>razorpay_payment_id: </span>

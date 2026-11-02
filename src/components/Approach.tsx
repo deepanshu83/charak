@@ -4,13 +4,13 @@ import Link from "next/link";
 export default function Approach() {
   return (
     <section className="wrap split" id="doctor">
-      <div className="frame ph6">
+      <div className="frame ph6" style={{ position: "relative", overflow: "hidden" }}>
         <Image
           src="/FATHER-AYURVEDA.webp"
           alt="Acharya Charak – Father of Ayurveda"
-          width={500}
-          height={480}
-          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }}
+          fill
+          sizes="(max-width: 768px) 100vw, 500px"
+          style={{ objectFit: "cover", objectPosition: "center top" }}
           loading="lazy"
         />
       </div>
