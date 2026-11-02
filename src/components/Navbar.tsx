@@ -57,57 +57,54 @@ export default function Navbar() {
     {
       href: "/treatments",
       label: "Treatments & Therapies",
-      sublabel: "Authentic Panchakarma & Holistic Care",
       icon: Sparkles,
     },
     {
       href: "/doctors",
-      label: "Our Ayurvedic Doctors",
-      sublabel: "Senior Vaidyas & Nadi Pariksha Experts",
+      label: "Ayurvedic Doctors",
       icon: UserCheck,
     },
     {
       href: "/products",
-      label: "Medicinal Formulations",
-      sublabel: "Herbal Oils, Rasayanas & Wellness Kits",
+      label: "Medicines & Formulations",
       icon: Package,
       badge: "Soon",
     },
     {
       href: "/our-approach",
       label: "Our Vedic Approach",
-      sublabel: "Root-Cause Healing Philosophy",
       icon: Heart,
     },
     {
       href: "/patient-stories",
       label: "Patient Stories & Reviews",
-      sublabel: "Real Recovery & Healing Experiences",
       icon: BookOpen,
     },
     {
       href: "/video-testimonials",
       label: "Video Testimonials",
-      sublabel: "Patient Journeys on Video",
       icon: Video,
     },
     {
       href: "/gallery",
       label: "Clinic & Suites Gallery",
-      sublabel: "Explore Our Modern Ayurvedic Center",
       icon: ImageIcon,
     },
     {
       href: "/blog",
       label: "Ayurvedic Wisdom & Blog",
-      sublabel: "Health Articles & Daily Wellness Tips",
       icon: BookOpen,
     },
     {
       href: "/#contact",
       label: "Contact & Location",
-      sublabel: "Beside Birla Hospital, Vidyavihar, Pilani",
       icon: MapPin,
+    },
+    {
+      href: "/appointment",
+      label: "Book Consultation",
+      icon: Calendar,
+      highlight: true,
     },
   ];
 
@@ -168,7 +165,7 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Mobile Slide-Over Drawer & Backdrop - rendered outside header to avoid stacking context clipping */}
+      {/* Mobile Slide-Over Drawer & Backdrop - clean & premium */}
       {isOpen && (
         <div className="mobile-nav-portal-wrapper">
           <div
@@ -207,13 +204,7 @@ export default function Navbar() {
               </button>
             </div>
 
-            {/* Quick Status Pill */}
-            <div className="mobile-drawer-banner">
-              <span className="banner-pulse" />
-              <span>Ayurvedic Panchakarma &amp; Wellness Center</span>
-            </div>
-
-            {/* Scrollable Links Container */}
+            {/* Clean & Elegant Scrollable Navigation Links */}
             <nav className="mobile-drawer-body" aria-label="Mobile Navigation Links">
               <div className="mobile-nav-links">
                 {navLinks.map((item) => {
@@ -223,66 +214,26 @@ export default function Navbar() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`mobile-nav-item ${isActive ? "is-current" : ""}`}
+                      className={`mobile-nav-item ${isActive ? "is-current" : ""} ${
+                        item.highlight ? "is-highlighted" : ""
+                      }`}
                       onClick={closeMenu}
                     >
                       <div className="mobile-nav-item-icon">
                         <Icon size={18} />
                       </div>
-                      <div className="mobile-nav-item-text">
-                        <div className="mobile-nav-item-title">
-                          <span>{item.label}</span>
-                          {item.badge && (
-                            <span className="products-soon-badge">{item.badge}</span>
-                          )}
-                        </div>
-                        <span className="mobile-nav-item-sub">{item.sublabel}</span>
-                      </div>
+                      <span className="mobile-nav-item-title">
+                        {item.label}
+                      </span>
+                      {item.badge && (
+                        <span className="products-soon-badge">{item.badge}</span>
+                      )}
                       <ChevronRight size={16} className="mobile-nav-item-arrow" />
                     </Link>
                   );
                 })}
               </div>
             </nav>
-
-            {/* Drawer Footer with High-Impact CTAs & Clinic Info */}
-            <div className="mobile-drawer-footer">
-              <Link
-                href="/appointment"
-                className="mobile-drawer-consult-btn"
-                onClick={closeMenu}
-              >
-                <Calendar size={18} />
-                <span>Book Doctor Consultation</span>
-              </Link>
-
-              <div className="mobile-drawer-contact-chips">
-                <a href="tel:+918852887717" className="mobile-drawer-chip call-chip">
-                  <Phone size={15} />
-                  <span>Call Clinic</span>
-                </a>
-                <a
-                  href="https://wa.me/918852887717"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mobile-drawer-chip wa-chip"
-                >
-                  <MessageCircle size={15} />
-                  <span>WhatsApp</span>
-                </a>
-              </div>
-
-              <div className="mobile-drawer-meta">
-                <div className="drawer-meta-row">
-                  <MapPin size={13} />
-                  <span>Beside Birla Hospital, Vidyavihar, Pilani</span>
-                </div>
-                <div className="drawer-meta-row">
-                  <Clock size={13} />
-                  <span>Mon – Sat: 9:00 AM – 7:30 PM</span>
-                </div>
-              </div>
-            </div>
           </aside>
         </div>
       )}

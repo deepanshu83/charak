@@ -1870,7 +1870,9 @@ footer p {
   position: fixed;
   bottom: calc(14px + env(safe-area-inset-bottom, 0px));
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, 24px);
+  opacity: 0;
+  visibility: hidden;
   width: calc(100% - 32px);
   max-width: 330px;
   display: flex;
@@ -1883,6 +1885,15 @@ footer p {
   box-shadow: none;
   z-index: 60;
   pointer-events: none;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.28s ease,
+              visibility 0.28s ease;
+}
+
+.mbar.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
 }
 
 .mbar .mbar-btn,
