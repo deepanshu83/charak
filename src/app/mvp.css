@@ -1616,7 +1616,7 @@
 .admin-brand em {
   color: var(--gold);
   font-style: italic;
-  margin-left: 6px;
+  margin-left: 0.28em;
 }
 
 .admin-pill {

@@ -17,7 +17,7 @@ export default function Footer() {
             className="footer-logo-img"
           />
           <span className="logo-brand-text">
-            Charak<em>Ayurveda</em>
+            Charak <em>Ayurveda</em>
           </span>
         </Link>
         <p>Panchakarma, Skin Care, Joint Care &amp; Infertility Center</p>

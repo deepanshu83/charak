@@ -122,7 +122,7 @@ export default function Navbar() {
               className="logo-img"
             />
             <span className="logo-brand-text">
-              Charak<em>Ayurveda</em>
+              Charak <em>Ayurveda</em>
             </span>
           </Link>
 
@@ -190,7 +190,7 @@ export default function Navbar() {
                   className="drawer-logo-img"
                 />
                 <div className="drawer-brand-col">
-                  <span className="drawer-brand-title">Charak<em>Ayurveda</em></span>
+                  <span className="drawer-brand-title">Charak <em>Ayurveda</em></span>
                   <span className="drawer-brand-sub">Pilani, Rajasthan</span>
                 </div>
               </Link>
