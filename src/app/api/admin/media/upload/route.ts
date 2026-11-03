@@ -165,6 +165,12 @@ export async function POST(req: Request) {
         );
       }
     } else {
+      const ext = path.extname(file.name).replace(".", "").toLowerCase();
+      if (!detectedMime || detectedMime === "application/octet-stream" || detectedMime === "binary/octet-stream") {
+        if (ext === "mp4" || ext === "m4v") detectedMime = "video/mp4";
+        else if (ext === "webm") detectedMime = "video/webm";
+      }
+
       if (!ALLOWED_VIDEO_MIMES.has(detectedMime)) {
         return NextResponse.json(
           { ok: false, error: "Please upload MP4 or WEBM video." },

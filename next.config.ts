@@ -41,6 +41,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  experimental: {
+    proxyClientMaxBodySize: "105mb",
+  },
   images: {
     dangerouslyAllowLocalIP: true,
     remotePatterns: [

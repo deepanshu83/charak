@@ -487,10 +487,15 @@ export default function VideoTestimonialManager() {
               })
             }
             folder="testimonials"
-            label="Video File (iPhone / Android formats; upload is compressed to 10 MB)"
+            label="Video File (iPhone / Android formats; server conversion and compression to 10 MB)"
             required
             disabled={!editingItem && isLimitReached}
           />
+          {!form.videoUrl.trim() && (
+            <p className="text-xs text-stone-500">
+              The video must finish converting and uploading before you can save.
+            </p>
+          )}
 
           <div className="testimonial-modal-actions">
             <Button
@@ -504,7 +509,7 @@ export default function VideoTestimonialManager() {
             <Button
               type="submit"
               className="bg-emerald-800 hover:bg-emerald-900 text-white"
-              disabled={saving || (!editingItem && isLimitReached)}
+              disabled={saving || (!editingItem && isLimitReached) || !form.videoUrl.trim()}
             >
               {saving ? "Saving..." : editingItem ? "Update Video" : "Save Video"}
             </Button>
