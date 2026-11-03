@@ -337,14 +337,14 @@ export default function VideoUpload({
             <div className="flex flex-col items-center justify-center space-y-2 py-3">
               <RefreshCw className="animate-spin text-amber-600" size={28} />
               <p className="text-sm font-medium text-stone-700">
-                Converting video on the server...
+                Processing video and preparing preview...
               </p>
-              <p className="text-xs text-stone-500">This may take a little while for large videos.</p>
+              <p className="text-xs text-stone-500">Please wait a moment.</p>
             </div>
           ) : uploading ? (
             <div className="flex flex-col items-center justify-center space-y-2 py-3">
               <UploadCloud className="animate-bounce text-emerald-600" size={28} />
-              <p className="text-sm font-medium text-stone-700">Uploading compressed video to storage...</p>
+              <p className="text-sm font-medium text-stone-700">Uploading video to storage...</p>
               <div className="video-upload-progress" />
             </div>
           ) : (
@@ -367,7 +367,7 @@ export default function VideoUpload({
                 {selectedFileName ? `Selected: ${selectedFileName}` : "Choose a video or drag and drop"}
               </div>
               <div className="text-xs text-stone-500">
-                iPhone: MOV / MP4 / M4V &bull; Android: MP4 / 3GP / WEBM &bull; Source up to 100 MB
+                MP4 / WebM up to 10 MB &bull; Source up to 100 MB
               </div>
             </div>
           )}

@@ -487,13 +487,13 @@ export default function VideoTestimonialManager() {
               })
             }
             folder="testimonials"
-            label="Video File (iPhone / Android formats; server conversion and compression to 10 MB)"
+            label="Video File (MP4 / WebM format, up to 10 MB)"
             required
             disabled={!editingItem && isLimitReached}
           />
           {!form.videoUrl.trim() && (
             <p className="text-xs text-stone-500">
-              The video must finish converting and uploading before you can save.
+              Upload an MP4 or WebM video (up to 10 MB) to enable saving.
             </p>
           )}
 
