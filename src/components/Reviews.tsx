@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { fetchPatientStories } from "@/lib/patientStoryService";
 
 interface ReviewItem {
   id: string;
   quote: string;
   author: string;
+  image?: string;
 }
 
 const DEFAULT_REVIEWS: ReviewItem[] = [
@@ -57,6 +59,7 @@ export default function Reviews({ showHeader = true, style }: ReviewsProps) {
               id: r.id,
               quote: r.quote,
               author: `${r.name}, ${r.location || "Pilani"}`,
+              image: r.image,
             }))
           );
           setIsLiveContent(true);
@@ -81,9 +84,21 @@ export default function Reviews({ showHeader = true, style }: ReviewsProps) {
       )}
       <div className="rgrid">
         {reviews.map((r) => (
-          <blockquote key={r.id}>
-            <span>★★★★★</span>
-            {r.quote}
+          <blockquote key={r.id} className="review-card">
+            {r.image && (
+              <Image
+                src={r.image}
+                alt={`${r.author.split(",")[0]} testimonial`}
+                width={56}
+                height={56}
+                unoptimized={r.image.startsWith("http") || r.image.startsWith("/uploads")}
+                className="review-patient-photo"
+              />
+            )}
+            <span className="review-stars" aria-label="5 out of 5 stars">
+              ★★★★★
+            </span>
+            <p className="review-quote">{r.quote}</p>
             <cite>{r.author}</cite>
           </blockquote>
         ))}

@@ -56,6 +56,12 @@ function getVideoExtension(fileName: string): string {
   return fileName.split(".").pop()?.toLowerCase() || "";
 }
 
+function getUnsupportedVideoMessage(file: File): string {
+  const extension = getVideoExtension(file.name).toUpperCase();
+  const sourceFormat = extension ? `${extension} file` : "video file";
+  return `This browser cannot decode this ${sourceFormat}. iPhone videos may use HEVC/H.265, which some browsers do not support. Export or convert it to H.264 MP4, or upload it from Safari on iPhone.`;
+}
+
 function getOutputMimeType(): string {
   if (typeof MediaRecorder === "undefined") {
     throw new Error("This browser cannot compress videos. Please use an up-to-date Safari or Chrome browser.");
@@ -92,7 +98,7 @@ async function compressVideo(
   try {
     await new Promise<void>((resolve, reject) => {
       video.onloadedmetadata = () => resolve();
-      video.onerror = () => reject(new Error("Unable to read this video. Please try another MP4, MOV, M4V, WEBM, 3GP, or 3G2 file."));
+      video.onerror = () => reject(new Error(getUnsupportedVideoMessage(file)));
       video.load();
     });
 
@@ -113,7 +119,7 @@ async function compressVideo(
         resolve();
       } else {
         video.onloadeddata = () => resolve();
-        video.onerror = () => reject(new Error("Unable to decode this video on this device."));
+        video.onerror = () => reject(new Error(getUnsupportedVideoMessage(file)));
       }
     });
 
