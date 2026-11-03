@@ -487,7 +487,7 @@ export default function VideoTestimonialManager() {
               })
             }
             folder="testimonials"
-            label="Video File (MP4 or WEBM, Max 10 MB)"
+            label="Video File (iPhone / Android formats; upload is compressed to 10 MB)"
             required
             disabled={!editingItem && isLimitReached}
           />

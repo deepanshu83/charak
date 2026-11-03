@@ -2369,6 +2369,68 @@
   color: var(--green);
 }
 
+.video-upload-dropzone {
+  position: relative;
+  padding: 24px 16px;
+  border: 2px dashed #d6d3cd;
+  border-radius: 14px;
+  background: #faf9f6;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.video-upload-dropzone:hover,
+.video-upload-dropzone:focus-visible,
+.video-upload-dropzone.is-drag-active {
+  border-color: var(--green);
+  background: rgba(24, 66, 50, 0.04);
+  outline: none;
+}
+
+.video-upload-dropzone.is-disabled {
+  background: #f5f5f4;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.video-upload-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.video-upload-progress {
+  width: 12rem;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e7e5df;
+}
+
+.video-upload-progress::after {
+  display: block;
+  width: 45%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--green);
+  content: "";
+  animation: video-upload-progress 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes video-upload-progress {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(125%);
+  }
+}
+
 @media (max-width: 700px) {
   .testimonial-admin-header {
     align-items: stretch;
