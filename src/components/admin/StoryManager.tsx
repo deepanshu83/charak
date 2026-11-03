@@ -163,35 +163,34 @@ export default function StoryManager() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-serif font-bold text-stone-900">
+    <div className="testimonial-admin-page story-admin-page">
+      <div className="testimonial-admin-header">
+        <div className="testimonial-admin-heading">
+          <div className="testimonial-admin-title-row">
+            <h1>
               Patient Testimonials CMS
             </h1>
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">
+            <span className="testimonial-admin-count">
               {stories.length} Testimonials
             </span>
           </div>
-          <p className="text-sm text-stone-600 mt-1">
+          <p>
             Manage authentic patient healing reviews and clinical recovery experiences.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="testimonial-admin-actions">
           <Link
             href="/patient-stories"
             target="_blank"
-            className="flex items-center gap-1.5 text-sm text-stone-600 hover:text-emerald-800 px-3 py-2 rounded-lg border border-stone-200 hover:bg-stone-50 transition"
+            className="testimonial-live-link"
           >
             <span>Live Section</span>
             <ExternalLink size={14} />
           </Link>
           <Button
             onClick={openCreateModal}
-            className="flex items-center gap-2 bg-emerald-800 hover:bg-emerald-900 text-white"
+            className="testimonial-add-button"
           >
             <Plus size={16} />
             <span>Add Testimonial</span>
@@ -201,45 +200,32 @@ export default function StoryManager() {
 
       {/* Table or Empty State */}
       {loading ? (
-        <div className="flex items-center justify-center p-16 text-stone-500 gap-2">
+        <div className="testimonial-loading-state">
           <RefreshCw className="animate-spin" size={20} />
           <span>Loading testimonials...</span>
         </div>
       ) : stories.length === 0 ? (
-        /* Empty State per Requirement 18: "No testimonials yet." with "Add Testimonial" CTA */
-        <div className="bg-white p-12 text-center rounded-2xl border border-dashed border-stone-300">
-          <div
-            style={{
-              width: "56px",
-              height: "56px",
-              borderRadius: "50%",
-              background: "rgba(24, 66, 50, 0.08)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              margin: "0 auto 16px",
-              color: "var(--green, #184232)",
-            }}
-          >
+        <div className="testimonial-empty-state">
+          <div className="testimonial-empty-icon">
             <MessageSquare size={28} />
           </div>
-          <h3 className="text-lg font-serif font-bold text-stone-800">
+          <h3>
             No testimonials yet.
           </h3>
-          <p className="text-sm text-stone-500 mt-1 max-w-sm mx-auto mb-5">
+          <p>
             Add patient testimonials to showcase honest feedback and verified recovery outcomes.
           </p>
           <Button
             onClick={openCreateModal}
-            className="bg-emerald-800 hover:bg-emerald-900 text-white inline-flex items-center gap-2"
+            className="testimonial-add-button"
           >
             <Plus size={16} />
             <span>Add Testimonial</span>
           </Button>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
-          <table className="w-full text-left border-collapse text-sm">
+        <div className="testimonial-table-wrap">
+          <table className="testimonial-table">
             <thead>
               <tr className="border-b border-stone-200 bg-stone-50/50 text-stone-600 text-xs uppercase tracking-wider font-semibold">
                 <th className="py-3 px-4">Patient</th>
@@ -255,9 +241,9 @@ export default function StoryManager() {
               {stories.map((s) => (
                 <tr key={s.id} className="hover:bg-stone-50/80 transition">
                   <td className="py-3 px-4">
-                    <div className="flex items-center gap-3">
+                    <div className="testimonial-patient-cell">
                       {s.image ? (
-                        <div className="relative w-9 h-9 rounded-full overflow-hidden bg-stone-100 flex-shrink-0">
+                        <div className="testimonial-patient-image">
                           <Image
                             src={s.image}
                             alt={s.name}
@@ -268,21 +254,21 @@ export default function StoryManager() {
                           />
                         </div>
                       ) : (
-                        <div className="w-9 h-9 rounded-full bg-stone-200 text-stone-600 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                        <div className="testimonial-patient-avatar">
                           {s.name.slice(0, 2).toUpperCase()}
                         </div>
                       )}
-                      <strong>{s.name}</strong>
+                      <strong className="testimonial-patient-name">{s.name}</strong>
                     </div>
                   </td>
                   <td className="py-3 px-4 text-stone-600">{s.location || "Pilani"}</td>
                   <td className="py-3 px-4">
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800">
+                    <span className="testimonial-treatment-badge">
                       {s.treatment}
                     </span>
                   </td>
                   <td className="py-3 px-4">
-                    <div className="flex text-amber-500 text-xs">
+                    <div className="testimonial-rating">
                       {Array.from({ length: s.rating || 5 }).map((_, i) => (
                         <span key={i}>★</span>
                       ))}
@@ -295,8 +281,9 @@ export default function StoryManager() {
                     <button
                       type="button"
                       onClick={() => handleTogglePublished(s)}
-                      className="cursor-pointer"
+                      className="testimonial-status-toggle"
                       title="Toggle publication"
+                      aria-pressed={s.published !== false}
                     >
                       <Badge variant={s.published !== false ? "success" : "neutral"}>
                         {s.published !== false ? "Published" : "Draft"}
@@ -304,20 +291,22 @@ export default function StoryManager() {
                     </button>
                   </td>
                   <td className="py-3 px-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="testimonial-row-actions">
                       <button
                         type="button"
                         onClick={() => openEditModal(s)}
-                        className="p-1.5 rounded-lg text-stone-600 hover:text-stone-900 hover:bg-stone-100"
+                        className="testimonial-icon-button"
                         title="Edit testimonial"
+                        aria-label={`Edit testimonial from ${s.name}`}
                       >
                         <Edit2 size={15} />
                       </button>
                       <button
                         type="button"
                         onClick={() => setStoryToDelete(s)}
-                        className="p-1.5 rounded-lg text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="testimonial-icon-button danger"
                         title="Delete testimonial"
+                        aria-label={`Delete testimonial from ${s.name}`}
                       >
                         <Trash2 size={15} />
                       </button>
@@ -430,7 +419,7 @@ export default function StoryManager() {
             </label>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-stone-200">
+          <div className="testimonial-modal-actions">
             <Button
               type="button"
               variant="outline"
@@ -460,7 +449,7 @@ export default function StoryManager() {
           <p className="text-sm text-stone-600">
             Are you sure you want to delete the testimonial from <strong>&ldquo;{storyToDelete?.name}&rdquo;</strong>?
           </p>
-          <div className="flex justify-end gap-3">
+          <div className="testimonial-modal-actions">
             <Button variant="outline" onClick={() => setStoryToDelete(null)}>
               Cancel
             </Button>

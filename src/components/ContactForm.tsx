@@ -56,7 +56,7 @@ export default function ContactForm({
             className="btn gold"
             target="_blank"
             rel="noopener noreferrer"
-            href="https://www.google.com/maps/place/Charak+Ayurveda+Panchakarma+Skin+Care,+Joint+Care+And+Infertility+Center/@28.3579111,75.6024964,17z/data=!3m1!4b1!4m6!3m5!1s0x3913195b99bca2db:0xaed2af1856272386!8m2!3d28.3579064!4d75.6050713!16s%2Fg%2F11gfm8c7_q"
+            href="https://www.google.com/maps/place/Charak+Ayurveda+Panchakarma+Skin+Care,+Joint+Care+And+Infertility+Center/@28.3579064,75.6050713,17z/data=!3m1!4b1!4m6!3m5!1s0x3913195b99bca2db:0xaed2af1856272386!8m2!3d28.3579064!4d75.6050713!16s%2Fg%2F11gfm8c7_q"
           >
             Get Directions
           </a>
@@ -114,7 +114,7 @@ export default function ContactForm({
               </span>
             </div>
             <a
-              href="https://www.google.com/maps/place/Charak+Ayurveda+Panchakarma+Skin+Care,+Joint+Care+And+Infertility+Center/@28.3579111,75.6024964,17z/data=!3m1!4b1!4m6!3m5!1s0x3913195b99bca2db:0xaed2af1856272386!8m2!3d28.3579064!4d75.6050713!16s%2Fg%2F11gfm8c7_q"
+              href="https://www.google.com/maps/place/Charak+Ayurveda+Panchakarma+Skin+Care,+Joint+Care+And+Infertility+Center/@28.3579064,75.6050713,17z/data=!3m1!4b1!4m6!3m5!1s0x3913195b99bca2db:0xaed2af1856272386!8m2!3d28.3579064!4d75.6050713!16s%2Fg%2F11gfm8c7_q"
               target="_blank"
               rel="noopener noreferrer"
               className="contact-map-btn"
@@ -124,7 +124,7 @@ export default function ContactForm({
           </div>
           <iframe
             title="Charak Ayurveda Clinic Location Map"
-            src="https://maps.google.com/maps?q=28.3579064,75.6050713+(Charak+Ayurveda+Panchakarma+Skin+Care,+Joint+Care+And+Infertility+Center)&t=&z=16&ie=UTF8&iwloc=&output=embed"
+            src="https://maps.google.com/maps?q=28.3579064%2C75.6050713&z=17&output=embed"
             width="100%"
             height="340"
             style={{ border: 0, display: "block" }}

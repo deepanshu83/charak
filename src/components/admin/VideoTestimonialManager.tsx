@@ -207,43 +207,40 @@ export default function VideoTestimonialManager() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-stone-200 shadow-sm">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-serif font-bold text-stone-900">
+    <div className="testimonial-admin-page video-testimonial-admin-page">
+      <div className="testimonial-admin-header">
+        <div className="testimonial-admin-heading">
+          <div className="testimonial-admin-title-row">
+            <h1>
               Video Testimonials
             </h1>
             <span
-              className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+              className={`testimonial-admin-count ${
                 isLimitReached
-                  ? "bg-red-100 text-red-700 font-bold"
-                  : items.length > 7
-                  ? "bg-amber-100 text-amber-800"
-                  : "bg-emerald-100 text-emerald-800"
+                  ? "limit-reached"
+                  : items.length > 7 ? "limit-near" : ""
               }`}
             >
               {items.length} / {MAX_VIDEO_TESTIMONIALS} Videos
             </span>
           </div>
-          <p className="text-sm text-stone-600 mt-1">
+          <p>
             Manage authentic patient recovery video stories (max 10 videos, max 10 MB per video).
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="testimonial-admin-actions">
           <Link
             href="/video-testimonials"
             target="_blank"
-            className="flex items-center gap-1.5 text-sm text-stone-600 hover:text-emerald-800 px-3 py-2 rounded-lg border border-stone-200 hover:bg-stone-50 transition"
+            className="testimonial-live-link"
           >
             <span>Live Section</span>
             <ExternalLink size={14} />
           </Link>
           <Button
             onClick={openCreateModal}
-            className="flex items-center gap-2 bg-emerald-800 hover:bg-emerald-900 text-white"
+            className="testimonial-add-button"
             disabled={isLimitReached}
           >
             <Plus size={16} />
@@ -254,8 +251,8 @@ export default function VideoTestimonialManager() {
 
       {/* 10 Videos Limit Warning Banner */}
       {isLimitReached && (
-        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-xl flex items-center gap-3 text-red-800 text-sm">
-          <AlertTriangle size={20} className="flex-shrink-0 text-red-500" />
+        <div className="video-testimonial-limit-warning">
+          <AlertTriangle size={20} />
           <div>
             <strong>Maximum 10 video testimonials allowed.</strong> Delete an existing video before uploading a new one.
           </div>
@@ -264,36 +261,24 @@ export default function VideoTestimonialManager() {
 
       {/* Grid or Empty State */}
       {loading ? (
-        <div className="flex items-center justify-center p-16 text-stone-500 gap-2">
+        <div className="testimonial-loading-state">
           <RefreshCw className="animate-spin" size={20} />
           <span>Loading video testimonials...</span>
         </div>
       ) : items.length === 0 ? (
-        <div className="bg-white p-12 text-center rounded-2xl border border-dashed border-stone-300">
-          <div
-            style={{
-              width: "56px",
-              height: "56px",
-              borderRadius: "50%",
-              background: "rgba(24, 66, 50, 0.08)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              margin: "0 auto 16px",
-              color: "var(--green, #184232)",
-            }}
-          >
+        <div className="testimonial-empty-state">
+          <div className="testimonial-empty-icon">
             <VideoIcon size={28} />
           </div>
-          <h3 className="text-lg font-serif font-bold text-stone-800">
+          <h3>
             No video testimonials yet.
           </h3>
-          <p className="text-sm text-stone-500 mt-1 max-w-sm mx-auto mb-5">
+          <p>
             Upload patient video interviews, recovery milestones, and real consultations to build clinical trust.
           </p>
           <Button
             onClick={openCreateModal}
-            className="bg-emerald-800 hover:bg-emerald-900 text-white inline-flex items-center gap-2"
+            className="testimonial-add-button"
             disabled={isLimitReached}
           >
             <Plus size={16} />
@@ -301,15 +286,15 @@ export default function VideoTestimonialManager() {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="video-testimonial-grid">
           {items.map((item) => (
             <div
               key={item.id}
-              className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between"
+              className="video-testimonial-card"
             >
               <div>
                 <div
-                  className="relative aspect-video w-full bg-black cursor-pointer group"
+                  className="video-testimonial-thumbnail"
                   onClick={() => setPreviewItem(item)}
                 >
                   {item.thumbnailUrl ? (
@@ -320,24 +305,24 @@ export default function VideoTestimonialManager() {
                       className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-stone-900 text-stone-500">
+                    <div className="video-testimonial-thumbnail-empty">
                       <VideoIcon size={36} />
                     </div>
                   )}
 
                   {/* Play Button Overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full bg-white/90 text-emerald-950 flex items-center justify-center shadow-lg group-hover:scale-110 transition">
+                  <div className="video-testimonial-play-overlay">
+                    <div className="video-testimonial-play-button">
                       <Play size={20} className="fill-current ml-0.5" />
                     </div>
                   </div>
 
-                  <div className="absolute top-2 right-2 flex items-center gap-1">
+                  <div className="video-testimonial-status">
                     <span
-                      className={`text-[11px] font-bold px-2 py-0.5 rounded-full backdrop-blur-md shadow-sm ${
+                      className={`video-testimonial-status-badge ${
                         item.published !== false
-                          ? "bg-emerald-900/80 text-white"
-                          : "bg-red-900/80 text-white"
+                          ? "published"
+                          : "hidden"
                       }`}
                     >
                       {item.published !== false ? "Live" : "Hidden"}
@@ -345,39 +330,41 @@ export default function VideoTestimonialManager() {
                   </div>
 
                   {item.duration && (
-                    <div className="absolute bottom-2 right-2">
-                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded bg-black/75 text-white backdrop-blur-sm">
+                    <div className="video-testimonial-duration">
+                      <span>
                         {formatDuration(item.duration)}
                       </span>
                     </div>
                   )}
                 </div>
 
-                <div className="p-4">
-                  <div className="text-xs font-semibold text-amber-700 uppercase tracking-wider mb-1">
+                <div className="video-testimonial-details">
+                  <div className="video-testimonial-patient">
                     {item.patientName}
                   </div>
-                  <h3 className="font-semibold text-stone-900 text-sm line-clamp-1">
+                  <h3>
                     {item.title}
                   </h3>
                   {item.description && (
-                    <p className="text-xs text-stone-500 mt-1 line-clamp-2">
+                    <p>
                       {item.description}
                     </p>
                   )}
                 </div>
               </div>
 
-              <div className="p-4 pt-0 border-t border-stone-100 mt-2 flex items-center justify-between">
+              <div className="video-testimonial-card-actions">
                 <button
                   type="button"
                   onClick={() => handleTogglePublished(item)}
-                  className={`text-xs font-medium flex items-center gap-1 transition ${
+                  className={`video-testimonial-visibility-button ${
                     item.published !== false
-                      ? "text-stone-500 hover:text-stone-700"
-                      : "text-emerald-700 hover:text-emerald-800"
+                      ? ""
+                      : "publish"
                   }`}
                   title={item.published !== false ? "Hide from public" : "Publish video"}
+                  aria-label={item.published !== false ? `Hide ${item.title}` : `Publish ${item.title}`}
+                  aria-pressed={item.published !== false}
                 >
                   {item.published !== false ? (
                     <>
@@ -390,20 +377,22 @@ export default function VideoTestimonialManager() {
                   )}
                 </button>
 
-                <div className="flex items-center gap-2">
+                <div className="testimonial-row-actions">
                   <button
                     type="button"
                     onClick={() => openEditModal(item)}
-                    className="p-1.5 rounded-lg text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition"
+                    className="testimonial-icon-button"
                     title="Edit video details"
+                    aria-label={`Edit ${item.title}`}
                   >
                     <Edit2 size={15} />
                   </button>
                   <button
                     type="button"
                     onClick={() => setItemToDelete(item)}
-                    className="p-1.5 rounded-lg text-red-600 hover:text-red-700 hover:bg-red-50 transition"
+                    className="testimonial-icon-button danger"
                     title="Delete video"
+                    aria-label={`Delete ${item.title}`}
                   >
                     <Trash2 size={15} />
                   </button>
@@ -503,7 +492,7 @@ export default function VideoTestimonialManager() {
             disabled={!editingItem && isLimitReached}
           />
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-stone-200">
+          <div className="testimonial-modal-actions">
             <Button
               type="button"
               variant="outline"
@@ -533,7 +522,7 @@ export default function VideoTestimonialManager() {
           <p className="text-sm text-stone-600">
             Are you sure you want to delete <strong>&ldquo;{itemToDelete?.title}&rdquo;</strong>? This will permanently remove the video and its storage files.
           </p>
-          <div className="flex justify-end gap-3">
+          <div className="testimonial-modal-actions">
             <Button variant="outline" onClick={() => setItemToDelete(null)}>
               Cancel
             </Button>
