@@ -42,6 +42,7 @@ import {
   Card,
   EmptyState,
   Input,
+  Select,
   Textarea,
   useToast,
 } from "@/components/ui";
@@ -118,6 +119,8 @@ export default function AppointmentFlow() {
 
   const [patientForm, setPatientForm] = useState({
     fullName: "",
+    age: "",
+    gender: "",
     phone: "",
     email: "",
     notes: "",
@@ -130,6 +133,8 @@ export default function AppointmentFlow() {
 
   // Slots with availability status
   const [allSlots, setAllSlots] = useState<{ time: string; isAvailable: boolean }[]>([]);
+  // Day-wise slot availability map for the 7 displayed dates
+  const [dateAvailabilityMap, setDateAvailabilityMap] = useState<Record<string, number>>({});
 
   const refreshSlots = async () => {
     setSlotsLoading(true);
@@ -144,12 +149,40 @@ export default function AppointmentFlow() {
         setSelectedTime(firstAvailable ? firstAvailable.time : "");
       }
     } catch {
-      const slots = getAllDoctorSlots(selectedDoctorId, selectedDate);
-      setAllSlots(slots);
+      setAllSlots([]);
+      setSelectedTime("");
     } finally {
       setSlotsLoading(false);
     }
   };
+
+  // Pre-fetch count of available slots for the 7 dates when doctor changes
+  useEffect(() => {
+    if (!selectedDoctorId) return;
+    let isCancelled = false;
+
+    const checkDates = async () => {
+      const map: Record<string, number> = {};
+      await Promise.all(
+        availableDates.map(async (dStr) => {
+          try {
+            const data = await fetchAvailableSlots(selectedDoctorId, dStr);
+            map[dStr] = (data.availableSlots || []).length;
+          } catch {
+            map[dStr] = 0;
+          }
+        })
+      );
+      if (!isCancelled) {
+        setDateAvailabilityMap(map);
+      }
+    };
+
+    checkDates();
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedDoctorId, availableDates]);
 
   useEffect(() => {
     refreshSlots();
@@ -189,6 +222,17 @@ export default function AppointmentFlow() {
     const errs: Record<string, string> = {};
     if (!patientForm.fullName.trim()) {
       errs.fullName = "Patient name is required";
+    }
+    if (!patientForm.age.trim()) {
+      errs.age = "Age is required";
+    } else {
+      const parsedAge = parseInt(patientForm.age, 10);
+      if (isNaN(parsedAge) || parsedAge < 1 || parsedAge > 120) {
+        errs.age = "Enter a valid age (1-120)";
+      }
+    }
+    if (!patientForm.gender.trim()) {
+      errs.gender = "Please select gender";
     }
     if (!patientForm.phone.trim()) {
       errs.phone = "Phone number is required";
@@ -235,6 +279,16 @@ export default function AppointmentFlow() {
         },
         onSuccess: async (verifyResult, raw) => {
           try {
+            const ageGenderStr = [
+              patientForm.age ? `Age: ${patientForm.age}` : "",
+              patientForm.gender ? `Gender: ${patientForm.gender}` : "",
+            ].filter(Boolean).join(" | ");
+
+            const fullNotes = [
+              ageGenderStr,
+              patientForm.notes.trim(),
+            ].filter(Boolean).join("\n");
+
             const confirmation = await bookAppointment({
               patientName: patientForm.fullName.trim(),
               phone: patientForm.phone.trim(),
@@ -243,7 +297,7 @@ export default function AppointmentFlow() {
               treatmentId: selectedTreatmentId,
               date: selectedDate,
               time: selectedTime,
-              notes: patientForm.notes.trim() || undefined,
+              notes: fullNotes || undefined,
               paymentStatus: "PAID",
               razorpayPaymentId: raw.razorpay_payment_id,
             });
@@ -298,6 +352,16 @@ export default function AppointmentFlow() {
 
     setIsSubmitting(true);
     try {
+      const ageGenderStr = [
+        patientForm.age ? `Age: ${patientForm.age}` : "",
+        patientForm.gender ? `Gender: ${patientForm.gender}` : "",
+      ].filter(Boolean).join(" | ");
+
+      const fullNotes = [
+        ageGenderStr,
+        patientForm.notes.trim(),
+      ].filter(Boolean).join("\n");
+
       const confirmation = await bookAppointment({
         patientName: patientForm.fullName.trim(),
         phone: patientForm.phone.trim(),
@@ -306,7 +370,7 @@ export default function AppointmentFlow() {
         treatmentId: selectedTreatmentId,
         date: selectedDate,
         time: selectedTime,
-        notes: patientForm.notes.trim() || undefined,
+        notes: fullNotes || undefined,
       });
 
       setCreatedAppointment(confirmation);
@@ -348,7 +412,7 @@ export default function AppointmentFlow() {
   const resetBooking = () => {
     setCreatedAppointment(null);
     setStep(1);
-    setPatientForm({ fullName: "", phone: "", email: "", notes: "" });
+    setPatientForm({ fullName: "", age: "", gender: "", phone: "", email: "", notes: "" });
     refreshSlots();
   };
 
@@ -763,13 +827,18 @@ export default function AppointmentFlow() {
                       const isToday =
                         new Date().toISOString().split("T")[0] === dStr;
                       const isSelected = selectedDate === dStr;
+                      const availableCount = dateAvailabilityMap[dStr];
+                      const isOff = availableCount === 0;
 
                       return (
                         <button
                           key={dStr}
                           type="button"
-                          className={`date-card ${isSelected ? "selected" : ""}`}
+                          className={`date-card ${isSelected ? "selected" : ""} ${isOff ? "is-off" : ""}`}
                           onClick={() => setSelectedDate(dStr)}
+                          style={{
+                            opacity: isOff ? 0.65 : 1,
+                          }}
                         >
                           <Calendar size={20} />
                           <span className="date-weekday">
@@ -786,10 +855,14 @@ export default function AppointmentFlow() {
                           <span
                             className="slot-badge"
                             style={{
-                              color: "var(--green)",
+                              color: isOff ? "#dc2626" : "var(--green)",
                             }}
                           >
-                            Slots Available
+                            {availableCount === undefined
+                              ? "Checking..."
+                              : isOff
+                              ? "No Slots"
+                              : `${availableCount} Slot${availableCount > 1 ? "s" : ""}`}
                           </span>
                           {isToday && <span className="today-tag">Today</span>}
                         </button>
@@ -951,6 +1024,36 @@ export default function AppointmentFlow() {
                       helperText="For consultation confirmations & reminders"
                     />
 
+                    <Input
+                      label="Age"
+                      required
+                      type="number"
+                      min={1}
+                      max={120}
+                      value={patientForm.age}
+                      onChange={(e) =>
+                        setPatientForm({ ...patientForm, age: e.target.value })
+                      }
+                      placeholder="e.g. 28"
+                      error={formErrors.age}
+                    />
+
+                    <Select
+                      label="Gender"
+                      required
+                      value={patientForm.gender}
+                      onChange={(e) =>
+                        setPatientForm({ ...patientForm, gender: e.target.value })
+                      }
+                      error={formErrors.gender}
+                      options={[
+                        { value: "", label: "Select Gender" },
+                        { value: "Male", label: "Male" },
+                        { value: "Female", label: "Female" },
+                        { value: "Other", label: "Other" },
+                      ]}
+                    />
+
                     <div style={{ gridColumn: "span 2" }}>
                       <Input
                         label="Email Address"
@@ -1031,8 +1134,11 @@ export default function AppointmentFlow() {
                         </strong>
                       </div>
                       <div>
-                        <span>Patient Name</span>
-                        <strong>{patientForm.fullName}</strong>
+                        <span>Patient Details</span>
+                        <strong>
+                          {patientForm.fullName}
+                          {patientForm.age && patientForm.gender ? ` (${patientForm.gender}, ${patientForm.age} yrs)` : ""}
+                        </strong>
                       </div>
                       <div>
                         <span>Contact Info</span>
@@ -1062,74 +1168,39 @@ export default function AppointmentFlow() {
                   <div className="payment-method-section" style={{ marginTop: "20px", marginBottom: "20px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
                       <span style={{ fontSize: "0.88rem", fontWeight: 600, color: "var(--ink)" }}>
-                        Select Payment Option
+                        Payment Option
                       </span>
                       <span style={{ fontSize: "0.75rem", color: "var(--ink-muted)", display: "flex", alignItems: "center", gap: "4px" }}>
                         <Lock size={12} style={{ color: "var(--green)" }} /> 256-Bit SSL Encrypted
                       </span>
                     </div>
 
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "12px" }}>
-                      {/* Option 1: Razorpay Online Payment */}
+                    <div>
+                      {/* Razorpay Online Payment Card */}
                       <div
-                        onClick={() => setPaymentMethod("razorpay")}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") setPaymentMethod("razorpay");
-                        }}
                         style={{
-                          border: paymentMethod === "razorpay" ? "2px solid var(--green)" : "1px solid var(--border)",
-                          background: paymentMethod === "razorpay" ? "rgba(24, 66, 50, 0.04)" : "var(--cream)",
+                          border: "2px solid var(--green)",
+                          background: "rgba(24, 66, 50, 0.04)",
                           borderRadius: "14px",
-                          padding: "16px",
-                          cursor: "pointer",
+                          padding: "16px 20px",
                           position: "relative",
-                          transition: "all 0.2s ease",
-                          boxShadow: paymentMethod === "razorpay" ? "0 4px 12px rgba(24, 66, 50, 0.08)" : "none",
+                          boxShadow: "0 4px 12px rgba(24, 66, 50, 0.08)",
                         }}
                       >
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                            <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "rgba(24, 66, 50, 0.1)", display: "grid", placeItems: "center" }}>
-                              <CreditCard size={16} style={{ color: "var(--green)" }} />
-                            </div>
-                            <strong style={{ fontSize: "0.95rem", color: "var(--green)" }}>Pay Online (Razorpay)</strong>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+                          <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "rgba(24, 66, 50, 0.1)", display: "grid", placeItems: "center" }}>
+                            <CreditCard size={18} style={{ color: "var(--green)" }} />
                           </div>
-                          <span style={{ fontSize: "0.68rem", background: "var(--gold)", color: "#fff", padding: "2px 8px", borderRadius: "10px", fontWeight: 700, letterSpacing: "0.03em" }}>
-                            RECOMMENDED
-                          </span>
+                          <div>
+                            <strong style={{ fontSize: "1rem", color: "var(--green)" }}>Pay Online via Razorpay</strong>
+                            <p style={{ fontSize: "0.82rem", color: "var(--ink-muted)", margin: "2px 0 0", lineHeight: 1.4 }}>
+                              Instant slot confirmation via UPI (GPay, PhonePe, Paytm), Cards &amp; NetBanking.
+                            </p>
+                          </div>
                         </div>
-                        <p style={{ fontSize: "0.8rem", color: "var(--ink-muted)", margin: "0 0 8px", lineHeight: 1.4 }}>
-                          Instant slot confirmation via UPI (GPay, PhonePe, Paytm), Debit/Credit Cards &amp; NetBanking.
-                        </p>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.72rem", color: "var(--green)", fontWeight: 600 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.75rem", color: "var(--green)", fontWeight: 600, marginTop: "8px" }}>
                           <ShieldCheck size={14} /> Official Razorpay Checkout
                         </div>
-                      </div>
-
-                      {/* Non-Refundable Policy Notice */}
-                      <div
-                        style={{
-                          border: "1px solid rgba(194, 91, 56, 0.35)",
-                          background: "rgba(194, 91, 56, 0.06)",
-                          borderRadius: "14px",
-                          padding: "16px",
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "center",
-                          gap: "8px",
-                        }}
-                      >
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                          <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "rgba(194, 91, 56, 0.12)", display: "grid", placeItems: "center", flexShrink: 0 }}>
-                            <AlertCircle size={16} style={{ color: "var(--terra)" }} />
-                          </div>
-                          <strong style={{ fontSize: "0.92rem", color: "var(--terra)" }}>Non-Refundable Fee (परामर्श शुल्क वापस नहीं होगा)</strong>
-                        </div>
-                        <p style={{ fontSize: "0.8rem", color: "var(--ink)", margin: 0, lineHeight: 1.45 }}>
-                          ₹500 consultation fee is <strong>strictly non-refundable</strong> once paid. Booking is confirmed instantly via Razorpay online checkout.
-                        </p>
                       </div>
                     </div>
                   </div>
@@ -1154,7 +1225,7 @@ export default function AppointmentFlow() {
                     >
                       {isSubmitting
                         ? "Connecting to Razorpay..."
-                        : `Pay ₹${(selectedDoctor?.consultationFee ?? 500).toLocaleString("en-IN")} via Razorpay (Non-Refundable)`}
+                        : `Pay ₹${(selectedDoctor?.consultationFee ?? 500).toLocaleString("en-IN")} via Razorpay`}
                     </Button>
                   </div>
                 </div>
@@ -1193,7 +1264,10 @@ export default function AppointmentFlow() {
               {patientForm.fullName && (
                 <div className="summary-item">
                   <span className="summary-label">Patient</span>
-                  <strong className="summary-value">{patientForm.fullName}</strong>
+                  <strong className="summary-value">
+                    {patientForm.fullName}
+                    {patientForm.age && patientForm.gender ? ` (${patientForm.gender}, ${patientForm.age}y)` : ""}
+                  </strong>
                   <small className="summary-sub">{patientForm.phone || "No phone entered"}</small>
                 </div>
               )}

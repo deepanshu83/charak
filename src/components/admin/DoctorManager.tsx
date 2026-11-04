@@ -263,6 +263,7 @@ export default function DoctorManager() {
       if (created) {
         setAvailabilities((prev) => [...prev, created]);
         toast.success("Slot Configured", `${newSlotForm.dayOfWeek} ${newSlotForm.startTime}-${newSlotForm.endTime} added.`);
+        await loadData();
       }
     } catch (err) {
       toast.error("Failed to add slot", err instanceof Error ? err.message : "Error creating slot");
@@ -273,6 +274,7 @@ export default function DoctorManager() {
     await adminDeleteAvailability(slotId);
     setAvailabilities((prev) => prev.filter((s) => s.id !== slotId));
     toast.success("Slot Removed", "Schedule slot removed.");
+    await loadData();
   };
 
   return (

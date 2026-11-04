@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Menu,
   X,
@@ -22,8 +22,30 @@ import {
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   const closeMenu = () => setIsOpen(false);
+
+  const handleContactClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    closeMenu();
+
+    if (pathname === "/") {
+      const contactEl = document.getElementById("contact");
+      if (contactEl) {
+        contactEl.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      router.push("/#contact");
+      // Wait for navigation then scroll
+      setTimeout(() => {
+        const contactEl = document.getElementById("contact");
+        if (contactEl) {
+          contactEl.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 300);
+    }
+  };
 
   // Automatically close mobile menu when navigating to a new route
   useEffect(() => {
@@ -53,47 +75,37 @@ export default function Navbar() {
   const navLinks = [
     {
       href: "/treatments",
-      label: "Treatments & Therapies",
+      label: "Treatments",
       icon: Sparkles,
     },
     {
       href: "/doctors",
-      label: "Ayurvedic Doctors",
+      label: "Doctors",
       icon: UserCheck,
     },
     {
-      href: "/our-approach",
-      label: "Our Vedic Approach",
-      icon: Heart,
-    },
-    {
       href: "/patient-stories",
-      label: "Patient Stories & Reviews",
+      label: "Stories",
       icon: BookOpen,
     },
     {
-      href: "/video-testimonials",
-      label: "Video Testimonials",
-      icon: Video,
-    },
-    {
       href: "/gallery",
-      label: "Clinic & Suites Gallery",
+      label: "Gallery",
       icon: ImageIcon,
     },
     {
       href: "/blog",
-      label: "Ayurvedic Wisdom & Blog",
+      label: "Blog",
       icon: BookOpen,
     },
     {
       href: "/careers",
-      label: "Careers & Vacancies",
+      label: "Careers",
       icon: Briefcase,
     },
     {
       href: "/#contact",
-      label: "Contact & Location",
+      label: "Contact",
       icon: MapPin,
     },
     {
@@ -130,7 +142,7 @@ export default function Navbar() {
             <Link href="/gallery">Gallery</Link>
             <Link href="/blog">Blog</Link>
             <Link href="/careers">Careers</Link>
-            <Link href="/#contact">Contact</Link>
+            <Link href="/#contact" onClick={handleContactClick}>Contact</Link>
           </nav>
 
           {/* Desktop Right CTAs */}
@@ -200,6 +212,7 @@ export default function Navbar() {
                 {navLinks.map((item) => {
                   const Icon = item.icon;
                   const isActive = pathname === item.href;
+                  const isContact = item.href === "/#contact";
                   return (
                     <Link
                       key={item.href}
@@ -207,7 +220,7 @@ export default function Navbar() {
                       className={`mobile-nav-item ${isActive ? "is-current" : ""} ${
                         item.highlight ? "is-highlighted" : ""
                       }`}
-                      onClick={closeMenu}
+                      onClick={isContact ? handleContactClick : closeMenu}
                     >
                       <div className="mobile-nav-item-icon">
                         <Icon size={18} />

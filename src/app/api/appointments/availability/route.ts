@@ -136,6 +136,14 @@ export async function GET(req: Request) {
     }
 
     // 2. FETCH AVAILABILITY WINDOWS FOR DAY
+    // Check if doctor has ANY configured availability entries in the database
+    const { count: totalConfiguredCount } = await supabase
+      .from("doctor_availability")
+      .select("id", { count: "exact", head: true })
+      .eq("doctor_id", doctor.id);
+
+    const hasAnyConfiguredSlots = (totalConfiguredCount ?? 0) > 0;
+
     let availList: { start_time: string; end_time: string; slot_duration: number; active: boolean }[] = [];
     const { data: availData, error: availErr } = await supabase
       .from("doctor_availability")
@@ -146,14 +154,16 @@ export async function GET(req: Request) {
 
     if (!availErr && availData && availData.length > 0) {
       availList = availData;
-    }
-
-    // Standard clinical dispensary hours fallback if no specific slots configured
-    if (availList.length === 0) {
+    } else if (!hasAnyConfiguredSlots) {
+      // ONLY fallback to default hours if admin has NEVER configured any slots for this doctor
       availList = [
         { start_time: "09:00:00", end_time: "13:00:00", slot_duration: 30, active: true },
         { start_time: "16:00:00", end_time: "19:00:00", slot_duration: 30, active: true },
       ];
+    } else {
+      // If doctor HAS configured slots for other days, but NONE for this day (or admin removed them),
+      // then doctor is genuinely off on this day!
+      availList = [];
     }
 
     // Generate candidate slots

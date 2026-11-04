@@ -1,6 +1,7 @@
 import type { Doctor } from "@/types";
 import type { Database } from "@/types/database.types";
 import { getPublicSupabaseClient } from "./supabaseClient";
+import { generateTimeSlots } from "./appointmentAvailability";
 
 const EVENT_NAME = "charak_doctors_updated";
 
@@ -298,7 +299,33 @@ export async function fetchAdminDoctors(): Promise<AdminDoctor[]> {
     });
     const json = await res.json().catch(() => ({}));
     if (json.ok && json.data && Array.isArray(json.data.doctors)) {
-      const mapped = json.data.doctors.map(mapDbDoctorToDoctor);
+      const availabilities: DoctorAvailabilityItem[] = Array.isArray(json.data.availabilities)
+        ? json.data.availabilities.map((row: Database["public"]["Tables"]["doctor_availability"]["Row"]) => ({
+            id: row.id,
+            doctorId: row.doctor_id,
+            dayOfWeek: row.day_of_week,
+            startTime: row.start_time,
+            endTime: row.end_time,
+            slotDuration: row.slot_duration,
+            active: row.active,
+          }))
+        : [];
+
+      const mapped = json.data.doctors.map((docRow: Database["public"]["Tables"]["doctors"]["Row"]) => {
+        const doc = mapDbDoctorToDoctor(docRow);
+        // Populate availableTimes dynamically from database
+        const docAvails = availabilities.filter((a) => a.doctorId === doc.id && a.active !== false);
+        const timesMap: Record<string, string[]> = {};
+        for (const a of docAvails) {
+          const slots = generateTimeSlots(a.startTime, a.endTime, a.slotDuration || 30).map((s) => s.time);
+          if (!timesMap[a.dayOfWeek]) {
+            timesMap[a.dayOfWeek] = [];
+          }
+          timesMap[a.dayOfWeek].push(...slots);
+        }
+        doc.availableTimes = timesMap;
+        return doc;
+      });
       runtimeDoctorsCache = mapped;
       return mapped;
     }
