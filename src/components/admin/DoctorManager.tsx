@@ -590,14 +590,6 @@ export default function DoctorManager() {
             />
           </div>
 
-          <Input
-            label="Display Order"
-            type="number"
-            value={String(doctorForm.displayOrder)}
-            onChange={(e) => setDoctorForm({ ...doctorForm, displayOrder: Number(e.target.value) })}
-            placeholder="0"
-          />
-
           <Textarea
             label="Short Bio (Shown on cards)"
             value={doctorForm.bio}

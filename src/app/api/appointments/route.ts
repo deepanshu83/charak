@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAdminSupabaseClient } from "@/lib/supabaseServer";
 import {
   isDateInPast,
+  isSlotInPast,
   normalizeTime,
 } from "@/lib/appointmentAvailability";
 import type { Database } from "@/types/database.types";
@@ -121,6 +122,13 @@ export async function POST(req: Request) {
       );
     }
     const cleanTime = normalizeTime(time.trim());
+
+    if (isSlotInPast(cleanDate, cleanTime)) {
+      return NextResponse.json(
+        { ok: false, error: "This consultation time slot has already passed. Please select an upcoming slot.", code: "SLOT_IN_PAST" },
+        { status: 400 }
+      );
+    }
 
     const supabase = getAdminSupabaseClient();
     if (!supabase) {

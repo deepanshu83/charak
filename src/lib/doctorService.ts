@@ -264,23 +264,70 @@ export async function fetchDoctorBySlug(slug: string): Promise<Doctor | null> {
   try {
     const supabase = getPublicSupabaseClient();
     if (!supabase) {
-      return runtimeDoctorsCache.find((d) => d.slug === slug || d.id === slug) || null;
+      return (
+        runtimeDoctorsCache.find(
+          (d) => d.slug?.toLowerCase() === slug.toLowerCase() || d.id === slug
+        ) ||
+        DEFAULT_DOCTORS.find(
+          (d) => d.slug?.toLowerCase() === slug.toLowerCase() || d.id === slug
+        ) ||
+        null
+      );
     }
+
+    // First try matching slug or id directly
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+    const filter = isUuid ? `slug.eq."${slug}",id.eq."${slug}"` : `slug.eq."${slug}"`;
 
     const { data, error } = await supabase
       .from("doctors")
       .select("*")
-      .or(`slug.eq.${slug},id.eq.${slug}`)
+      .or(filter)
       .eq("active", true)
       .maybeSingle();
 
-    if (error || !data) {
-      return null;
+    if (!error && data) {
+      return mapDbDoctorToDoctor(data);
     }
 
-    return mapDbDoctorToDoctor(data);
-  } catch {
+    // If not found in DB by exact slug, check DEFAULT_DOCTORS fallback
+    const fallbackDefault = DEFAULT_DOCTORS.find(
+      (d) => d.slug?.toLowerCase() === slug.toLowerCase() || d.id === slug
+    );
+    if (fallbackDefault) {
+      return fallbackDefault;
+    }
+
+    // Also check if any doctor in DB has matching slug generated from their name
+    const { data: allDocs } = await supabase
+      .from("doctors")
+      .select("*")
+      .eq("active", true);
+
+    if (allDocs) {
+      const match = allDocs.find((docRow: Database["public"]["Tables"]["doctors"]["Row"]) => {
+        const generatedSlug = (docRow.slug || docRow.name)
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
+        return generatedSlug === slug.toLowerCase() || docRow.id === slug;
+      });
+      if (match) {
+        return mapDbDoctorToDoctor(match);
+      }
+    }
+
     return null;
+  } catch {
+    return (
+      runtimeDoctorsCache.find(
+        (d) => d.slug?.toLowerCase() === slug.toLowerCase() || d.id === slug
+      ) ||
+      DEFAULT_DOCTORS.find(
+        (d) => d.slug?.toLowerCase() === slug.toLowerCase() || d.id === slug
+      ) ||
+      null
+    );
   }
 }
 

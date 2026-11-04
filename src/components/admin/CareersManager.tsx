@@ -474,32 +474,18 @@ export default function CareersManager() {
             />
           </div>
 
-          {/* Display Order + Active */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-            <div>
-              <label className="admin-field-label">Display Order</label>
-              <input
-                className="admin-input"
-                type="number"
-                min={0}
-                value={form.displayOrder ?? 0}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, displayOrder: parseInt(e.target.value) || 0 }))
-                }
-              />
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", paddingTop: "24px" }}>
-              <input
-                type="checkbox"
-                id="vacancy-active"
-                checked={form.active ?? true}
-                onChange={(e) => setForm((f) => ({ ...f, active: e.target.checked }))}
-                style={{ width: "16px", height: "16px", cursor: "pointer" }}
-              />
-              <label htmlFor="vacancy-active" style={{ cursor: "pointer", fontWeight: 600 }}>
-                Publish on website
-              </label>
-            </div>
+          {/* Active status */}
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", paddingTop: "8px" }}>
+            <input
+              type="checkbox"
+              id="vacancy-active"
+              checked={form.active ?? true}
+              onChange={(e) => setForm((f) => ({ ...f, active: e.target.checked }))}
+              style={{ width: "16px", height: "16px", cursor: "pointer" }}
+            />
+            <label htmlFor="vacancy-active" style={{ cursor: "pointer", fontWeight: 600 }}>
+              Publish on website
+            </label>
           </div>
         </div>
       </Modal>

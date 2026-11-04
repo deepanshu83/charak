@@ -46,7 +46,143 @@ function getVideoExtension(fileName: string): string {
   return fileName.split(".").pop()?.toLowerCase() || "";
 }
 
-async function createVideoMetadataAndThumbnail(file: File): Promise<{
+/**
+ * Compresses video on the client side using HTML5 Video + Canvas + MediaRecorder.
+ * Scales resolution (up to 720p) and controls bitrate so the final file stays under 10 MB.
+ */
+async function compressVideoInBrowser(
+  file: File,
+  targetMaxBytes: number = 9.8 * 1024 * 1024,
+  onProgress?: (progressPercent: number) => void
+): Promise<{ blob: Blob; duration: number; width: number; height: number }> {
+  const objectUrl = URL.createObjectURL(file);
+  const video = document.createElement("video");
+  video.preload = "auto";
+  video.playsInline = true;
+  video.muted = true;
+
+  try {
+    await new Promise<void>((resolve, reject) => {
+      video.onloadedmetadata = () => resolve();
+      video.onerror = () => reject(new Error("Unable to read video file for compression."));
+      video.src = objectUrl;
+      video.load();
+    });
+
+    const duration = video.duration;
+    if (!Number.isFinite(duration) || duration <= 0) {
+      throw new Error("Could not determine video duration.");
+    }
+
+    // Determine target dimensions (cap at 720p, preserve aspect ratio)
+    const srcW = video.videoWidth || 1280;
+    const srcH = video.videoHeight || 720;
+    const scale = Math.min(1, 1280 / srcW, 720 / srcH);
+    const targetW = Math.max(2, Math.floor((srcW * scale) / 2) * 2);
+    const targetH = Math.max(2, Math.floor((srcH * scale) / 2) * 2);
+
+    // Target bitrate in bps based on duration to guarantee size < targetMaxBytes
+    // size = (bitrate / 8) * duration => bitrate = (size * 8) / duration
+    const targetBitrate = Math.max(
+      200_000,
+      Math.min(2_000_000, Math.floor((targetMaxBytes * 0.85 * 8) / duration))
+    );
+
+    const canvas = document.createElement("canvas");
+    canvas.width = targetW;
+    canvas.height = targetH;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Could not initialize canvas context.");
+
+    const stream = canvas.captureStream(24);
+
+    // Capture audio if present
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const source = audioCtx.createMediaElementSource(video);
+      const dest = audioCtx.createMediaStreamDestination();
+      source.connect(dest);
+      source.connect(audioCtx.destination);
+      dest.stream.getAudioTracks().forEach((track) => stream.addTrack(track));
+    } catch {
+      // Audio extraction may fail on some browsers, video will compress without audio stream
+    }
+
+    let mimeType = "video/webm;codecs=vp8,opus";
+    if (MediaRecorder.isTypeSupported("video/mp4;codecs=avc1,mp4a.40.2")) {
+      mimeType = "video/mp4;codecs=avc1,mp4a.40.2";
+    } else if (MediaRecorder.isTypeSupported("video/mp4")) {
+      mimeType = "video/mp4";
+    } else if (MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus")) {
+      mimeType = "video/webm;codecs=vp9,opus";
+    } else if (!MediaRecorder.isTypeSupported(mimeType)) {
+      mimeType = "video/webm";
+    }
+
+    const recorder = new MediaRecorder(stream, {
+      mimeType,
+      videoBitsPerSecond: targetBitrate,
+    });
+
+    const chunks: Blob[] = [];
+    recorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) chunks.push(e.data);
+    };
+
+    const completionPromise = new Promise<Blob>((resolve, reject) => {
+      recorder.onstop = () => {
+        const finalBlob = new Blob(chunks, { type: mimeType.split(";")[0] });
+        resolve(finalBlob);
+      };
+      recorder.onerror = (e) => reject(e);
+    });
+
+    recorder.start(100);
+
+    let animationId: number;
+    const drawFrame = () => {
+      if (!video.paused && !video.ended) {
+        ctx.drawImage(video, 0, 0, targetW, targetH);
+        if (onProgress && duration > 0) {
+          const pct = Math.min(99, Math.round((video.currentTime / duration) * 100));
+          onProgress(pct);
+        }
+        animationId = requestAnimationFrame(drawFrame);
+      }
+    };
+
+    video.currentTime = 0;
+    await video.play();
+    drawFrame();
+
+    await new Promise<void>((resolve) => {
+      video.onended = () => {
+        cancelAnimationFrame(animationId);
+        resolve();
+      };
+    });
+
+    if (recorder.state === "recording") {
+      recorder.stop();
+    }
+
+    const resultBlob = await completionPromise;
+    return {
+      blob: resultBlob,
+      duration: Math.round(duration),
+      width: targetW,
+      height: targetH,
+    };
+  } finally {
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+    URL.revokeObjectURL(objectUrl);
+  }
+}
+
+async function createVideoMetadataAndThumbnail(file: File | Blob): Promise<{
   thumbnail: Blob;
   duration: number;
   width: number;
@@ -118,6 +254,7 @@ export default function VideoUpload({
 }: VideoUploadProps) {
   const [dragActive, setDragActive] = useState(false);
   const [optimizing, setOptimizing] = useState(false);
+  const [compressProgress, setCompressProgress] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -167,43 +304,66 @@ export default function VideoUpload({
         vidDuration = meta.duration;
         resText = meta.width > 0 && meta.height > 0 ? `${meta.width}x${meta.height}` : "";
       } else {
-        // Server transcode path: Convert or compress source video
-        const sourceData = new FormData();
-        sourceData.append("file", file, file.name);
-        const transcodeResponse = await fetch("/api/admin/media/transcode", {
-          method: "POST",
-          body: sourceData,
-        });
+        // Try server transcode first
+        let convertedBlob: Blob | null = null;
+        let transcodeSuccess = false;
 
-        if (!transcodeResponse.ok) {
-          const transcodeJson = await transcodeResponse.json().catch(() => null);
-          const serverError = transcodeJson?.error || "";
+        try {
+          const sourceData = new FormData();
+          sourceData.append("file", file, file.name);
+          const transcodeResponse = await fetch("/api/admin/media/transcode", {
+            method: "POST",
+            body: sourceData,
+          });
 
-          if (transcodeResponse.status === 503 || serverError.toLowerCase().includes("ffmpeg")) {
-            throw new Error(
-              `This video is ${formatBytes(file.size)} (${extension.toUpperCase()}). Supabase storage limit is 10 MB per video. Automatic server compression is unavailable because FFmpeg is not installed on the server. Please compress your video to MP4 under 10 MB before uploading.`
-            );
+          if (transcodeResponse.ok) {
+            const blob = await transcodeResponse.blob();
+            if (blob.size > 0 && blob.size <= MAX_UPLOAD_SIZE) {
+              convertedBlob = blob;
+              transcodeSuccess = true;
+              const headerDuration = Number(transcodeResponse.headers.get("X-Video-Duration"));
+              vidDuration = Number.isFinite(headerDuration) && headerDuration > 0 ? headerDuration : 0;
+              const width = Number(transcodeResponse.headers.get("X-Video-Width"));
+              const height = Number(transcodeResponse.headers.get("X-Video-Height"));
+              resText = width > 0 && height > 0 ? `${width}x${height}` : "";
+            }
           }
-          throw new Error(serverError || "The server could not convert this video.");
+        } catch {
+          // Server transcode failed or FFmpeg missing, fallback to in-browser compression
         }
 
-        const convertedBlob = await transcodeResponse.blob();
-        if (!convertedBlob.size || convertedBlob.size > MAX_UPLOAD_SIZE) {
-          throw new Error("The converted video is empty or exceeds the 10 MB upload limit.");
+        // If server transcode was not possible (e.g. FFmpeg missing or error), compress inside browser
+        if (!transcodeSuccess || !convertedBlob) {
+          setCompressProgress(0);
+          const compressed = await compressVideoInBrowser(file, MAX_UPLOAD_SIZE * 0.95, (pct) => {
+            setCompressProgress(pct);
+          });
+          convertedBlob = compressed.blob;
+          vidDuration = compressed.duration;
+          resText = `${compressed.width}x${compressed.height}`;
+          setCompressProgress(null);
         }
+
+        if (!convertedBlob || convertedBlob.size === 0) {
+          throw new Error("Video compression produced an empty file. Please try another video.");
+        }
+        if (convertedBlob.size > MAX_UPLOAD_SIZE) {
+          throw new Error(`Compressed video is ${formatBytes(convertedBlob.size)}, which exceeds the 10 MB limit. Please select a shorter video.`);
+        }
+
+        const isWebm = convertedBlob.type.includes("webm");
+        const outExt = isWebm ? "webm" : "mp4";
         const baseName = file.name.replace(/\.[^.]+$/, "").replace(/\s+/g, "-");
         uploadFile = new File(
           [convertedBlob],
-          `${baseName}-compressed.mp4`,
-          { type: "video/mp4", lastModified: Date.now() }
+          `${baseName}-compressed.${outExt}`,
+          { type: isWebm ? "video/webm" : "video/mp4", lastModified: Date.now() }
         );
+
         const meta = await createVideoMetadataAndThumbnail(uploadFile);
         thumbBlob = meta.thumbnail;
-        const headerDuration = Number(transcodeResponse.headers.get("X-Video-Duration"));
-        vidDuration = Number.isFinite(headerDuration) && headerDuration > 0 ? headerDuration : meta.duration;
-        const width = Number(transcodeResponse.headers.get("X-Video-Width"));
-        const height = Number(transcodeResponse.headers.get("X-Video-Height"));
-        resText = width > 0 && height > 0 ? `${width}x${height}` : (meta.width > 0 ? `${meta.width}x${meta.height}` : "");
+        if (!vidDuration) vidDuration = meta.duration;
+        if (!resText && meta.width > 0) resText = `${meta.width}x${meta.height}`;
       }
 
       setDuration(vidDuration);
@@ -337,9 +497,13 @@ export default function VideoUpload({
             <div className="flex flex-col items-center justify-center space-y-2 py-3">
               <RefreshCw className="animate-spin text-amber-600" size={28} />
               <p className="text-sm font-medium text-stone-700">
-                Processing video and preparing preview...
+                {compressProgress !== null
+                  ? `Compressing video under 10 MB (${compressProgress}%)...`
+                  : "Processing and optimizing video..."}
               </p>
-              <p className="text-xs text-stone-500">Please wait a moment.</p>
+              <p className="text-xs text-stone-500">
+                Automatically optimizing for fast mobile loading. Please wait.
+              </p>
             </div>
           ) : uploading ? (
             <div className="flex flex-col items-center justify-center space-y-2 py-3">

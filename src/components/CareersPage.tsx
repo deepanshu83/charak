@@ -11,6 +11,7 @@ import {
   ChevronDown,
   ChevronUp,
   Sparkles,
+  MessageCircle,
 } from "lucide-react";
 import type { JobVacancy } from "@/lib/careersService";
 
@@ -346,7 +347,9 @@ export default function CareersPageClient() {
                             Apply via Email
                           </a>
                           <a
-                            href={`https://wa.me/918852887717?text=${encodeURIComponent(`Hi, I would like to apply for the position of ${v.title} at Charak Ayurveda.`)}`}
+                            href={`https://wa.me/918852887717?text=${encodeURIComponent(
+                              `Hello Charak Ayurveda, I would like to apply for the position of "${v.title}" in the ${v.department} Department (${v.location}, ${v.type}). Please let me know the hiring process and where to submit my CV.`
+                            )}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             style={{
@@ -362,8 +365,8 @@ export default function CareersPageClient() {
                               textDecoration: "none",
                             }}
                           >
-                            <Clock size={14} />
-                            WhatsApp Us
+                            <MessageCircle size={15} />
+                            Apply via WhatsApp
                           </a>
                         </div>
                       </div>
@@ -400,24 +403,55 @@ export default function CareersPageClient() {
                 Send us your CV anyway — we&apos;re always keen to meet passionate people who share
                 our vision for holistic Ayurvedic healing.
               </p>
-              <a
-                href="mailto:careers@charakayurvedapilani.com"
+              <div
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  background: "#184232",
-                  color: "#fff",
-                  padding: "10px 22px",
-                  borderRadius: "8px",
-                  fontWeight: 600,
-                  fontSize: "0.9rem",
-                  textDecoration: "none",
+                  display: "flex",
+                  gap: "12px",
+                  justifyContent: "center",
+                  flexWrap: "wrap",
                 }}
               >
-                <Mail size={14} />
-                careers@charakayurvedapilani.com
-              </a>
+                <a
+                  href="mailto:careers@charakayurvedapilani.com"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    background: "#184232",
+                    color: "#fff",
+                    padding: "10px 22px",
+                    borderRadius: "8px",
+                    fontWeight: 600,
+                    fontSize: "0.9rem",
+                    textDecoration: "none",
+                  }}
+                >
+                  <Mail size={14} />
+                  Email CV
+                </a>
+                <a
+                  href={`https://wa.me/918852887717?text=${encodeURIComponent(
+                    "Hello Charak Ayurveda, I am interested in career opportunities at your clinic. I would like to submit my profile and CV."
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    background: "#25d366",
+                    color: "#fff",
+                    padding: "10px 22px",
+                    borderRadius: "8px",
+                    fontWeight: 600,
+                    fontSize: "0.9rem",
+                    textDecoration: "none",
+                  }}
+                >
+                  <MessageCircle size={15} />
+                  WhatsApp for Careers
+                </a>
+              </div>
             </div>
           )}
         </div>

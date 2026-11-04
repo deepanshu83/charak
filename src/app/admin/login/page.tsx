@@ -4,7 +4,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Lock, Mail, ShieldAlert, Loader2, ArrowLeft, ShieldCheck } from "lucide-react";
+import { Lock, Mail, ShieldAlert, Loader2, ArrowLeft, ShieldCheck, Eye, EyeOff } from "lucide-react";
 
 function AdminLoginForm() {
   const router = useRouter();
@@ -14,6 +14,7 @@ function AdminLoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(
     authErrorParam === "unauthorized"
@@ -93,20 +94,23 @@ function AdminLoginForm() {
 
         <form onSubmit={handleSubmit} className="admin-login-form" noValidate>
           <div className="form-group">
-            <label htmlFor="admin-email">Administrator Email</label>
+            <label htmlFor="admin-email">Administrator Email / Username</label>
             <div className="admin-input-wrapper">
               <Mail size={18} className="admin-input-icon" />
               <input
                 id="admin-email"
                 type="email"
                 autoComplete="email"
-                placeholder="admin@charakayurvedapilani.com"
+                placeholder="example@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
                 required
               />
             </div>
+            <p style={{ fontSize: "0.78rem", color: "#64748b", marginTop: "5px", marginBottom: 0 }}>
+              Enter your registered administrator email (e.g. example@gmail.com)
+            </p>
           </div>
 
           <div className="form-group">
@@ -115,14 +119,34 @@ function AdminLoginForm() {
               <Lock size={18} className="admin-input-icon" />
               <input
                 id="admin-password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 placeholder="••••••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
+                style={{ paddingRight: "40px" }}
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                style={{
+                  position: "absolute",
+                  right: "12px",
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#6b7280",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "4px",
+                }}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
           </div>
 

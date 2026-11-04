@@ -54,7 +54,9 @@ export default function MobileBar() {
         <span>Call</span>
       </a>
       <a
-        href="https://wa.me/918852887717"
+        href={`https://wa.me/918852887717?text=${encodeURIComponent(
+          "Hello Charak Ayurveda, I would like to enquire about consultation and treatments."
+        )}`}
         target="_blank"
         rel="noopener noreferrer"
         className="mbar-btn mbar-wa"

@@ -446,29 +446,16 @@ export default function VideoTestimonialManager() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-stone-800 mb-1">
-                Display Order
-              </label>
-              <Input
-                type="number"
-                value={form.displayOrder}
-                onChange={(e) => setForm({ ...form, displayOrder: parseInt(e.target.value) || 0 })}
-                min="0"
+          <div className="flex items-center pt-2">
+            <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-stone-800">
+              <input
+                type="checkbox"
+                checked={form.published}
+                onChange={(e) => setForm({ ...form, published: e.target.checked })}
+                className="rounded text-emerald-800 focus:ring-emerald-700"
               />
-            </div>
-            <div className="flex items-center pt-6">
-              <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-stone-800">
-                <input
-                  type="checkbox"
-                  checked={form.published}
-                  onChange={(e) => setForm({ ...form, published: e.target.checked })}
-                  className="rounded text-emerald-800 focus:ring-emerald-700"
-                />
-                <span>Publish publicly</span>
-              </label>
-            </div>
+              <span>Publish publicly</span>
+            </label>
           </div>
 
           {/* Reusable Video Upload Component */}

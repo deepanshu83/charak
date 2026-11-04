@@ -577,29 +577,16 @@ export default function GalleryManager() {
             />
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", alignItems: "center" }}>
-            <div>
-              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--ink)", marginBottom: "6px" }}>
-                Display Order
-              </label>
-              <Input
-                type="number"
-                value={form.displayOrder}
-                onChange={(e) => setForm({ ...form, displayOrder: parseInt(e.target.value) || 0 })}
-                min="0"
+          <div style={{ paddingTop: "8px" }}>
+            <label style={{ display: "inline-flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "0.88rem", fontWeight: 500, color: "var(--ink)" }}>
+              <input
+                type="checkbox"
+                checked={form.published}
+                onChange={(e) => setForm({ ...form, published: e.target.checked })}
+                style={{ accentColor: "var(--green)", width: "16px", height: "16px" }}
               />
-            </div>
-            <div style={{ paddingTop: "20px" }}>
-              <label style={{ display: "inline-flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "0.88rem", fontWeight: 500, color: "var(--ink)" }}>
-                <input
-                  type="checkbox"
-                  checked={form.published}
-                  onChange={(e) => setForm({ ...form, published: e.target.checked })}
-                  style={{ accentColor: "var(--green)", width: "16px", height: "16px" }}
-                />
-                <span>Publish to public gallery</span>
-              </label>
-            </div>
+              <span>Publish to public gallery</span>
+            </label>
           </div>
 
           {/* Reusable Image Upload with Automatic WebP Compression */}

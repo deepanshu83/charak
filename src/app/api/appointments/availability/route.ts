@@ -4,7 +4,9 @@ import {
   getDayOfWeekFromDate,
   generateTimeSlots,
   getTodayIST,
+  getCurrentTimeIST,
   isDateInPast,
+  isSlotInPast,
   normalizeTime,
   type GeneratedSlot,
 } from "@/lib/appointmentAvailability";
@@ -191,7 +193,17 @@ export async function GET(req: Request) {
       }
     }
 
-    const calculatedSlots: GeneratedSlot[] = allCandidateSlots.map((slot) => ({
+    // Filter candidate slots: if booking is for today, remove past time slots
+    const todayIST = getTodayIST();
+    const isToday = trimmedDate === todayIST;
+    const currentTimeIST = getCurrentTimeIST();
+
+    const futureCandidateSlots = allCandidateSlots.filter((slot) => {
+      if (!isToday) return true;
+      return normalizeTime(slot.time) > currentTimeIST;
+    });
+
+    const calculatedSlots: GeneratedSlot[] = futureCandidateSlots.map((slot) => ({
       time: slot.time,
       endTime: slot.endTime,
       isAvailable: !bookedTimes.has(slot.time),
@@ -210,7 +222,8 @@ export async function GET(req: Request) {
         dayOfWeek,
         slots: calculatedSlots,
         availableSlots,
-        today: getTodayIST(),
+        today: todayIST,
+        currentTime: currentTimeIST,
       },
     });
   } catch (err) {

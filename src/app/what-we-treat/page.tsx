@@ -91,24 +91,6 @@ export default function WhatWeTreatPage() {
                       }}
                     />
                     <div style={{ position: "absolute", bottom: "16px", left: "20px", right: "20px" }}>
-                      <span
-                        style={{
-                          display: "inline-block",
-                          fontSize: "0.72rem",
-                          fontWeight: 700,
-                          textTransform: "uppercase",
-                          letterSpacing: "1px",
-                          color: "var(--gold)",
-                          background: "rgba(16, 44, 34, 0.88)",
-                          padding: "3px 10px",
-                          borderRadius: "20px",
-                          backdropFilter: "blur(4px)",
-                          border: "1px solid rgba(194, 139, 56, 0.35)",
-                          marginBottom: "6px",
-                        }}
-                      >
-                        Speciality {String(idx + 1).padStart(2, "0")}
-                      </span>
                       <h3
                         style={{
                           fontSize: "1.35rem",

@@ -93,6 +93,31 @@ export function normalizeTime(timeStr: string): string {
 }
 
 /**
+ * Returns current time formatted as HH:mm in Asia/Kolkata timezone.
+ */
+export function getCurrentTimeIST(): string {
+  const formatter = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Kolkata",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  return formatter.format(new Date());
+}
+
+/**
+ * Checks if a slot time is in the past for a given date in IST timezone.
+ */
+export function isSlotInPast(dateStr: string, slotTime: string): boolean {
+  const today = getTodayIST();
+  if (dateStr < today) return true;
+  if (dateStr > today) return false;
+  // If date is today, check if slotTime <= current IST time
+  const currentIST = getCurrentTimeIST();
+  return normalizeTime(slotTime) <= currentIST;
+}
+
+/**
  * Checks if a date string is strictly in the past relative to today in IST.
  */
 export function isDateInPast(dateStr: string): boolean {
