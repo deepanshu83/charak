@@ -6,6 +6,7 @@ import NextImage from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Boxes,
+  Briefcase,
   CalendarCheck,
   ChevronLeft,
   ChevronRight,
@@ -44,6 +45,7 @@ const navLinks = [
   { href: "/admin/gallery", label: "Gallery", icon: ImageIcon },
   { href: "/admin/patient-stories", label: "Patient Stories", icon: MessageSquare },
   { href: "/admin/video-testimonials", label: "Video Testimonials", icon: Video },
+  { href: "/admin/careers", label: "Careers / Vacancies", icon: Briefcase },
 ];
 
 export default function AdminLayout({ children }: AdminLayoutProps) {

@@ -11,12 +11,12 @@ import {
   Calendar,
   Sparkles,
   UserCheck,
-  Package,
   Heart,
   Video,
   Image as ImageIcon,
   BookOpen,
   MapPin,
+  Briefcase,
 } from "lucide-react";
 
 export default function Navbar() {
@@ -62,12 +62,6 @@ export default function Navbar() {
       icon: UserCheck,
     },
     {
-      href: "/products",
-      label: "Medicines & Formulations",
-      icon: Package,
-      badge: "Soon",
-    },
-    {
       href: "/our-approach",
       label: "Our Vedic Approach",
       icon: Heart,
@@ -91,6 +85,11 @@ export default function Navbar() {
       href: "/blog",
       label: "Ayurvedic Wisdom & Blog",
       icon: BookOpen,
+    },
+    {
+      href: "/careers",
+      label: "Careers & Vacancies",
+      icon: Briefcase,
     },
     {
       href: "/#contact",
@@ -127,16 +126,10 @@ export default function Navbar() {
           <nav id="menu" className="nav-menu-desktop hide-m">
             <Link href="/treatments">Treatments</Link>
             <Link href="/doctors">Doctors</Link>
-            <Link
-              href="/products"
-              style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
-            >
-              <span>Products</span>
-              <span className="products-soon-badge">Soon</span>
-            </Link>
             <Link href="/patient-stories">Stories</Link>
             <Link href="/gallery">Gallery</Link>
             <Link href="/blog">Blog</Link>
+            <Link href="/careers">Careers</Link>
             <Link href="/#contact">Contact</Link>
           </nav>
 
@@ -222,9 +215,6 @@ export default function Navbar() {
                       <span className="mobile-nav-item-title">
                         {item.label}
                       </span>
-                      {item.badge && (
-                        <span className="products-soon-badge">{item.badge}</span>
-                      )}
                       <ChevronRight size={16} className="mobile-nav-item-arrow" />
                     </Link>
                   );

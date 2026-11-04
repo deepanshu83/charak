@@ -34,6 +34,8 @@ export default function Footer() {
           <span className="footer-divider">•</span>
           <Link href="/shipping-policy">Shipping &amp; Delivery</Link>
           <span className="footer-divider">•</span>
+          <Link href="/careers">Careers</Link>
+          <span className="footer-divider">•</span>
           <Link href="/#contact">Contact</Link>
         </div>
 
