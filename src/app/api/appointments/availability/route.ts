@@ -138,11 +138,12 @@ export async function GET(req: Request) {
     }
 
     // 2. FETCH AVAILABILITY WINDOWS FOR DAY
-    // Check if doctor has ANY configured availability entries in the database
+    // Check if doctor has ANY active configured availability entries in the database
     const { count: totalConfiguredCount } = await supabase
       .from("doctor_availability")
       .select("id", { count: "exact", head: true })
-      .eq("doctor_id", doctor.id);
+      .eq("doctor_id", doctor.id)
+      .eq("active", true);
 
     const hasAnyConfiguredSlots = (totalConfiguredCount ?? 0) > 0;
 

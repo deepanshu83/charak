@@ -3554,11 +3554,19 @@
 }
 
 .table-inline-input {
-  border: 1px solid var(--border);
-  padding: 6px 8px;
-  border-radius: 6px;
-  font-size: 0.88rem;
-  width: 100px;
+  border: 1px solid #d4cdc3;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #1e2621;
+  background: #ffffff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.table-inline-input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(192, 138, 62, 0.18);
 }
 
 .admin-gallery-grid {

@@ -331,192 +331,311 @@ export default function DoctorManager() {
             const scheduledDates = Object.keys(doc.availableTimes);
 
             return (
-              <div key={doc.id} className="admin-doctor-card">
-                <div className="doctor-header-row">
-                  <div className="doctor-avatar-wrap">
+              <div
+                key={doc.id}
+                style={{
+                  background: "#ffffff",
+                  border: "1px solid rgba(24, 66, 50, 0.12)",
+                  borderRadius: "18px",
+                  padding: "20px",
+                  boxShadow: "0 2px 10px rgba(0, 0, 0, 0.03)",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "14px",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                {/* Doctor Header */}
+                <div style={{ display: "flex", gap: "14px", alignItems: "flex-start" }}>
+                  <div
+                    style={{
+                      width: "60px",
+                      height: "60px",
+                      borderRadius: "14px",
+                      overflow: "hidden",
+                      border: "1.5px solid rgba(197, 160, 89, 0.35)",
+                      background: "#fbf9f5",
+                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
                     {doc.image ? (
                       <Image
                         src={doc.image}
                         alt={doc.name}
-                        width={64}
-                        height={64}
-                        className="doctor-avatar-img"
-                        style={{ objectFit: "cover", objectPosition: "top center" }}
+                        width={60}
+                        height={60}
+                        style={{ width: "100%", height: "100%", objectFit: "contain", padding: "3px" }}
                       />
                     ) : (
-                      <div
-                        style={{
-                          width: "64px",
-                          height: "64px",
-                          borderRadius: "50%",
-                          background: "rgba(24, 66, 50, 0.08)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          color: "var(--green)",
-                        }}
-                      >
-                        <UserCheck size={28} />
-                      </div>
+                      <UserCheck size={28} color="var(--green)" style={{ opacity: 0.5 }} />
                     )}
                   </div>
-                  <div className="doctor-info-col">
-                    <h3>{doc.name}</h3>
-                    <p className="doctor-title-txt">{doc.designation || doc.title}</p>
-                    <div style={{ display: "flex", gap: "6px", alignItems: "center", marginTop: "4px" }}>
-                      <Badge variant={doc.active !== false ? "success" : "neutral"}>
+
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "6px" }}>
+                      <h3 style={{ fontSize: "1.12rem", fontWeight: 700, color: "var(--green)", margin: "0 0 2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {doc.name}
+                      </h3>
+                      {doc.slug && (
+                        <Link
+                          href={`/doctors/${doc.slug}`}
+                          target="_blank"
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "3px",
+                            fontSize: "0.72rem",
+                            fontWeight: 600,
+                            color: "#8a6416",
+                            background: "rgba(197, 160, 89, 0.12)",
+                            padding: "2px 7px",
+                            borderRadius: "5px",
+                            textDecoration: "none",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          <span>Profile</span>
+                          <ExternalLink size={10} />
+                        </Link>
+                      )}
+                    </div>
+
+                    <p style={{ fontSize: "0.82rem", color: "var(--terra)", fontWeight: 500, margin: "0 0 4px" }}>
+                      {doc.designation || doc.title}
+                    </p>
+
+                    <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                      <span
+                        style={{
+                          fontSize: "0.7rem",
+                          fontWeight: 600,
+                          padding: "2px 8px",
+                          borderRadius: "12px",
+                          background: doc.active !== false ? "#f0fdf4" : "#f1f5f9",
+                          color: doc.active !== false ? "#166534" : "#64748b",
+                          border: doc.active !== false ? "1px solid #bbf7d0" : "1px solid #e2e8f0",
+                        }}
+                      >
                         {doc.active !== false ? "Active" : "Inactive"}
-                      </Badge>
-                      <span className="text-xs text-muted" style={{ display: "flex", alignItems: "center", gap: "3px" }}>
-                        <MapPin size={11} /> {doc.location}
+                      </span>
+                      <span style={{ fontSize: "0.74rem", color: "#64748b", display: "inline-flex", alignItems: "center", gap: "2px" }}>
+                        <MapPin size={11} color="var(--gold)" /> {doc.location || "Pilani"}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="doctor-specs-box">
-                  <div className="spec-row">
-                    <span className="spec-label">Specialization:</span>
-                    <span className="spec-val">{doc.specialization}</span>
+                {/* Clean Info Grid */}
+                <div
+                  style={{
+                    background: "#fbf9f5",
+                    borderRadius: "12px",
+                    padding: "10px 12px",
+                    fontSize: "0.82rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                    border: "1px solid rgba(24, 66, 50, 0.06)",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: "8px" }}>
+                    <span style={{ color: "#64748b", fontWeight: 500 }}>Specialization:</span>
+                    <strong style={{ color: "var(--ink)", textAlign: "right", fontWeight: 600 }}>{doc.specialization}</strong>
                   </div>
-                  <div className="spec-row">
-                    <span className="spec-label">Degrees:</span>
-                    <span className="spec-val">{doc.qualifications}</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: "8px" }}>
+                    <span style={{ color: "#64748b", fontWeight: 500 }}>Degrees:</span>
+                    <span style={{ color: "var(--ink)", textAlign: "right" }}>{doc.qualifications}</span>
                   </div>
-                  <div className="spec-row">
-                    <span className="spec-label">Experience:</span>
-                    <span className="spec-val">{doc.experience}</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: "8px" }}>
+                    <span style={{ color: "#64748b", fontWeight: 500 }}>Experience:</span>
+                    <span style={{ color: "var(--ink)", textAlign: "right" }}>{doc.experience}</span>
                   </div>
-                  {doc.slug && (
-                    <div className="spec-row">
-                      <span className="spec-label">Public Page:</span>
-                      <Link
-                        href={`/doctors/${doc.slug}`}
-                        target="_blank"
-                        className="admin-doc-public-link"
-                      >
-                        <span>View Profile</span>
-                        <ExternalLink size={11} />
-                      </Link>
-                    </div>
-                  )}
                 </div>
 
-                {/* Assigned Consultations (6 Treatments) */}
-                <div className="doctor-consult-chips-box">
-                  <div className="consult-chips-label">Assigned Consultations:</div>
-                  <div className="consult-chips-grid">
+                {/* Assigned Consultations (Services) */}
+                <div>
+                  <span style={{ display: "block", fontSize: "0.74rem", fontWeight: 600, color: "#64748b", marginBottom: "5px", textTransform: "uppercase", letterSpacing: "0.4px" }}>
+                    Assigned Consultations:
+                  </span>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
                     {doc.treatmentIds && doc.treatmentIds.length > 0 ? (
                       doc.treatmentIds.map((tid) => {
                         const treat = CLINIC_TREATMENTS.find((t) => t.id === tid);
                         return (
-                          <span key={tid} className="consult-tag-badge">
+                          <span
+                            key={tid}
+                            style={{
+                              fontSize: "0.73rem",
+                              padding: "3px 8px",
+                              borderRadius: "6px",
+                              background: "rgba(24, 66, 50, 0.06)",
+                              color: "var(--green)",
+                              border: "1px solid rgba(24, 66, 50, 0.12)",
+                              fontWeight: 600,
+                            }}
+                          >
                             {treat?.name || "Consultation"}
                           </span>
                         );
                       })
                     ) : (
-                      <span className="consult-tag-badge all-consults">
+                      <span
+                        style={{
+                          fontSize: "0.73rem",
+                          padding: "3px 8px",
+                          borderRadius: "6px",
+                          background: "rgba(197, 160, 89, 0.12)",
+                          color: "#8a6416",
+                          border: "1px solid rgba(197, 160, 89, 0.25)",
+                          fontWeight: 600,
+                        }}
+                      >
                         All Clinical Consultations
                       </span>
                     )}
                   </div>
                 </div>
 
-                {/* Consultation Fee Controls */}
-                <div className="fee-management-box">
-                  <div className="fee-label">Consultation Fee</div>
-                  {isEditing ? (
-                    <div className="fee-edit-group">
-                      <span className="fee-currency-prefix">₹</span>
-                      <input
-                        type="number"
-                        className="fee-input"
-                        value={editFee}
-                        onChange={(e) => setEditFee(Number(e.target.value))}
-                        autoFocus
-                      />
-                      <Button
-                        size="sm"
-                        variant="primary"
-                        onClick={() => handleSaveFee(doc.id, doc.name)}
-                        icon={<Save size={13} />}
-                      >
-                        Save
-                      </Button>
-                      <button
-                        type="button"
-                        className="fee-cancel-btn"
-                        onClick={() => setEditingDocId(null)}
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="fee-display-group">
-                      <span className="fee-amount">₹{doc.consultationFee.toLocaleString("en-IN")}</span>
-                      <button
-                        type="button"
-                        className="fee-edit-btn"
-                        onClick={() => handleStartEdit(doc)}
-                        title="Edit Fee"
-                      >
-                        <Edit2 size={13} />
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Schedules overview */}
-                <div className="doc-schedule-overview">
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                    <span className="text-xs font-semibold text-muted">Active Schedule</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleOpenSchedule(doc)}
-                      icon={<Calendar size={13} />}
-                    >
-                      Manage Slots
-                    </Button>
-                  </div>
-                  <div className="schedule-pills-wrap">
-                    {scheduledDates.slice(0, 3).map((dateKey) => (
-                      <span key={dateKey} className="schedule-date-pill">
-                        <Clock size={12} /> {dateKey} ({doc.availableTimes[dateKey]?.length || 0} slots)
-                      </span>
-                    ))}
-                    {scheduledDates.length === 0 && (
-                      <span className="text-xs text-muted">Click &quot;Manage Slots&quot; to configure weekly hours.</span>
+                {/* Fee & Manage Slots Row */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "10px 12px",
+                    background: "#f4f8f5",
+                    border: "1px solid rgba(24, 66, 50, 0.08)",
+                    borderRadius: "12px",
+                  }}
+                >
+                  <div>
+                    <span style={{ display: "block", fontSize: "0.7rem", color: "#64748b", textTransform: "uppercase", fontWeight: 600 }}>Fee</span>
+                    {isEditing ? (
+                      <div style={{ display: "flex", alignItems: "center", gap: "4px", marginTop: "2px" }}>
+                        <span>₹</span>
+                        <input
+                          type="number"
+                          style={{ width: "70px", padding: "2px 6px", borderRadius: "4px", border: "1px solid #ccc", fontSize: "0.85rem" }}
+                          value={editFee}
+                          onChange={(e) => setEditFee(Number(e.target.value))}
+                          autoFocus
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleSaveFee(doc.id, doc.name)}
+                          style={{ background: "var(--green)", color: "#fff", border: "none", borderRadius: "4px", padding: "3px 8px", fontSize: "0.75rem", cursor: "pointer" }}
+                        >
+                          Save
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingDocId(null)}
+                          style={{ background: "transparent", border: "none", cursor: "pointer", color: "#666" }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <strong style={{ fontSize: "1.05rem", color: "var(--green)" }}>₹{doc.consultationFee.toLocaleString("en-IN")}</strong>
+                        <button
+                          type="button"
+                          onClick={() => handleStartEdit(doc)}
+                          title="Edit Fee"
+                          style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--gold-hover)", padding: "2px" }}
+                        >
+                          <Edit2 size={12} />
+                        </button>
+                      </div>
                     )}
                   </div>
-                </div>
 
-                {/* Overhauled Compact Action Buttons */}
-                <div className="admin-doc-actions-grid">
                   <button
                     type="button"
-                    className="admin-doc-action-btn edit-btn"
+                    onClick={() => handleOpenSchedule(doc)}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "5px",
+                      background: "#ffffff",
+                      border: "1px solid var(--border)",
+                      color: "var(--green)",
+                      padding: "6px 12px",
+                      borderRadius: "8px",
+                      fontSize: "0.78rem",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <Calendar size={13} color="var(--gold)" />
+                    <span>Manage Slots</span>
+                  </button>
+                </div>
+
+                {/* Actions: Edit Profile, Deactivate, Delete */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: "8px", marginTop: "2px" }}>
+                  <button
+                    type="button"
                     onClick={() => handleOpenEditDoctor(doc)}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "5px",
+                      background: "var(--green)",
+                      color: "#ffffff",
+                      border: "none",
+                      padding: "7px 12px",
+                      borderRadius: "8px",
+                      fontSize: "0.78rem",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
                   >
                     <Edit2 size={12} />
                     <span>Edit Profile</span>
                   </button>
+
                   <button
                     type="button"
-                    className={`admin-doc-action-btn ${doc.active !== false ? "toggle-btn active" : "toggle-btn inactive"}`}
                     onClick={() => handleToggleDoctorActive(doc)}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: doc.active !== false ? "#fef3c7" : "#e2e8f0",
+                      color: doc.active !== false ? "#92400e" : "#475569",
+                      border: "none",
+                      padding: "7px 12px",
+                      borderRadius: "8px",
+                      fontSize: "0.78rem",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
                   >
                     <span>{doc.active !== false ? "Deactivate" : "Activate"}</span>
                   </button>
+
                   <button
                     type="button"
-                    className="admin-doc-action-btn delete-btn"
                     onClick={() => handleDeleteDoctor(doc.id, doc.name)}
                     title={`Delete ${doc.name}`}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: "#fee2e2",
+                      color: "#dc2626",
+                      border: "none",
+                      padding: "7px 10px",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                    }}
                   >
-                    <Trash2 size={12} />
-                    <span>Delete</span>
+                    <Trash2 size={14} />
                   </button>
                 </div>
               </div>
@@ -696,7 +815,7 @@ export default function DoctorManager() {
               No custom schedule slots found in database for this doctor. Add one below.
             </p>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "220px", overflowY: "auto", marginBottom: "20px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "240px", overflowY: "auto", marginBottom: "20px" }}>
               {availabilities.map((slot) => (
                 <div
                   key={slot.id}
@@ -704,79 +823,145 @@ export default function DoctorManager() {
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    padding: "8px 12px",
-                    background: "#f9f9f9",
-                    borderRadius: "6px",
-                    border: "1px solid var(--border)",
+                    padding: "10px 14px",
+                    background: "#ffffff",
+                    borderRadius: "10px",
+                    border: "1px solid #e7dfd3",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
                   }}
                 >
-                  <div>
-                    <strong>{slot.dayOfWeek}</strong>: {slot.startTime} – {slot.endTime}{" "}
-                    <span className="text-muted text-xs">({slot.slotDuration} min)</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                    <span style={{ fontWeight: 700, color: "var(--green)", fontSize: "0.92rem" }}>{slot.dayOfWeek}</span>
+                    <span style={{ color: "#888" }}>•</span>
+                    <span style={{ fontWeight: 600, color: "var(--foreground)", fontSize: "0.92rem" }}>
+                      {slot.startTime} – {slot.endTime}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "0.75rem",
+                        color: "#6b5d4d",
+                        background: "#f4ede4",
+                        padding: "2px 8px",
+                        borderRadius: "12px",
+                        fontWeight: 500,
+                      }}
+                    >
+                      {slot.slotDuration} min
+                    </span>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                  <button
+                    type="button"
                     onClick={() => handleDeleteSlot(slot.id)}
-                    icon={<Trash2 size={13} />}
-                    style={{ color: "var(--crimson)" }}
-                  />
+                    title="Delete Slot"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "6px",
+                      padding: "6px 12px",
+                      borderRadius: "8px",
+                      border: "1px solid #fecdd3",
+                      background: "#fff1f2",
+                      color: "#e11d48",
+                      fontSize: "0.82rem",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                      flexShrink: 0,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "#e11d48";
+                      e.currentTarget.style.color = "#ffffff";
+                      e.currentTarget.style.borderColor = "#e11d48";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "#fff1f2";
+                      e.currentTarget.style.color = "#e11d48";
+                      e.currentTarget.style.borderColor = "#fecdd3";
+                    }}
+                  >
+                    <Trash2 size={14} />
+                    <span>Delete</span>
+                  </button>
                 </div>
               ))}
             </div>
           )}
 
-          <h4 style={{ margin: "20px 0 10px" }}>Add New Consultation Window</h4>
-          <form onSubmit={handleAddSlot} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+          <h4 style={{ margin: "20px 0 10px", fontSize: "1.05rem", color: "var(--green)", fontWeight: 600 }}>
+            Add New Consultation Window
+          </h4>
+          <form
+            onSubmit={handleAddSlot}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "14px",
+              background: "#faf7f2",
+              padding: "16px",
+              borderRadius: "12px",
+              border: "1px solid #e7dfd3",
+            }}
+          >
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
               <div>
-                <label className="text-xs text-muted" style={{ display: "block", marginBottom: "4px" }}>Day of Week</label>
+                <label style={{ display: "block", marginBottom: "6px", fontSize: "0.82rem", fontWeight: 600, color: "var(--ink)" }}>
+                  Day of Week
+                </label>
                 <select
                   value={newSlotForm.dayOfWeek}
                   onChange={(e) => setNewSlotForm({ ...newSlotForm, dayOfWeek: e.target.value })}
                   className="table-inline-input"
-                  style={{ width: "100%", padding: "8px" }}
+                  style={{ width: "100%", padding: "10px 12px", background: "#ffffff", color: "#1e2621", fontWeight: 500 }}
                 >
                   {DAYS_OF_WEEK.map((day) => (
-                    <option key={day} value={day}>{day}</option>
+                    <option key={day} value={day} style={{ color: "#1e2621", background: "#ffffff" }}>
+                      {day}
+                    </option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="text-xs text-muted" style={{ display: "block", marginBottom: "4px" }}>Slot Duration (min)</label>
+                <label style={{ display: "block", marginBottom: "6px", fontSize: "0.82rem", fontWeight: 600, color: "var(--ink)" }}>
+                  Slot Duration (min)
+                </label>
                 <input
                   type="number"
                   value={newSlotForm.slotDuration}
                   onChange={(e) => setNewSlotForm({ ...newSlotForm, slotDuration: Number(e.target.value) })}
                   className="table-inline-input"
-                  style={{ width: "100%", padding: "8px" }}
+                  style={{ width: "100%", padding: "10px 12px", background: "#ffffff", color: "#1e2621", fontWeight: 500 }}
                   min={10}
                   step={5}
                 />
               </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
               <div>
-                <label className="text-xs text-muted" style={{ display: "block", marginBottom: "4px" }}>Start Time</label>
+                <label style={{ display: "block", marginBottom: "6px", fontSize: "0.82rem", fontWeight: 600, color: "var(--ink)" }}>
+                  Start Time
+                </label>
                 <input
                   type="time"
                   value={newSlotForm.startTime}
                   onChange={(e) => setNewSlotForm({ ...newSlotForm, startTime: e.target.value })}
                   className="table-inline-input"
-                  style={{ width: "100%", padding: "8px" }}
+                  style={{ width: "100%", padding: "10px 12px", background: "#ffffff", color: "#1e2621", fontWeight: 500 }}
                   required
                 />
               </div>
               <div>
-                <label className="text-xs text-muted" style={{ display: "block", marginBottom: "4px" }}>End Time</label>
+                <label style={{ display: "block", marginBottom: "6px", fontSize: "0.82rem", fontWeight: 600, color: "var(--ink)" }}>
+                  End Time
+                </label>
                 <input
                   type="time"
                   value={newSlotForm.endTime}
                   onChange={(e) => setNewSlotForm({ ...newSlotForm, endTime: e.target.value })}
                   className="table-inline-input"
-                  style={{ width: "100%", padding: "8px" }}
+                  style={{ width: "100%", padding: "10px 12px", background: "#ffffff", color: "#1e2621", fontWeight: 500 }}
                   required
                 />
               </div>

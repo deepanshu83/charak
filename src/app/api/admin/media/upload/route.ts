@@ -16,6 +16,7 @@ const ALLOWED_IMAGE_MIMES = new Set([
 const ALLOWED_VIDEO_MIMES = new Set([
   "video/mp4",
   "video/webm",
+  "video/quicktime",
 ]);
 
 /**
@@ -79,11 +80,16 @@ function detectMimeFromBytes(buffer: Buffer): string | null {
     return "video/webm";
   }
 
-  // MP4: ftyp box at offset 4
+  // MP4 / MOV: ftyp box at offset 4 or moov box
   if (buffer.length >= 8) {
     const boxType = buffer.subarray(4, 8).toString("ascii");
     if (boxType === "ftyp") {
+      const brand = buffer.length >= 12 ? buffer.subarray(8, 12).toString("ascii") : "";
+      if (brand.startsWith("qt")) return "video/quicktime";
       return "video/mp4";
+    }
+    if (boxType === "moov") {
+      return "video/quicktime";
     }
   }
 
@@ -96,6 +102,7 @@ function getSafeExtension(originalName: string, mime: string): string {
   if (mime === "image/png") return "png";
   if (mime === "video/mp4") return "mp4";
   if (mime === "video/webm") return "webm";
+  if (mime === "video/quicktime") return "mov";
 
   const ext = path.extname(originalName).replace(".", "").toLowerCase();
   return ext || "bin";
@@ -169,11 +176,12 @@ export async function POST(req: Request) {
       if (!detectedMime || detectedMime === "application/octet-stream" || detectedMime === "binary/octet-stream") {
         if (ext === "mp4" || ext === "m4v") detectedMime = "video/mp4";
         else if (ext === "webm") detectedMime = "video/webm";
+        else if (ext === "mov") detectedMime = "video/quicktime";
       }
 
       if (!ALLOWED_VIDEO_MIMES.has(detectedMime)) {
         return NextResponse.json(
-          { ok: false, error: "Please upload MP4 or WEBM video." },
+          { ok: false, error: "Please upload MP4, WEBM or MOV video." },
           { status: 400 }
         );
       }

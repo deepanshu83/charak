@@ -1,4 +1,5 @@
 import { execFile } from "node:child_process";
+import { existsSync } from "node:fs";
 import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -79,7 +80,8 @@ export async function POST(request: Request) {
     const outputPath = path.join(temporaryDirectory, "converted.mp4");
     await writeFile(inputPath, Buffer.from(await file.arrayBuffer()));
 
-    const ffprobePath = process.env.FFPROBE_PATH || "ffprobe";
+    const localFfprobe = path.join(process.cwd(), "node_modules/@ffprobe-installer/linux-x64/ffprobe");
+    const ffprobePath = process.env.FFPROBE_PATH || (existsSync(localFfprobe) ? localFfprobe : "ffprobe");
     const ffmpegPath = process.env.FFMPEG_PATH || "ffmpeg";
     const probeOutput = await execFileAsync(
       ffprobePath,

@@ -167,7 +167,10 @@ export default function AppointmentFlow() {
         availableDates.map(async (dStr) => {
           try {
             const data = await fetchAvailableSlots(selectedDoctorId, dStr);
-            map[dStr] = (data.availableSlots || []).length;
+            const count =
+              (data.availableSlots || []).length ||
+              (data.slots || []).filter((s) => s.isAvailable).length;
+            map[dStr] = count;
           } catch {
             map[dStr] = 0;
           }
@@ -198,25 +201,68 @@ export default function AppointmentFlow() {
   const selectedTreatment =
     treatments.find((t) => t.id === selectedTreatmentId) || treatments[0] || null;
 
-  const sortedDoctors = useMemo(() => {
-    return [...doctors].sort((a, b) => {
-      const aMatches = a.treatmentIds?.includes(selectedTreatmentId) ? 1 : 0;
-      const bMatches = b.treatmentIds?.includes(selectedTreatmentId) ? 1 : 0;
-      return bMatches - aMatches;
+  const enrolledDoctors = useMemo(() => {
+    if (!selectedTreatmentId) return doctors;
+
+    const currentTreatment = treatments.find((t) => t.id === selectedTreatmentId);
+    const currentSlug = currentTreatment?.slug;
+    const currentName = currentTreatment?.name?.toLowerCase().trim();
+
+    const filtered = doctors.filter((doc) => {
+      // If doctor has no specific treatments assigned, they are enrolled for All Clinical Consultations
+      if (!doc.treatmentIds || doc.treatmentIds.length === 0) return true;
+
+      // Check ID match
+      if (doc.treatmentIds.includes(selectedTreatmentId)) return true;
+
+      // Check slug match
+      if (currentSlug && doc.treatmentIds.includes(currentSlug)) return true;
+
+      // Check name match
+      if (currentName) {
+        const found = doc.treatmentIds.some((tid) => {
+          const tObj = treatments.find((t) => t.id === tid);
+          return tObj?.name?.toLowerCase().trim() === currentName;
+        });
+        if (found) return true;
+      }
+
+      return false;
     });
-  }, [doctors, selectedTreatmentId]);
+
+    return filtered.length > 0 ? filtered : doctors;
+  }, [doctors, selectedTreatmentId, treatments]);
 
   const handleContinueToDoctor = () => {
-    const matchingDoctor = doctors.find((d) =>
-      d.treatmentIds && d.treatmentIds.includes(selectedTreatmentId)
-    );
-    if (matchingDoctor) {
-      setSelectedDoctorId(matchingDoctor.id);
+    const firstEnrolled = enrolledDoctors[0];
+    if (firstEnrolled && !enrolledDoctors.some((d) => d.id === selectedDoctorId)) {
+      setSelectedDoctorId(firstEnrolled.id);
     }
     setStep(2);
   };
 
   const availableSlotsCount = allSlots.filter((s) => s.isAvailable).length;
+
+  // Filter out dates where the physician has 0 available slots ("slot hata de jo available nhi h")
+  const hasAnyDateAvailabilityChecked = Object.keys(dateAvailabilityMap).length > 0;
+  const visibleDates = useMemo(() => {
+    return availableDates.filter((dStr) => {
+      const count = dateAvailabilityMap[dStr];
+      // While pre-fetching availability, show the dates
+      if (!hasAnyDateAvailabilityChecked || count === undefined) return true;
+      // Filter out dates with no available slots
+      return count > 0;
+    });
+  }, [availableDates, dateAvailabilityMap, hasAnyDateAvailabilityChecked]);
+
+  // Keep selectedDate pointed to a valid visible date with available slots
+  useEffect(() => {
+    if (visibleDates.length > 0) {
+      if (!selectedDate || dateAvailabilityMap[selectedDate] === 0 || !visibleDates.includes(selectedDate)) {
+        setSelectedDate(visibleDates[0]);
+      }
+    }
+  }, [visibleDates, selectedDate, dateAvailabilityMap]);
 
   const validatePatientForm = (): boolean => {
     const errs: Record<string, string> = {};
@@ -422,11 +468,10 @@ export default function AppointmentFlow() {
     <section className="mvp-section" aria-label="Ayurvedic Consultation Booking">
       <div className="wrap">
         <div className="mvp-page-heading">
-          <span className="tag">Classical Ayurvedic Consultation</span>
+          <span className="tag">Consultation Booking</span>
           <h1>Book a Doctor Consultation</h1>
           <p>
-            Experience authentic pulse diagnosis (Nadi Pariksha) and individualized
-            healing plans beside Birla Hospital, Vidyavihar, Pilani.
+            Authentic Ayurvedic pulse diagnosis &amp; consultation at Pilani.
           </p>
         </div>
 
@@ -507,7 +552,7 @@ export default function AppointmentFlow() {
                       {createdAppointment.status || "CONFIRMED"}
                     </Badge>
                     <Badge variant={createdAppointment.paymentStatus === "PAID" ? "success" : "gold"} dot={createdAppointment.paymentStatus === "PAID"}>
-                      {createdAppointment.paymentStatus === "PAID" ? "Paid via Razorpay" : "Payment at Reception"}
+                      {createdAppointment.paymentStatus === "PAID" ? "Paid Online" : "Payment at Reception"}
                     </Badge>
                   </div>
                 </div>
@@ -550,7 +595,7 @@ export default function AppointmentFlow() {
                   <div>
                     <span>Payment Status:</span>
                     <strong style={{ color: createdAppointment.paymentStatus === "PAID" ? "var(--green)" : "var(--terra)" }}>
-                      {createdAppointment.paymentStatus === "PAID" ? "Paid Online (Razorpay)" : "Pending at Reception"}
+                      {createdAppointment.paymentStatus === "PAID" ? "Paid Online" : "Pending at Reception"}
                     </strong>
                   </div>
                   <div>
@@ -579,7 +624,7 @@ export default function AppointmentFlow() {
               <div className="prototype-status-note">
                 <ShieldCheck size={16} />
                 <span>
-                  <strong>Consultation Fee Settled (₹500 Paid via Razorpay):</strong> Your appointment is confirmed and verified. Please arrive 10 minutes prior to your scheduled consultation time. <em>(Consultation fee is strictly non-refundable).</em>
+                  <strong>Consultation Fee Settled (₹500 Paid):</strong> Your appointment is confirmed and verified. Please arrive 10 minutes prior to your scheduled consultation time.
                 </span>
               </div>
 
@@ -698,7 +743,7 @@ export default function AppointmentFlow() {
                     />
                   ) : (
                     <div className="choice-cards-grid">
-                      {sortedDoctors.map((doc) => {
+                      {enrolledDoctors.map((doc) => {
                         const isSelected = selectedDoctorId === doc.id;
                         const isSpecialistForSelected =
                           Boolean(doc.treatmentIds && doc.treatmentIds.includes(selectedTreatmentId));
@@ -711,6 +756,18 @@ export default function AppointmentFlow() {
                             onClick={() => setSelectedDoctorId(doc.id)}
                             role="button"
                             tabIndex={0}
+                            style={{
+                              alignItems: "flex-start",
+                              background: isSelected ? "#f9fcfb" : "#ffffff",
+                              borderColor: isSelected ? "var(--green)" : "rgba(24, 66, 50, 0.12)",
+                              borderWidth: isSelected ? "2px" : "1.5px",
+                              boxShadow: isSelected
+                                ? "0 4px 18px rgba(24, 66, 50, 0.1)"
+                                : "0 2px 8px rgba(0, 0, 0, 0.02)",
+                              padding: "20px",
+                              borderRadius: "18px",
+                              gap: "16px",
+                            }}
                             onKeyDown={(e) => {
                               if (e.key === "Enter" || e.key === " ") {
                                 e.preventDefault();
@@ -718,72 +775,152 @@ export default function AppointmentFlow() {
                               }
                             }}
                           >
-                            <div className="doctor-avatar-wrap">
+                            <div
+                              className="doctor-avatar-wrap"
+                              style={{
+                                width: "72px",
+                                height: "72px",
+                                borderRadius: "16px",
+                                overflow: "hidden",
+                                border: "1.5px solid rgba(197, 160, 89, 0.3)",
+                                background: "#fbf9f5",
+                                flexShrink: 0,
+                              }}
+                            >
                               <Image
                                 src={doc.image || "/images/g5.jpg"}
                                 alt={doc.name}
-                                width={60}
-                                height={60}
+                                width={72}
+                                height={72}
                                 className="doctor-avatar"
-                                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center" }}
+                                style={{ width: "100%", height: "100%", objectFit: "contain", padding: "4px" }}
                               />
                             </div>
-                            <div className="choice-card-body" style={{ flex: 1 }}>
-                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "8px", flexWrap: "wrap" }}>
-                                <h3>{doc.name}</h3>
-                                <div style={{ display: "flex", gap: "5px", alignItems: "center" }}>
-                                  {isSpecialistForSelected && (
-                                    <Badge variant="gold" size="sm">
+                            <div className="choice-card-body" style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "8px", marginBottom: "3px" }}>
+                                <h3 style={{ fontSize: "1.18rem", fontWeight: 600, color: "var(--green)", margin: 0 }}>
+                                  {doc.name}
+                                </h3>
+                                <div>
+                                  {isSelected ? (
+                                    <span
+                                      style={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "4px",
+                                        background: "var(--green)",
+                                        color: "#ffffff",
+                                        fontSize: "0.72rem",
+                                        fontWeight: 600,
+                                        padding: "3px 10px",
+                                        borderRadius: "20px",
+                                        whiteSpace: "nowrap",
+                                      }}
+                                    >
+                                      <Check size={12} strokeWidth={3} /> Selected
+                                    </span>
+                                  ) : isSpecialistForSelected ? (
+                                    <span
+                                      style={{
+                                        background: "rgba(197, 160, 89, 0.15)",
+                                        color: "#8a6416",
+                                        fontSize: "0.72rem",
+                                        fontWeight: 600,
+                                        padding: "3px 9px",
+                                        borderRadius: "20px",
+                                        whiteSpace: "nowrap",
+                                      }}
+                                    >
                                       Specialist
-                                    </Badge>
-                                  )}
-                                  {isSelected && (
-                                    <Badge variant="success" size="sm">
-                                      Selected
-                                    </Badge>
-                                  )}
+                                    </span>
+                                  ) : null}
                                 </div>
                               </div>
-                              <p className="doctor-title">{doc.title}</p>
-                              <p className="doctor-meta">
-                                {doc.qualifications} &bull; {doc.experience}
+
+                              <p
+                                className="doctor-title"
+                                style={{
+                                  color: "var(--terra)",
+                                  fontSize: "0.88rem",
+                                  fontWeight: 600,
+                                  margin: "2px 0 2px",
+                                }}
+                              >
+                                {doc.designation || doc.title}
+                              </p>
+                              <p
+                                className="doctor-meta"
+                                style={{
+                                  color: "#475569",
+                                  fontSize: "0.82rem",
+                                  margin: "0 0 6px",
+                                }}
+                              >
+                                {doc.qualifications} &bull; <b>{doc.experience}</b>
                               </p>
 
-                              {/* Treatment/Consultation Tags */}
+                              {/* Specialization Details */}
+                              {doc.specialization && (
+                                <p style={{ fontSize: "0.8rem", color: "#334155", margin: "0 0 8px", lineHeight: 1.4 }}>
+                                  <span style={{ color: "#64748b" }}>Specialization: </span>
+                                  {doc.specialization}
+                                </p>
+                              )}
+
+                              {/* Assigned Consultations Offered */}
                               {doc.treatmentIds && doc.treatmentIds.length > 0 && (
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", margin: "6px 0 8px 0" }}>
-                                  {doc.treatmentIds.map((tid) => {
-                                    const tr = treatments.find((t) => t.id === tid);
-                                    if (!tr) return null;
-                                    const isMatch = tid === selectedTreatmentId;
-                                    return (
-                                      <span
-                                        key={tid}
-                                        style={{
-                                          fontSize: "0.72rem",
-                                          padding: "2px 7px",
-                                          borderRadius: "4px",
-                                          background: isMatch ? "rgba(197, 160, 89, 0.2)" : "rgba(24, 66, 50, 0.06)",
-                                          color: isMatch ? "#8a6416" : "var(--green)",
-                                          fontWeight: isMatch ? 700 : 500,
-                                          border: isMatch ? "1px solid rgba(197, 160, 89, 0.4)" : "1px solid rgba(24, 66, 50, 0.12)",
-                                        }}
-                                      >
-                                        {tr.name}
-                                      </span>
-                                    );
-                                  })}
+                                <div style={{ marginBottom: "10px" }}>
+                                  <span style={{ display: "block", fontSize: "0.72rem", color: "#64748b", fontWeight: 600, marginBottom: "4px", textTransform: "uppercase", letterSpacing: "0.4px" }}>
+                                    Consultations Offered:
+                                  </span>
+                                  <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                                    {doc.treatmentIds.map((tid) => {
+                                      const tr = treatments.find((t) => t.id === tid);
+                                      const isCurrent = tid === selectedTreatmentId;
+                                      return (
+                                        <span
+                                          key={tid}
+                                          style={{
+                                            fontSize: "0.73rem",
+                                            padding: "2px 7px",
+                                            borderRadius: "5px",
+                                            background: isCurrent ? "rgba(24, 66, 50, 0.12)" : "#f1f5f9",
+                                            color: isCurrent ? "var(--green)" : "#475569",
+                                            fontWeight: isCurrent ? 700 : 500,
+                                            border: isCurrent ? "1px solid rgba(24, 66, 50, 0.3)" : "1px solid #e2e8f0",
+                                          }}
+                                        >
+                                          {isCurrent ? "✓ " : ""}{tr?.name || "Consultation"}
+                                        </span>
+                                      );
+                                    })}
+                                  </div>
                                 </div>
                               )}
 
-                              <div className="choice-card-meta">
-                                <span>
-                                  <MapPin size={13} style={{ verticalAlign: "-2px", marginRight: "3px" }} />
-                                  {doc.location}
+                              <div
+                                className="choice-card-meta"
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  paddingTop: "10px",
+                                  borderTop: "1px solid rgba(24, 66, 50, 0.08)",
+                                  fontSize: "0.82rem",
+                                  flexWrap: "wrap",
+                                  gap: "6px",
+                                }}
+                              >
+                                <span style={{ color: "#475569", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                                  <Clock size={13} color="var(--gold)" />
+                                  {doc.availability || "Daily"} ({doc.timings ? doc.timings.split("|")[0].trim() : "9:00 AM – 7:00 PM"})
                                 </span>
-                                <strong>
-                                  Fee: ₹{(doc.consultationFee ?? 500).toLocaleString("en-IN")}
-                                </strong>
+                                <span style={{ color: "var(--ink-light)" }}>
+                                  Fee:{" "}
+                                  <strong style={{ color: "var(--green)", fontSize: "0.98rem" }}>
+                                    ₹{(doc.consultationFee ?? 500).toLocaleString("en-IN")}
+                                  </strong>
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -821,54 +958,63 @@ export default function AppointmentFlow() {
                     <p>Appointments available Monday through Sunday (9:00 AM – 7:00 PM).</p>
                   </div>
 
-                  <div className="date-cards-grid">
-                    {availableDates.map((dStr) => {
-                      const dateObj = new Date(`${dStr}T00:00:00`);
-                      const isToday =
-                        new Date().toISOString().split("T")[0] === dStr;
-                      const isSelected = selectedDate === dStr;
-                      const availableCount = dateAvailabilityMap[dStr];
-                      const isOff = availableCount === 0;
+                  {visibleDates.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: "48px 20px", background: "#ffffff", borderRadius: "16px", border: "1px solid #e7dfd3" }}>
+                      <Calendar size={42} style={{ margin: "0 auto 12px", color: "var(--gold)" }} />
+                      <h3 style={{ fontSize: "1.25rem", color: "var(--green)", marginBottom: "8px" }}>
+                        No Available Consultation Dates
+                      </h3>
+                      <p style={{ color: "var(--ink-light)", fontSize: "0.92rem", maxWidth: "440px", margin: "0 auto 20px", lineHeight: "1.5" }}>
+                        No open consultation slots are currently available for {selectedDoctor?.name || "this physician"} in the upcoming 7 days.
+                      </p>
+                      <Button variant="primary" onClick={() => setStep(2)}>
+                        Choose Another Physician
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="date-cards-grid">
+                      {visibleDates.map((dStr) => {
+                        const dateObj = new Date(`${dStr}T00:00:00`);
+                        const isToday =
+                          new Date().toISOString().split("T")[0] === dStr;
+                        const isSelected = selectedDate === dStr;
+                        const availableCount = dateAvailabilityMap[dStr];
 
-                      return (
-                        <button
-                          key={dStr}
-                          type="button"
-                          className={`date-card ${isSelected ? "selected" : ""} ${isOff ? "is-off" : ""}`}
-                          onClick={() => setSelectedDate(dStr)}
-                          style={{
-                            opacity: isOff ? 0.65 : 1,
-                          }}
-                        >
-                          <Calendar size={20} />
-                          <span className="date-weekday">
-                            {dateObj.toLocaleDateString("en-IN", {
-                              weekday: "short",
-                            })}
-                          </span>
-                          <strong className="date-number">
-                            {dateObj.getDate()}{" "}
-                            {dateObj.toLocaleDateString("en-IN", {
-                              month: "short",
-                            })}
-                          </strong>
-                          <span
-                            className="slot-badge"
-                            style={{
-                              color: isOff ? "#dc2626" : "var(--green)",
-                            }}
+                        return (
+                          <button
+                            key={dStr}
+                            type="button"
+                            className={`date-card ${isSelected ? "selected" : ""}`}
+                            onClick={() => setSelectedDate(dStr)}
                           >
-                            {availableCount === undefined
-                              ? "Checking..."
-                              : isOff
-                              ? "No Slots"
-                              : `${availableCount} Slot${availableCount > 1 ? "s" : ""}`}
-                          </span>
-                          {isToday && <span className="today-tag">Today</span>}
-                        </button>
-                      );
-                    })}
-                  </div>
+                            <Calendar size={20} />
+                            <span className="date-weekday">
+                              {dateObj.toLocaleDateString("en-IN", {
+                                weekday: "short",
+                              })}
+                            </span>
+                            <strong className="date-number">
+                              {dateObj.getDate()}{" "}
+                              {dateObj.toLocaleDateString("en-IN", {
+                                month: "short",
+                              })}
+                            </strong>
+                            <span
+                              className="slot-badge"
+                              style={{
+                                color: "var(--green)",
+                              }}
+                            >
+                              {availableCount === undefined
+                                ? "Checking..."
+                                : `${availableCount} Slot${availableCount > 1 ? "s" : ""}`}
+                            </span>
+                            {isToday && <span className="today-tag">Today</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
 
                   <div className="step-actions">
                     <Button
@@ -883,6 +1029,7 @@ export default function AppointmentFlow() {
                       onClick={() => setStep(4)}
                       icon={<ArrowRight size={16} />}
                       iconPosition="right"
+                      disabled={!selectedDate || dateAvailabilityMap[selectedDate] === 0 || visibleDates.length === 0}
                     >
                       Select Time Slot
                     </Button>
@@ -929,35 +1076,27 @@ export default function AppointmentFlow() {
                   ) : (
                     <>
                       <div className="time-slots-grid">
-                        {allSlots.map((slot) => {
-                          const isSelected = selectedTime === slot.time;
-                          return (
-                            <button
-                              key={slot.time}
-                              type="button"
-                              disabled={!slot.isAvailable}
-                              className={`time-slot-btn ${
-                                isSelected ? "selected" : ""
-                              } ${!slot.isAvailable ? "disabled" : ""}`}
-                              onClick={() => {
-                                if (slot.isAvailable) setSelectedTime(slot.time);
-                              }}
-                              title={
-                                slot.isAvailable
-                                  ? `Select ${formatTime12Hour(slot.time)}`
-                                  : "Slot already reserved"
-                              }
-                            >
-                              <Clock size={15} />
-                              <span>{formatTime12Hour(slot.time)}</span>
-                              {!slot.isAvailable && (
-                                <span style={{ fontSize: "0.68rem", opacity: 0.8 }}>
-                                  (Full)
-                                </span>
-                              )}
-                            </button>
-                          );
-                        })}
+                        {allSlots
+                          .filter((slot) => slot.isAvailable)
+                          .map((slot) => {
+                            const isSelected = selectedTime === slot.time;
+                            return (
+                              <button
+                                key={slot.time}
+                                type="button"
+                                className={`time-slot-btn ${
+                                  isSelected ? "selected" : ""
+                                }`}
+                                onClick={() => {
+                                  setSelectedTime(slot.time);
+                                }}
+                                title={`Select ${formatTime12Hour(slot.time)}`}
+                              >
+                                <Clock size={15} />
+                                <span>{formatTime12Hour(slot.time)}</span>
+                              </button>
+                            );
+                          })}
                       </div>
 
                       <div className="slot-booking-note">
@@ -1166,17 +1305,14 @@ export default function AppointmentFlow() {
 
                   {/* Payment Method Selector */}
                   <div className="payment-method-section" style={{ marginTop: "20px", marginBottom: "20px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                    <div style={{ marginBottom: "12px" }}>
                       <span style={{ fontSize: "0.88rem", fontWeight: 600, color: "var(--ink)" }}>
                         Payment Option
-                      </span>
-                      <span style={{ fontSize: "0.75rem", color: "var(--ink-muted)", display: "flex", alignItems: "center", gap: "4px" }}>
-                        <Lock size={12} style={{ color: "var(--green)" }} /> 256-Bit SSL Encrypted
                       </span>
                     </div>
 
                     <div>
-                      {/* Razorpay Online Payment Card */}
+                      {/* Payment Card */}
                       <div
                         style={{
                           border: "2px solid var(--green)",
@@ -1192,14 +1328,14 @@ export default function AppointmentFlow() {
                             <CreditCard size={18} style={{ color: "var(--green)" }} />
                           </div>
                           <div>
-                            <strong style={{ fontSize: "1rem", color: "var(--green)" }}>Pay Online via Razorpay</strong>
+                            <strong style={{ fontSize: "1rem", color: "var(--green)" }}>UPI, Cards &amp; NetBanking</strong>
                             <p style={{ fontSize: "0.82rem", color: "var(--ink-muted)", margin: "2px 0 0", lineHeight: 1.4 }}>
                               Instant slot confirmation via UPI (GPay, PhonePe, Paytm), Cards &amp; NetBanking.
                             </p>
                           </div>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.75rem", color: "var(--green)", fontWeight: 600, marginTop: "8px" }}>
-                          <ShieldCheck size={14} /> Official Razorpay Checkout
+                          <ShieldCheck size={14} /> Instant Slot Confirmation
                         </div>
                       </div>
                     </div>
@@ -1224,8 +1360,8 @@ export default function AppointmentFlow() {
                       id="razorpay-pay-btn"
                     >
                       {isSubmitting
-                        ? "Connecting to Razorpay..."
-                        : `Pay ₹${(selectedDoctor?.consultationFee ?? 500).toLocaleString("en-IN")} via Razorpay`}
+                        ? "Connecting..."
+                        : `Pay ₹${(selectedDoctor?.consultationFee ?? 500).toLocaleString("en-IN")}`}
                     </Button>
                   </div>
                 </div>

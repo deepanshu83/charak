@@ -63,10 +63,29 @@ async function compressVideoInBrowser(
 
   try {
     await new Promise<void>((resolve, reject) => {
-      video.onloadedmetadata = () => resolve();
-      video.onerror = () => reject(new Error("Unable to read video file for compression."));
+      const timer = setTimeout(() => {
+        cleanup();
+        reject(new Error("Video format or codec is not supported by your browser for in-browser compression. Please upload an MP4 under 10 MB."));
+      }, 8000);
+
+      const onMeta = () => {
+        cleanup();
+        resolve();
+      };
+      const onErr = () => {
+        cleanup();
+        reject(new Error("Unable to read video file for compression. Please ensure it is standard H.264 MP4."));
+      };
+
+      function cleanup() {
+        clearTimeout(timer);
+        video.onloadedmetadata = null;
+        video.onerror = null;
+      }
+
+      video.onloadedmetadata = onMeta;
+      video.onerror = onErr;
       video.src = objectUrl;
-      video.load();
     });
 
     const duration = video.duration;
@@ -182,64 +201,295 @@ async function compressVideoInBrowser(
   }
 }
 
+/**
+ * Lightweight pure-JavaScript MP4/ISOBMFF box parser.
+ * Reads duration, width, and height directly from binary headers without
+ * relying on browser video decoders (works for HEVC, H.264, MOV, etc.).
+ */
+function parseMp4Metadata(buffer: ArrayBuffer): { duration?: number; width?: number; height?: number } {
+  const view = new DataView(buffer);
+  let duration: number | undefined;
+  let width: number | undefined;
+  let height: number | undefined;
+
+  function scan(start: number, end: number) {
+    let pos = start;
+    while (pos + 8 <= end) {
+      const size = view.getUint32(pos);
+      if (size < 8 && size !== 0 && size !== 1) break;
+      const type = String.fromCharCode(
+        view.getUint8(pos + 4),
+        view.getUint8(pos + 5),
+        view.getUint8(pos + 6),
+        view.getUint8(pos + 7)
+      );
+      const boxEnd =
+        size === 1
+          ? pos + Number(view.getBigUint64(pos + 8))
+          : size === 0
+          ? end
+          : pos + size;
+      const dataStart = size === 1 ? pos + 16 : pos + 8;
+
+      if (type === "moov" || type === "trak" || type === "mdia") {
+        scan(dataStart, Math.min(boxEnd, end));
+      } else if (type === "mvhd" && dataStart + 20 <= end) {
+        const ver = view.getUint8(dataStart);
+        let timescale = 0;
+        let dur = 0;
+        if (ver === 1 && dataStart + 32 <= end) {
+          timescale = view.getUint32(dataStart + 20);
+          dur = Number(view.getBigUint64(dataStart + 24));
+        } else if (ver === 0 && dataStart + 20 <= end) {
+          timescale = view.getUint32(dataStart + 12);
+          dur = view.getUint32(dataStart + 16);
+        }
+        if (timescale > 0 && dur > 0) {
+          duration = Math.round(dur / timescale);
+        }
+      } else if (type === "tkhd" && !width) {
+        const ver = view.getUint8(dataStart);
+        const wOff = ver === 1 ? dataStart + 88 : dataStart + 76;
+        if (wOff + 8 <= end) {
+          const w = view.getUint32(wOff) >>> 16;
+          const h = view.getUint32(wOff + 4) >>> 16;
+          if (w > 0 && h > 0) {
+            width = w;
+            height = h;
+          }
+        }
+      }
+
+      if (boxEnd <= pos || boxEnd > end) break;
+      pos = boxEnd;
+    }
+  }
+
+  try {
+    scan(0, view.byteLength);
+  } catch {
+    // Gracefully ignore corrupt boxes
+  }
+
+  return { duration, width, height };
+}
+
+/**
+ * Creates an elegant, branded fallback video poster image using HTML Canvas.
+ * Used when the browser video decoder is unable to extract a frame directly.
+ */
+async function createFallbackThumbnail(title = "Video Testimonial", durationSeconds = 0): Promise<Blob> {
+  const canvas = document.createElement("canvas");
+  canvas.width = 640;
+  canvas.height = 360;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    throw new Error("Unable to create canvas context");
+  }
+
+  // Rich Ayurvedic background gradient
+  const grad = ctx.createLinearGradient(0, 0, 640, 360);
+  grad.addColorStop(0, "#122a22");
+  grad.addColorStop(0.5, "#1e3d34");
+  grad.addColorStop(1, "#0d1f19");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 640, 360);
+
+  // Subtle warm glow
+  const glow = ctx.createRadialGradient(320, 160, 20, 320, 160, 260);
+  glow.addColorStop(0, "rgba(194, 139, 56, 0.22)");
+  glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, 640, 360);
+
+  // Outer gold circle for play icon
+  ctx.beginPath();
+  ctx.arc(320, 155, 42, 0, Math.PI * 2);
+  ctx.fillStyle = "#c28b38";
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(320, 155, 50, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Play triangle (centered)
+  ctx.beginPath();
+  ctx.moveTo(314, 140);
+  ctx.lineTo(333, 155);
+  ctx.lineTo(314, 170);
+  ctx.closePath();
+  ctx.fillStyle = "#ffffff";
+  ctx.fill();
+
+  // Primary heading
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 20px system-ui, -apple-system, sans-serif";
+  ctx.textAlign = "center";
+  const displayTitle = title.replace(/\.[^.]+$/, "").slice(0, 32);
+  ctx.fillText(displayTitle || "Patient Testimonial", 320, 238);
+
+  // Secondary subtitle with duration badge
+  ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+  ctx.font = "14px system-ui, -apple-system, sans-serif";
+  const durText = durationSeconds > 0 ? ` • ${formatDuration(durationSeconds)}` : "";
+  ctx.fillText(`Charak Ayurveda Hospital${durText}`, 320, 264);
+
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => (blob ? resolve(blob) : reject(new Error("Unable to create preview image."))),
+      "image/webp",
+      0.9
+    );
+  });
+}
+
+/**
+ * Robustly reads video duration, resolution, and extracts a frame thumbnail.
+ * If the browser's native video element cannot decode the frame (e.g. HEVC or Linux codecs),
+ * this function gracefully extracts metadata from MP4 headers and generates a branded fallback poster,
+ * GUARANTEEING the upload process will never be blocked by decode errors.
+ */
 async function createVideoMetadataAndThumbnail(file: File | Blob): Promise<{
   thumbnail: Blob;
   duration: number;
   width: number;
   height: number;
 }> {
+  let extractedDuration = 0;
+  let sourceWidth = 1280;
+  let sourceHeight = 720;
+  let thumbnailBlob: Blob | null = null;
+
+  // 1. Attempt binary parse of MP4/MOV header first
+  try {
+    const slice = await file.slice(0, Math.min(file.size, 4 * 1024 * 1024)).arrayBuffer();
+    const meta = parseMp4Metadata(slice);
+    if (meta.duration && meta.duration > 0) extractedDuration = meta.duration;
+    if (meta.width && meta.height) {
+      sourceWidth = meta.width;
+      sourceHeight = meta.height;
+    }
+  } catch {
+    // Ignore and proceed
+  }
+
+  // 2. Attempt HTML5 Video element frame extraction
   const objectUrl = URL.createObjectURL(file);
   const video = document.createElement("video");
-  video.preload = "metadata";
+  video.preload = "auto";
   video.playsInline = true;
   video.muted = true;
 
   try {
-    await new Promise<void>((resolve, reject) => {
-      video.onloadedmetadata = () => resolve();
-      video.onerror = () => reject(new Error("Unable to read video file. Please ensure it is a valid video format."));
+    const loaded = await new Promise<boolean>((resolve) => {
+      const timer = setTimeout(() => {
+        cleanup();
+        resolve(false);
+      }, 4000);
+
+      const onMeta = () => {
+        cleanup();
+        resolve(true);
+      };
+
+      const onErr = () => {
+        cleanup();
+        resolve(false);
+      };
+
+      function cleanup() {
+        clearTimeout(timer);
+        video.onloadedmetadata = null;
+        video.oncanplay = null;
+        video.onerror = null;
+      }
+
+      video.onloadedmetadata = onMeta;
+      video.oncanplay = onMeta;
+      video.onerror = onErr;
+
+      // Assign src without redundant video.load() to prevent abort events
       video.src = objectUrl;
-      video.load();
     });
 
-    if (!Number.isFinite(video.duration) || video.duration <= 0) {
-      throw new Error("The video duration could not be read.");
+    if (loaded) {
+      if (Number.isFinite(video.duration) && video.duration > 0) {
+        extractedDuration = Math.round(video.duration);
+      }
+      if (video.videoWidth > 0 && video.videoHeight > 0) {
+        sourceWidth = video.videoWidth;
+        sourceHeight = video.videoHeight;
+      }
+
+      // Try seeking to 1/3 of duration for frame capture
+      const seekTarget = Math.min(1, Math.max(0.1, (video.duration || 2) / 3));
+      video.currentTime = seekTarget;
+
+      const seeked = await new Promise<boolean>((resolve) => {
+        const timer = setTimeout(() => {
+          video.onseeked = null;
+          video.onerror = null;
+          resolve(false);
+        }, 1500);
+
+        video.onseeked = () => {
+          clearTimeout(timer);
+          video.onseeked = null;
+          video.onerror = null;
+          resolve(true);
+        };
+        video.onerror = () => {
+          clearTimeout(timer);
+          video.onseeked = null;
+          video.onerror = null;
+          resolve(false);
+        };
+      });
+
+      if (seeked || video.readyState >= 2) {
+        const canvas = document.createElement("canvas");
+        const scale = Math.min(1, 640 / (sourceWidth || 640), 640 / (sourceHeight || 640));
+        canvas.width = Math.max(2, Math.floor(((sourceWidth || 640) * scale) / 2) * 2);
+        canvas.height = Math.max(2, Math.floor(((sourceHeight || 360) * scale) / 2) * 2);
+        const context = canvas.getContext("2d");
+        if (context) {
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+          thumbnailBlob = await new Promise<Blob | null>((resolve) => {
+            canvas.toBlob(
+              (blob) => resolve(blob),
+              "image/webp",
+              0.85
+            );
+          });
+        }
+      }
     }
-
-    const duration = Math.round(video.duration);
-    const sourceWidth = video.videoWidth || 1280;
-    const sourceHeight = video.videoHeight || 720;
-
-    video.currentTime = Math.min(1, video.duration / 2);
-    await new Promise<void>((resolve, reject) => {
-      video.onseeked = () => resolve();
-      video.onerror = () => reject(new Error("The video preview could not be created."));
-    });
-
-    const canvas = document.createElement("canvas");
-    const scale = Math.min(1, 640 / (sourceWidth || 640), 640 / (sourceHeight || 640));
-    canvas.width = Math.max(2, Math.floor(((sourceWidth || 640) * scale) / 2) * 2);
-    canvas.height = Math.max(2, Math.floor(((sourceHeight || 360) * scale) / 2) * 2);
-    const context = canvas.getContext("2d");
-    if (!context) {
-      throw new Error("Unable to create a preview image for the video.");
-    }
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const thumbnail = await new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob(
-        (blob) => (blob ? resolve(blob) : reject(new Error("Unable to create a preview image for the video."))),
-        "image/webp",
-        0.85
-      );
-    });
-
-    return { thumbnail, duration, width: sourceWidth, height: sourceHeight };
+  } catch (err) {
+    console.warn("[VideoUpload] Could not capture frame from video:", err);
   } finally {
-    video.pause();
-    video.removeAttribute("src");
-    video.load();
+    try {
+      video.pause();
+      video.removeAttribute("src");
+    } catch {
+      // Ignore cleanup error
+    }
     URL.revokeObjectURL(objectUrl);
   }
+
+  // 3. If native frame capture didn't yield a thumbnail, generate branded fallback poster
+  if (!thumbnailBlob) {
+    const filename = file instanceof File ? file.name : "Testimonial";
+    thumbnailBlob = await createFallbackThumbnail(filename, extractedDuration);
+  }
+
+  return {
+    thumbnail: thumbnailBlob,
+    duration: extractedDuration,
+    width: sourceWidth,
+    height: sourceHeight,
+  };
 }
 
 export default function VideoUpload({
@@ -290,7 +540,8 @@ export default function VideoUpload({
 
     try {
       const isDirectUpload =
-        (extension === "mp4" || extension === "webm") && file.size <= MAX_UPLOAD_SIZE;
+        (extension === "mp4" || extension === "webm" || extension === "mov" || extension === "m4v") &&
+        file.size <= MAX_UPLOAD_SIZE;
 
       let uploadFile: File = file;
       let thumbBlob: Blob;

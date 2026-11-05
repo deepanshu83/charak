@@ -7,6 +7,7 @@ import MobileBar from "@/components/MobileBar";
 import { ArrowRight, CheckCircle2, Calendar } from "lucide-react";
 
 import { treatmentCategories } from "@/data/site";
+import { fetchTreatments } from "@/lib/treatmentService";
 
 export const metadata: Metadata = {
   title: "Services & Clinical Specialities | Charak Ayurvedic Chikitsalya, Pilani",
@@ -24,8 +25,29 @@ export const metadata: Metadata = {
   },
 };
 
-export default function WhatWeTreatPage() {
-  const categories = treatmentCategories;
+export default async function WhatWeTreatPage() {
+  const dbTreatments = await fetchTreatments().catch(() => []);
+  const categories =
+    dbTreatments && dbTreatments.length > 0
+      ? dbTreatments.map((t, idx) => {
+          const fallback = treatmentCategories.find(
+            (c) => c.title.toLowerCase().includes(t.name.toLowerCase()) || t.name.toLowerCase().includes(c.title.toLowerCase())
+          ) || treatmentCategories[idx % treatmentCategories.length];
+
+          return {
+            title: t.name,
+            summary: t.shortDescription || t.description,
+            image: t.image || fallback?.image || "/images/treatments/panchakarma.jpg",
+            conditions: fallback?.conditions || [t.name, "Consultation & Pulse Diagnosis"],
+            treatments: fallback?.treatments || "Classical Panchakarma, Herbal Formulations & Nadi Pariksha",
+            features: [
+              `Duration: ${t.duration || "45 min"}`,
+              `Consultation Fee: ₹${(t.price || 500).toLocaleString("en-IN")}`,
+            ],
+            link: `/appointment?treatment=${t.id}`,
+          };
+        })
+      : treatmentCategories;
 
   return (
     <>
