@@ -69,6 +69,30 @@ export async function bookAppointment(input: BookAppointmentInput): Promise<Book
 }
 
 /**
+ * Public Batch Availability Fetch: calls GET /api/appointments/availability with date range
+ * Returns map of date (YYYY-MM-DD) -> available slot count in one single fast request.
+ */
+export async function fetchBatchAvailability(
+  doctorId: string,
+  startDate: string,
+  endDate: string
+): Promise<Record<string, number>> {
+  try {
+    const res = await fetch(
+      `/api/appointments/availability?doctorId=${encodeURIComponent(doctorId)}&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`
+    );
+    const json = await res.json().catch(() => ({}));
+    if (json.ok && json.data && json.data.dateMap) {
+      return json.data.dateMap;
+    }
+    return {};
+  } catch (err) {
+    console.error("[AppointmentService] fetchBatchAvailability failed:", err);
+    return {};
+  }
+}
+
+/**
  * Public Availability Fetch: calls GET /api/appointments/availability
  */
 export async function fetchAvailableSlots(

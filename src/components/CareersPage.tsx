@@ -37,12 +37,12 @@ export default function CareersPageClient() {
                 experience: row.experience,
                 description: row.description,
                 requirements: row.requirements ?? null,
-                salaryRange: row.salary_range ?? null,
-                applyEmail: row.apply_email ?? null,
+                salaryRange: row.salary_range ?? row.salaryRange ?? null,
+                applyEmail: row.apply_email ?? row.applyEmail ?? null,
                 active: row.active,
-                displayOrder: row.display_order ?? 0,
-                createdAt: row.created_at,
-                updatedAt: row.updated_at,
+                displayOrder: row.display_order ?? row.displayOrder ?? 0,
+                createdAt: row.created_at ?? row.createdAt,
+                updatedAt: row.updated_at ?? row.updatedAt,
               })
             )
           );
@@ -128,38 +128,182 @@ export default function CareersPageClient() {
             <div
               style={{
                 textAlign: "center",
-                padding: "60px 24px",
-                background: "#fff",
-                border: "1px solid #e2e8f0",
-                borderRadius: "16px",
+                padding: "64px 32px",
+                background: "linear-gradient(145deg, #ffffff 0%, var(--cream-card, #fbf8f3) 100%)",
+                border: "1.5px solid #e7dfd3",
+                borderRadius: "24px",
+                boxShadow: "0 10px 32px rgba(24, 66, 50, 0.04)",
+                maxWidth: "760px",
+                margin: "0 auto",
               }}
             >
-              <Briefcase size={40} style={{ color: "#cbd5e1", marginBottom: "16px" }} />
-              <h2 style={{ fontSize: "1.3rem", color: "#1e293b", marginBottom: "10px" }}>
-                No openings at the moment
-              </h2>
-              <p style={{ color: "#64748b", marginBottom: "20px" }}>
-                We don&apos;t have any active listings right now, but we&apos;re always keen to meet
-                talented people.
-              </p>
-              <a
-                href="mailto:careers@charakayurvedapilani.com"
+              <div
+                style={{
+                  width: "72px",
+                  height: "72px",
+                  borderRadius: "50%",
+                  background: "rgba(24, 66, 50, 0.08)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 20px",
+                  color: "var(--green, #184232)",
+                }}
+              >
+                <Briefcase size={34} />
+              </div>
+
+              <div
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: "8px",
-                  background: "#184232",
-                  color: "#fff",
-                  padding: "10px 22px",
-                  borderRadius: "8px",
-                  fontWeight: 600,
-                  fontSize: "0.95rem",
-                  textDecoration: "none",
+                  gap: "6px",
+                  background: "rgba(194, 139, 56, 0.12)",
+                  color: "var(--gold-dark, #a87932)",
+                  padding: "5px 14px",
+                  borderRadius: "999px",
+                  fontSize: "0.8rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                  marginBottom: "14px",
                 }}
               >
-                <Mail size={15} />
-                Send us your CV
-              </a>
+                <Sparkles size={13} />
+                <span>Future Healthcare Talent Pool</span>
+              </div>
+
+              <h2
+                style={{
+                  fontSize: "1.75rem",
+                  color: "var(--green, #184232)",
+                  marginBottom: "12px",
+                  fontWeight: 700,
+                }}
+              >
+                No Open Vacancies Currently Listed
+              </h2>
+
+              <p
+                style={{
+                  color: "var(--ink-light, #5c6861)",
+                  fontSize: "1.02rem",
+                  maxWidth: "540px",
+                  margin: "0 auto 28px",
+                  lineHeight: "1.65",
+                }}
+              >
+                All hospital positions at Charak Ayurveda are currently filled. However, we are continuously expanding our clinical and Panchakarma teams. If you are a qualified Ayurvedic Vaidya, Therapist, Staff Nurse, Pharmacist, or Hospital Support Staff, we warmly invite your profile for future roles.
+              </p>
+
+              {/* Roles we regularly hire for */}
+              <div
+                style={{
+                  background: "#ffffff",
+                  borderRadius: "16px",
+                  padding: "18px 20px",
+                  border: "1px solid #e7dfd3",
+                  maxWidth: "580px",
+                  margin: "0 auto 30px",
+                  textAlign: "left",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "0.8rem",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    color: "var(--gold-dark, #a87932)",
+                    marginBottom: "10px",
+                  }}
+                >
+                  Roles We Regularly Consider For Upcoming Openings:
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "8px",
+                  }}
+                >
+                  {[
+                    "Ayurvedic Consultant (Vaidya)",
+                    "Ayurvedic Pharmacist",
+                    "Panchakarma Therapist",
+                    "Nursing Staff",
+                    "MTS / Attendant",
+                    "Front Desk / Receptionist",
+                    "Security Guard",
+                    "Hospital Satvik Cook",
+                  ].map((role) => (
+                    <span
+                      key={role}
+                      style={{
+                        padding: "5px 11px",
+                        background: "var(--cream, #f7f4ee)",
+                        borderRadius: "8px",
+                        fontSize: "0.82rem",
+                        color: "var(--green, #184232)",
+                        fontWeight: 600,
+                        border: "1px solid #ebe4da",
+                      }}
+                    >
+                      ✓ {role}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: "12px",
+                  flexWrap: "wrap",
+                }}
+              >
+                <a
+                  href="mailto:careers@charakayurvedapilani.com?subject=Profile Submission for Future Hospital Opportunities - Charak Ayurveda"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    background: "var(--green, #184232)",
+                    color: "#ffffff",
+                    padding: "12px 24px",
+                    borderRadius: "999px",
+                    fontWeight: 600,
+                    fontSize: "0.95rem",
+                    textDecoration: "none",
+                    boxShadow: "0 4px 14px rgba(24, 66, 50, 0.2)",
+                  }}
+                >
+                  <Mail size={16} />
+                  Send Your Resume / CV
+                </a>
+                <a
+                  href="https://wa.me/918852887717?text=Hello%20Charak%20Ayurveda,%20I%20am%20interested%20in%20career%20opportunities%20at%20your%20hospital%20and%20would%20like%20to%20submit%20my%20details."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    background: "#25D366",
+                    color: "#ffffff",
+                    padding: "12px 24px",
+                    borderRadius: "999px",
+                    fontWeight: 600,
+                    fontSize: "0.95rem",
+                    textDecoration: "none",
+                  }}
+                >
+                  <MessageCircle size={16} />
+                  WhatsApp HR Desk
+                </a>
+              </div>
             </div>
           )}
 

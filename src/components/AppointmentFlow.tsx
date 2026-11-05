@@ -25,6 +25,7 @@ import {
 import {
   bookAppointment,
   fetchAvailableSlots,
+  fetchBatchAvailability,
   getAllDoctorSlots,
   getDoctors,
   getTreatments,
@@ -99,13 +100,14 @@ export default function AppointmentFlow() {
       .catch(() => {});
   }, []);
 
-  // Generate dynamic 7-day calendar starting today (IST)
+  // Generate dynamic 35-day calendar (5 full weeks ahead so all Sundays and full month are visible)
   const availableDates = useMemo(() => {
     const dates: string[] = [];
     const todayStr = getTodayIST();
     const [y, m, d] = todayStr.split("-").map(Number);
     const startDate = new Date(y, m - 1, d);
-    for (let i = 0; i < 7; i++) {
+    // 35 days ensures all 4-5 Sundays of the month are covered
+    for (let i = 0; i < 35; i++) {
       const cur = new Date(startDate);
       cur.setDate(startDate.getDate() + i);
       const iso = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, "0")}-${String(cur.getDate()).padStart(2, "0")}`;
@@ -114,6 +116,7 @@ export default function AppointmentFlow() {
     return dates;
   }, []);
 
+  const [dateFilter, setDateFilter] = useState<"available" | "sundays" | "all">("available");
   const [selectedDate, setSelectedDate] = useState<string>(availableDates[0]);
   const [selectedTime, setSelectedTime] = useState<string>("");
 
@@ -133,7 +136,7 @@ export default function AppointmentFlow() {
 
   // Slots with availability status
   const [allSlots, setAllSlots] = useState<{ time: string; isAvailable: boolean }[]>([]);
-  // Day-wise slot availability map for the 7 displayed dates
+  // Day-wise slot availability map for the 35 displayed dates
   const [dateAvailabilityMap, setDateAvailabilityMap] = useState<Record<string, number>>({});
 
   const refreshSlots = async () => {
@@ -156,28 +159,39 @@ export default function AppointmentFlow() {
     }
   };
 
-  // Pre-fetch count of available slots for the 7 dates when doctor changes
+  // Pre-fetch count of available slots for the 35 dates in a single fast batch call
   useEffect(() => {
-    if (!selectedDoctorId) return;
+    if (!selectedDoctorId || availableDates.length === 0) return;
     let isCancelled = false;
 
     const checkDates = async () => {
-      const map: Record<string, number> = {};
-      await Promise.all(
-        availableDates.map(async (dStr) => {
-          try {
-            const data = await fetchAvailableSlots(selectedDoctorId, dStr);
-            const count =
-              (data.availableSlots || []).length ||
-              (data.slots || []).filter((s) => s.isAvailable).length;
-            map[dStr] = count;
-          } catch {
-            map[dStr] = 0;
+      try {
+        const start = availableDates[0];
+        const end = availableDates[availableDates.length - 1];
+        const batchMap = await fetchBatchAvailability(selectedDoctorId, start, end);
+        if (!isCancelled) {
+          if (batchMap && Object.keys(batchMap).length > 0) {
+            setDateAvailabilityMap(batchMap);
+          } else {
+            // Fallback: fetch sequentially in chunks if batch endpoint isn't supported
+            const map: Record<string, number> = {};
+            await Promise.all(
+              availableDates.slice(0, 14).map(async (dStr) => {
+                try {
+                  const data = await fetchAvailableSlots(selectedDoctorId, dStr);
+                  map[dStr] =
+                    (data.availableSlots || []).length ||
+                    (data.slots || []).filter((s) => s.isAvailable).length;
+                } catch {
+                  map[dStr] = 0;
+                }
+              })
+            );
+            if (!isCancelled) setDateAvailabilityMap(map);
           }
-        })
-      );
-      if (!isCancelled) {
-        setDateAvailabilityMap(map);
+        }
+      } catch {
+        if (!isCancelled) setDateAvailabilityMap({});
       }
     };
 
@@ -244,16 +258,40 @@ export default function AppointmentFlow() {
   const availableSlotsCount = allSlots.filter((s) => s.isAvailable).length;
 
   // Filter out dates where the physician has 0 available slots ("slot hata de jo available nhi h")
+  // and support viewing all Sundays of the month ("slot me mahine ke saare slot dikh jane chahiye saare sunday aasa kr")
   const hasAnyDateAvailabilityChecked = Object.keys(dateAvailabilityMap).length > 0;
   const visibleDates = useMemo(() => {
-    return availableDates.filter((dStr) => {
-      const count = dateAvailabilityMap[dStr];
-      // While pre-fetching availability, show the dates
-      if (!hasAnyDateAvailabilityChecked || count === undefined) return true;
-      // Filter out dates with no available slots
-      return count > 0;
-    });
-  }, [availableDates, dateAvailabilityMap, hasAnyDateAvailabilityChecked]);
+    // 1. If user clicked "All Sundays", filter by Sunday (day 0) across all 35 days
+    if (dateFilter === "sundays") {
+      const sundays = availableDates.filter((dStr) => {
+        const [y, m, d] = dStr.split("-").map(Number);
+        const day = new Date(Date.UTC(y, m - 1, d, 12, 0, 0)).getUTCDay();
+        return day === 0;
+      });
+      return sundays.length > 0 ? sundays : availableDates;
+    }
+
+    // 2. If user clicked "Entire Month", show all 35 days
+    if (dateFilter === "all") {
+      return availableDates;
+    }
+
+    // 3. Default ("available"): Show dates with active slots
+    if (hasAnyDateAvailabilityChecked) {
+      const availableOnly = availableDates.filter((dStr) => {
+        const count = dateAvailabilityMap[dStr];
+        return count !== undefined && count > 0;
+      });
+      // If doctor has any available dates in the 35 days, show ONLY those!
+      // (For doctors only consulting on Sundays, this automatically isolates all Sundays!)
+      if (availableOnly.length > 0) {
+        return availableOnly;
+      }
+    }
+
+    // While pre-fetching availability or if no slots configured, show dates
+    return availableDates;
+  }, [availableDates, dateAvailabilityMap, hasAnyDateAvailabilityChecked, dateFilter]);
 
   // Keep selectedDate pointed to a valid visible date with available slots
   useEffect(() => {
@@ -955,7 +993,79 @@ export default function AppointmentFlow() {
                   <div className="step-header">
                     <Badge variant="gold">Step 3 of 7</Badge>
                     <h2>Select Consultation Date</h2>
-                    <p>Appointments available Monday through Sunday (9:00 AM – 7:00 PM).</p>
+                    <p>Consultations available across the month. All active Sunday and weekday clinics are listed below.</p>
+                  </div>
+
+                  {/* Filter Pills to quickly view all Sundays or full month */}
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "8px",
+                      flexWrap: "wrap",
+                      marginBottom: "18px",
+                      alignItems: "center",
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setDateFilter("available")}
+                      style={{
+                        padding: "7px 15px",
+                        borderRadius: "999px",
+                        fontSize: "0.85rem",
+                        fontWeight: 600,
+                        border: "1.5px solid",
+                        borderColor: dateFilter === "available" ? "var(--green)" : "#d6cbbe",
+                        background: dateFilter === "available" ? "var(--green)" : "#ffffff",
+                        color: dateFilter === "available" ? "#ffffff" : "var(--green)",
+                        cursor: "pointer",
+                        transition: "all 0.15s ease",
+                      }}
+                    >
+                      Available Dates ({visibleDates.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDateFilter("sundays")}
+                      style={{
+                        padding: "7px 15px",
+                        borderRadius: "999px",
+                        fontSize: "0.85rem",
+                        fontWeight: 600,
+                        border: "1.5px solid",
+                        borderColor: dateFilter === "sundays" ? "var(--green)" : "#d6cbbe",
+                        background: dateFilter === "sundays" ? "var(--green)" : "#ffffff",
+                        color: dateFilter === "sundays" ? "#ffffff" : "var(--green)",
+                        cursor: "pointer",
+                        transition: "all 0.15s ease",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "5px",
+                      }}
+                    >
+                      <span>🗓️ All Sundays ({availableDates.filter((d) => {
+                        const [y, m, day] = d.split("-").map(Number);
+                        return new Date(Date.UTC(y, m - 1, day, 12, 0, 0)).getUTCDay() === 0;
+                      }).length})</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDateFilter("all")}
+                      style={{
+                        padding: "7px 15px",
+                        borderRadius: "999px",
+                        fontSize: "0.85rem",
+                        fontWeight: 600,
+                        border: "1.5px solid",
+                        borderColor: dateFilter === "all" ? "var(--green)" : "#d6cbbe",
+                        background: dateFilter === "all" ? "var(--green)" : "#ffffff",
+                        color: dateFilter === "all" ? "#ffffff" : "var(--green)",
+                        cursor: "pointer",
+                        transition: "all 0.15s ease",
+                      }}
+                    >
+                      Full Month ({availableDates.length} Days)
+                    </button>
                   </div>
 
                   {visibleDates.length === 0 ? (
@@ -965,54 +1075,85 @@ export default function AppointmentFlow() {
                         No Available Consultation Dates
                       </h3>
                       <p style={{ color: "var(--ink-light)", fontSize: "0.92rem", maxWidth: "440px", margin: "0 auto 20px", lineHeight: "1.5" }}>
-                        No open consultation slots are currently available for {selectedDoctor?.name || "this physician"} in the upcoming 7 days.
+                        No open consultation slots are currently available for {selectedDoctor?.name || "this physician"} in the upcoming 35 days.
                       </p>
                       <Button variant="primary" onClick={() => setStep(2)}>
                         Choose Another Physician
                       </Button>
                     </div>
                   ) : (
-                    <div className="date-cards-grid">
-                      {visibleDates.map((dStr) => {
-                        const dateObj = new Date(`${dStr}T00:00:00`);
-                        const isToday =
-                          new Date().toISOString().split("T")[0] === dStr;
-                        const isSelected = selectedDate === dStr;
-                        const availableCount = dateAvailabilityMap[dStr];
+                    <div
+                      style={{
+                        maxHeight: "450px",
+                        overflowY: "auto",
+                        padding: "4px 2px",
+                        marginBottom: "20px",
+                      }}
+                    >
+                      <div className="date-cards-grid" style={{ marginBottom: 0 }}>
+                        {visibleDates.map((dStr) => {
+                          const [year, month, day] = dStr.split("-").map(Number);
+                          const dateObj = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+                          const isSunday = dateObj.getUTCDay() === 0;
+                          const isToday =
+                            new Date().toISOString().split("T")[0] === dStr;
+                          const isSelected = selectedDate === dStr;
+                          const availableCount = dateAvailabilityMap[dStr];
+                          const hasNoSlots = hasAnyDateAvailabilityChecked && availableCount === 0;
 
-                        return (
-                          <button
-                            key={dStr}
-                            type="button"
-                            className={`date-card ${isSelected ? "selected" : ""}`}
-                            onClick={() => setSelectedDate(dStr)}
-                          >
-                            <Calendar size={20} />
-                            <span className="date-weekday">
-                              {dateObj.toLocaleDateString("en-IN", {
-                                weekday: "short",
-                              })}
-                            </span>
-                            <strong className="date-number">
-                              {dateObj.getDate()}{" "}
-                              {dateObj.toLocaleDateString("en-IN", {
-                                month: "short",
-                              })}
-                            </strong>
-                            <span
-                              className="slot-badge"
-                              style={{
-                                color: "var(--green)",
-                              }}
+                          return (
+                            <button
+                              key={dStr}
+                              type="button"
+                              className={`date-card ${isSelected ? "selected" : ""} ${hasNoSlots ? "no-slots" : ""}`}
+                              onClick={() => setSelectedDate(dStr)}
+                              style={hasNoSlots ? { opacity: 0.55, cursor: "not-allowed" } : {}}
                             >
-                              {availableCount === undefined
-                                ? "Checking..."
-                                : `${availableCount} Slot${availableCount > 1 ? "s" : ""}`}
-                            </span>
-                            {isToday && <span className="today-tag">Today</span>}
-                          </button>
-                        );
-                      })}
+                              <Calendar size={20} />
+                              <span className="date-weekday">
+                                {dateObj.toLocaleDateString("en-IN", {
+                                  weekday: "short",
+                                  timeZone: "UTC",
+                                })}
+                              </span>
+                              <strong className="date-number">
+                                {dateObj.getUTCDate()}{" "}
+                                {dateObj.toLocaleDateString("en-IN", {
+                                  month: "short",
+                                  timeZone: "UTC",
+                                })}
+                              </strong>
+                              <span
+                                className="slot-badge"
+                                style={{
+                                  color: hasNoSlots ? "#c0392b" : "var(--green)",
+                                }}
+                              >
+                                {availableCount === undefined
+                                  ? "Checking..."
+                                  : availableCount === 0
+                                  ? "No Slots"
+                                  : `${availableCount} Slot${availableCount !== 1 ? "s" : ""}`}
+                              </span>
+                              {isToday ? (
+                                <span className="today-tag">Today</span>
+                              ) : isSunday ? (
+                                <span
+                                  className="today-tag"
+                                  style={{
+                                    background: "#fef3c7",
+                                    color: "#92400e",
+                                    borderColor: "#fde68a",
+                                    fontSize: "0.68rem",
+                                  }}
+                                >
+                                  Sunday
+                                </span>
+                              ) : null}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
 
@@ -1029,7 +1170,7 @@ export default function AppointmentFlow() {
                       onClick={() => setStep(4)}
                       icon={<ArrowRight size={16} />}
                       iconPosition="right"
-                      disabled={!selectedDate || dateAvailabilityMap[selectedDate] === 0 || visibleDates.length === 0}
+                      disabled={!selectedDate || visibleDates.length === 0}
                     >
                       Select Time Slot
                     </Button>

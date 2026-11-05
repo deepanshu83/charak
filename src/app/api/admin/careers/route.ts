@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminSupabaseClient, getServerPublicSupabaseClient } from "@/lib/supabaseServer";
 import { verifyAdminRequest } from "@/lib/adminAuthServer";
+import { DEFAULT_VACANCIES } from "@/lib/careersService";
 
 // job_vacancies is a new table not yet present in the auto-generated Database type.
 // We cast to `any` here and rely on runtime correctness + the migration SQL.
@@ -26,7 +27,35 @@ export async function GET(req: Request) {
       .order("display_order", { ascending: true })
       .order("created_at", { ascending: false });
 
-    if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 400 });
+    // Auto-seed all 8 hospital vacancies directly into the database if the table is empty!
+    if (!error && Array.isArray(data) && data.length === 0) {
+      const rowsToInsert = DEFAULT_VACANCIES.map((v) => ({
+        title: v.title,
+        department: v.department,
+        location: v.location,
+        type: v.type,
+        experience: v.experience,
+        description: v.description,
+        requirements: v.requirements,
+        salary_range: v.salaryRange,
+        apply_email: v.applyEmail,
+        active: v.active,
+        display_order: v.displayOrder,
+      }));
+
+      const { data: inserted, error: insertError } = await supabase
+        .from("job_vacancies")
+        .insert(rowsToInsert)
+        .select();
+
+      if (!insertError && inserted && inserted.length > 0) {
+        return NextResponse.json({ ok: true, data: inserted });
+      }
+    }
+
+    if (error || !data || data.length === 0) {
+      return NextResponse.json({ ok: true, data: DEFAULT_VACANCIES });
+    }
     return NextResponse.json({ ok: true, data });
   } catch (err) {
     return NextResponse.json({ ok: false, error: String(err) }, { status: 500 });

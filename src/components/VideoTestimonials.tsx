@@ -1,16 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Play, X, Video as VideoIcon } from "lucide-react";
-import { fetchVideoTestimonials } from "@/lib/videoTestimonialService";
+import { Play, X, Video as VideoIcon, Sparkles } from "lucide-react";
 import type { VideoTestimonial } from "@/types";
-
-function formatDuration(seconds?: number): string {
-  if (!seconds) return "";
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
-}
+import { extractYouTubeId, getYouTubeEmbedUrl, getYouTubeThumbnailUrl } from "@/lib/youtubeUtils";
 
 export default function VideoTestimonials() {
   const [videos, setVideos] = useState<VideoTestimonial[]>([]);
@@ -21,13 +14,13 @@ export default function VideoTestimonials() {
     let isMounted = true;
     async function load() {
       try {
-        const remote = await fetchVideoTestimonials();
-        if (isMounted) {
-          setVideos(remote || []);
+        const res = await fetch("/api/video-testimonials");
+        const json = await res.json();
+        if (isMounted && json.ok && Array.isArray(json.data)) {
+          setVideos(json.data);
         }
       } catch (err) {
-        console.warn("[VideoTestimonials] Notice fetching from database:", err);
-        if (isMounted) setVideos([]);
+        console.warn("[VideoTestimonials] notice loading videos:", err);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -39,37 +32,40 @@ export default function VideoTestimonials() {
   }, []);
 
   return (
-    <section id="video-testimonials" style={{ padding: "80px 0" }}>
+    <section id="video-testimonials" style={{ padding: "60px 0 80px" }}>
       <div className="wrap">
-        <div className="head">
+        <div className="head" style={{ textAlign: "center", marginBottom: "40px" }}>
           <span className="tag">Real Recovery Journeys</span>
-          <h2>Patient Video Testimonials</h2>
-          <p>
-            Listen to verified patients share their personal healing milestones with Panchakarma, chronic joint care, and natural remedies at Charak Ayurveda.
+          <h2 style={{ fontSize: "2.4rem", color: "var(--green)", marginBottom: "12px" }}>
+            Patient Video Testimonials
+          </h2>
+          <p style={{ maxWidth: "600px", margin: "0 auto", color: "var(--ink-light)", fontSize: "1.05rem" }}>
+            Watch authentic recovery stories and clinical outcomes directly from patients treated at Charak Ayurveda, Pilani.
           </p>
         </div>
 
         {loading ? (
           <div style={{ textAlign: "center", padding: "60px 20px", color: "var(--ink-light)" }}>
-            <p>Loading video stories...</p>
+            <p>Loading patient stories…</p>
           </div>
         ) : videos.length === 0 ? (
-          /* Clean Professional Empty State per Requirement 9 & 18 */
+          /* Clean Coming Soon State when no videos posted yet */
           <div
             style={{
-              textAlign: "center",
-              padding: "70px 24px",
-              background: "var(--cream-card)",
+              maxWidth: "600px",
+              margin: "0 auto",
+              background: "#ffffff",
               borderRadius: "24px",
-              border: "1px dashed var(--border)",
-              maxWidth: "680px",
-              margin: "20px auto",
+              border: "1px solid #e7dfd3",
+              padding: "48px 24px",
+              textAlign: "center",
+              boxShadow: "0 8px 28px rgba(0,0,0,0.03)",
             }}
           >
             <div
               style={{
-                width: "56px",
-                height: "56px",
+                width: "64px",
+                height: "64px",
                 borderRadius: "50%",
                 background: "rgba(24, 66, 50, 0.08)",
                 display: "flex",
@@ -79,239 +75,273 @@ export default function VideoTestimonials() {
                 color: "var(--green)",
               }}
             >
-              <VideoIcon size={28} />
+              <VideoIcon size={30} />
             </div>
-            <h3 style={{ fontSize: "1.4rem", color: "var(--green)", marginBottom: "8px" }}>
-              No video testimonials yet.
+
+            <span
+              style={{
+                display: "inline-block",
+                background: "rgba(194, 139, 56, 0.12)",
+                color: "var(--gold-dark, #a87932)",
+                padding: "4px 14px",
+                borderRadius: "999px",
+                fontSize: "0.8rem",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                marginBottom: "12px",
+              }}
+            >
+              Coming Soon
+            </span>
+
+            <h3 style={{ fontSize: "1.6rem", color: "var(--green)", marginBottom: "10px" }}>
+              Patient Video Testimonials
             </h3>
-            <p style={{ color: "var(--ink-light)", fontSize: "0.98rem", maxWidth: "440px", margin: "0 auto", lineHeight: 1.6 }}>
-              Recorded patient video reviews and clinical case accounts will be published here once available.
+
+            <p style={{ color: "var(--ink-light)", fontSize: "0.98rem", marginBottom: "0" }}>
+              Real patient recovery stories and clinical video reviews are coming soon.
             </p>
           </div>
         ) : (
+          /* Video Grid Playing Directly on Website */
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-              gap: "32px",
+              gap: "28px",
             }}
           >
-            {videos.map((vid) => (
-              <div
-                key={vid.id}
-                style={{
-                  background: "var(--cream-card)",
-                  borderRadius: "20px",
-                  overflow: "hidden",
-                  border: "1px solid var(--border)",
-                  boxShadow: "var(--shadow-sm)",
-                  display: "flex",
-                  flexDirection: "column",
-                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                }}
-              >
-                {/* Video Poster Thumbnail & Play Trigger */}
+            {videos.map((vid) => {
+              const ytid = extractYouTubeId(vid.videoUrl);
+              const thumb = vid.thumbnailUrl || (ytid ? `https://img.youtube.com/vi/${ytid}/hqdefault.jpg` : "/images/g5.jpg");
+
+              return (
                 <div
+                  key={vid.id}
                   onClick={() => setActiveVideo(vid)}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`Play video: ${vid.title}`}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") setActiveVideo(vid);
-                  }}
                   style={{
-                    position: "relative",
-                    aspectRatio: "16 / 9",
-                    background: "#000000",
-                    cursor: "pointer",
+                    background: "#ffffff",
+                    borderRadius: "20px",
                     overflow: "hidden",
+                    cursor: "pointer",
+                    border: "1px solid #e7dfd3",
+                    boxShadow: "0 8px 24px rgba(24, 66, 50, 0.04)",
+                    transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-4px)";
+                    e.currentTarget.style.boxShadow = "0 14px 32px rgba(24, 66, 50, 0.1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "none";
+                    e.currentTarget.style.boxShadow = "0 8px 24px rgba(24, 66, 50, 0.04)";
                   }}
                 >
-                  {vid.thumbnailUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
+                  {/* Thumbnail Container */}
+                  <div
+                    style={{
+                      position: "relative",
+                      width: "100%",
+                      paddingTop: "56.25%",
+                      background: "#000000",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={vid.thumbnailUrl}
+                      src={thumb}
                       alt={vid.title}
-                      loading="lazy"
                       style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
                         width: "100%",
                         height: "100%",
                         objectFit: "cover",
-                        opacity: 0.9,
-                        transition: "transform 0.4s ease",
                       }}
                     />
-                  ) : (
+                    {/* Dark Play Overlay */}
                     <div
                       style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
                         width: "100%",
                         height: "100%",
+                        background: "rgba(0,0,0,0.3)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        color: "#78716c",
                       }}
                     >
-                      <VideoIcon size={44} />
-                    </div>
-                  )}
-
-                  {/* Play Button Overlay */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      background: "rgba(0,0,0,0.25)",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: "56px",
-                        height: "56px",
-                        borderRadius: "50%",
-                        background: "rgba(255, 255, 255, 0.92)",
-                        color: "var(--green, #184232)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
-                        transition: "transform 0.2s ease",
-                      }}
-                    >
-                      <Play size={24} style={{ fill: "currentColor", marginLeft: "2px" }} />
+                      <div
+                        style={{
+                          width: "56px",
+                          height: "56px",
+                          borderRadius: "50%",
+                          background: "#FF0000",
+                          color: "#ffffff",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          boxShadow: "0 6px 20px rgba(0,0,0,0.4)",
+                        }}
+                      >
+                        <Play size={26} fill="#ffffff" style={{ marginLeft: "3px" }} />
+                      </div>
                     </div>
                   </div>
 
-                  {vid.duration && (
-                    <span
-                      style={{
-                        position: "absolute",
-                        bottom: "10px",
-                        right: "10px",
-                        background: "rgba(0, 0, 0, 0.75)",
-                        color: "#ffffff",
-                        fontSize: "0.75rem",
-                        fontWeight: 600,
-                        padding: "2px 8px",
-                        borderRadius: "6px",
-                        backdropFilter: "blur(4px)",
-                      }}
-                    >
-                      {formatDuration(vid.duration)}
-                    </span>
-                  )}
-                </div>
+                  {/* Card Content */}
+                  <div style={{ padding: "20px", display: "flex", flexDirection: "column", flexGrow: 1 }}>
+                    <div style={{ marginBottom: "6px" }}>
+                      <span
+                        style={{
+                          fontSize: "0.78rem",
+                          fontWeight: 700,
+                          textTransform: "uppercase",
+                          color: "var(--gold)",
+                          letterSpacing: "0.05em",
+                        }}
+                      >
+                        Clinical Recovery Story
+                      </span>
+                    </div>
 
-                {/* Details */}
-                <div style={{ padding: "24px 20px", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                  <div>
-                    <span
+                    <h3
                       style={{
-                        display: "inline-block",
-                        fontSize: "0.8rem",
-                        fontWeight: 600,
-                        color: "var(--gold-hover, #9c6e28)",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.5px",
-                        marginBottom: "6px",
+                        fontSize: "1.18rem",
+                        color: "var(--green)",
+                        marginBottom: "8px",
+                        lineHeight: 1.4,
                       }}
                     >
-                      {vid.patientName}
-                    </span>
-                    <h3 style={{ fontSize: "1.2rem", color: "var(--green)", marginBottom: "8px", lineHeight: 1.35 }}>
                       {vid.title}
                     </h3>
+
                     {vid.description && (
-                      <p style={{ color: "var(--ink-light)", fontSize: "0.92rem", lineHeight: 1.6, margin: 0 }}>
+                      <p
+                        style={{
+                          fontSize: "0.92rem",
+                          color: "var(--ink-light)",
+                          marginBottom: "16px",
+                          lineHeight: 1.5,
+                          flexGrow: 1,
+                        }}
+                      >
                         {vid.description}
                       </p>
                     )}
+
+                    <div
+                      style={{
+                        marginTop: "auto",
+                        borderTop: "1px solid #f0eae1",
+                        paddingTop: "12px",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        fontSize: "0.88rem",
+                        color: "var(--ink-light)",
+                      }}
+                    >
+                      <strong style={{ color: "var(--green)" }}>{vid.patientName}</strong>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: "var(--gold-dark, #a87932)", fontWeight: 600 }}>
+                        <Play size={12} fill="currentColor" /> Watch Story
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
-        {/* Video Player Modal (No Autoplay unless user clicks play) */}
+        {/* Video Player Modal (Plays directly on website, zero redirection!) */}
         {activeVideo && (
           <div
-            onClick={(e) => {
-              if (e.target === e.currentTarget) setActiveVideo(null);
-            }}
             style={{
               position: "fixed",
-              inset: 0,
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              background: "rgba(0,0,0,0.88)",
               zIndex: 9999,
-              background: "rgba(0, 0, 0, 0.85)",
-              backdropFilter: "blur(8px)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               padding: "20px",
             }}
+            onClick={() => setActiveVideo(null)}
           >
             <div
               style={{
-                background: "#1c1917",
-                borderRadius: "20px",
-                maxWidth: "840px",
-                width: "100%",
-                overflow: "hidden",
-                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
                 position: "relative",
+                width: "100%",
+                maxWidth: "860px",
+                background: "#000000",
+                borderRadius: "18px",
+                overflow: "hidden",
+                boxShadow: "0 16px 50px rgba(0,0,0,0.7)",
               }}
+              onClick={(e) => e.stopPropagation()}
             >
+              {/* Close Button */}
               <button
-                type="button"
                 onClick={() => setActiveVideo(null)}
                 style={{
                   position: "absolute",
                   top: "14px",
                   right: "14px",
-                  zIndex: 10,
-                  background: "rgba(255, 255, 255, 0.2)",
+                  background: "rgba(255,255,255,0.25)",
                   color: "#ffffff",
                   border: "none",
                   borderRadius: "50%",
-                  width: "36px",
-                  height: "36px",
+                  width: "40px",
+                  height: "40px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   cursor: "pointer",
+                  zIndex: 10,
+                  transition: "background 0.2s ease",
                 }}
-                aria-label="Close video player"
+                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.45)")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.25)")}
               >
-                <X size={20} />
+                <X size={22} />
               </button>
 
-              <div style={{ aspectRatio: "16 / 9", width: "100%", background: "#000000" }}>
-                <video
-                  src={activeVideo.videoUrl}
-                  poster={activeVideo.thumbnailUrl}
-                  controls
-                  playsInline
-                  preload="metadata"
-                  style={{ width: "100%", height: "100%", objectFit: "contain" }}
+              {/* YouTube Embedded iframe Player */}
+              <div style={{ position: "relative", width: "100%", paddingTop: "56.25%" }}>
+                <iframe
+                  src={getYouTubeEmbedUrl(activeVideo.videoUrl, true) || ""}
+                  title={activeVideo.title}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    border: "none",
+                  }}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
                 />
               </div>
 
-              <div style={{ padding: "20px 24px", color: "#ffffff" }}>
-                <span style={{ fontSize: "0.82rem", color: "var(--gold)", fontWeight: 600 }}>
-                  {activeVideo.patientName}
-                </span>
-                <h3 style={{ fontSize: "1.3rem", marginTop: "4px", marginBottom: "6px" }}>
+              {/* Video Info Footer */}
+              <div style={{ padding: "20px 24px", background: "var(--deep)", color: "#ffffff" }}>
+                <h4 style={{ fontSize: "1.25rem", color: "var(--cream)", marginBottom: "6px" }}>
                   {activeVideo.title}
-                </h3>
-                {activeVideo.description && (
-                  <p style={{ color: "#d6d3d1", fontSize: "0.92rem", margin: 0, lineHeight: 1.5 }}>
-                    {activeVideo.description}
-                  </p>
-                )}
+                </h4>
+                <p style={{ fontSize: "0.92rem", color: "rgba(255,255,255,0.8)", margin: 0 }}>
+                  Patient: <strong>{activeVideo.patientName}</strong> {activeVideo.description ? `• ${activeVideo.description}` : ""}
+                </p>
               </div>
             </div>
           </div>

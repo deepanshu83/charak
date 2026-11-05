@@ -10,30 +10,20 @@ import {
   Eye,
   EyeOff,
   RefreshCw,
-  AlertTriangle,
   Video as VideoIcon,
   Play,
+  X,
+  CheckCircle2,
 } from "lucide-react";
 import {
   fetchAdminVideoTestimonials,
   adminCreateVideoTestimonial,
   adminUpdateVideoTestimonial,
   adminDeleteVideoTestimonial,
-  getVideoTestimonials,
-  subscribeVideoTestimonials,
 } from "@/lib/videoTestimonialService";
 import type { VideoTestimonial } from "@/types";
-import { Button, Input, Modal, Textarea, useToast } from "@/components/ui";
-import VideoUpload from "./VideoUpload";
-
-const MAX_VIDEO_TESTIMONIALS = 10;
-
-function formatDuration(seconds?: number): string {
-  if (!seconds) return "";
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
-}
+import { Button, Modal, useToast } from "@/components/ui";
+import { extractYouTubeId, getYouTubeEmbedUrl, getYouTubeThumbnailUrl } from "@/lib/youtubeUtils";
 
 export default function VideoTestimonialManager() {
   const toast = useToast();
@@ -50,12 +40,7 @@ export default function VideoTestimonialManager() {
     patientName: "",
     description: "",
     videoUrl: "",
-    storagePath: "",
     thumbnailUrl: "",
-    thumbnailStoragePath: "",
-    fileSize: 0,
-    duration: 0,
-    displayOrder: 0,
     published: true,
   });
 
@@ -63,7 +48,7 @@ export default function VideoTestimonialManager() {
     setLoading(true);
     try {
       const data = await fetchAdminVideoTestimonials();
-      setItems(data);
+      setItems(data || []);
     } catch (err) {
       console.error("[VideoTestimonials] Failed to load data:", err);
       setItems([]);
@@ -74,31 +59,16 @@ export default function VideoTestimonialManager() {
 
   useEffect(() => {
     loadData();
-    const unsub = subscribeVideoTestimonials(() => {
-      setItems(getVideoTestimonials());
-    });
-    return unsub;
   }, []);
 
-  const isLimitReached = items.length >= MAX_VIDEO_TESTIMONIALS;
-
   const openCreateModal = () => {
-    if (isLimitReached) {
-      toast.error("Limit Reached", "Maximum 10 video testimonials allowed.");
-      return;
-    }
     setEditingItem(null);
     setForm({
       title: "",
       patientName: "",
       description: "",
       videoUrl: "",
-      storagePath: "",
       thumbnailUrl: "",
-      thumbnailStoragePath: "",
-      fileSize: 0,
-      duration: 0,
-      displayOrder: items.length + 1,
       published: true,
     });
     setIsModalOpen(true);
@@ -111,32 +81,36 @@ export default function VideoTestimonialManager() {
       patientName: item.patientName,
       description: item.description || "",
       videoUrl: item.videoUrl,
-      storagePath: item.storagePath || "",
-      thumbnailUrl: item.thumbnailUrl || "",
-      thumbnailStoragePath: item.thumbnailStoragePath || "",
-      fileSize: item.fileSize || 0,
-      duration: item.duration || 0,
-      displayOrder: item.displayOrder || 0,
-      published: item.published !== false,
+      thumbnailUrl: item.thumbnailUrl || getYouTubeThumbnailUrl(item.videoUrl),
+      published: item.published,
     });
     setIsModalOpen(true);
   };
 
+  const handleVideoUrlChange = (url: string) => {
+    const ytid = extractYouTubeId(url);
+    const thumb = ytid ? `https://img.youtube.com/vi/${ytid}/hqdefault.jpg` : form.thumbnailUrl;
+    setForm((prev) => ({
+      ...prev,
+      videoUrl: url,
+      thumbnailUrl: thumb,
+    }));
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.title.trim() || !form.patientName.trim()) {
-      toast.error("Validation Error", "Title and Patient name are required.");
-      return;
-    }
-    if (!form.videoUrl.trim()) {
-      toast.error("Validation Error", "Please upload a video testimonial.");
+    if (!form.title.trim() || !form.patientName.trim() || !form.videoUrl.trim()) {
+      toast.error("Please fill in Title, Patient Name, and YouTube Video URL.");
       return;
     }
 
-    if (!editingItem && isLimitReached) {
-      toast.error("Limit Reached", "Maximum 10 video testimonials allowed.");
+    const ytid = extractYouTubeId(form.videoUrl);
+    if (!ytid) {
+      toast.error("Please enter a valid YouTube link (e.g. https://www.youtube.com/watch?v=... or https://youtu.be/...)");
       return;
     }
+
+    const finalThumb = form.thumbnailUrl || `https://img.youtube.com/vi/${ytid}/hqdefault.jpg`;
 
     setSaving(true);
     try {
@@ -144,262 +118,288 @@ export default function VideoTestimonialManager() {
         await adminUpdateVideoTestimonial(editingItem.id, {
           title: form.title.trim(),
           patientName: form.patientName.trim(),
-          description: form.description.trim(),
+          description: form.description.trim() || undefined,
           videoUrl: form.videoUrl.trim(),
-          storagePath: form.storagePath || undefined,
-          thumbnailUrl: form.thumbnailUrl || undefined,
-          thumbnailStoragePath: form.thumbnailStoragePath || undefined,
-          fileSize: form.fileSize || undefined,
-          duration: form.duration || undefined,
-          displayOrder: Number(form.displayOrder) || 0,
+          thumbnailUrl: finalThumb,
           published: form.published,
         });
-        toast.success("Video Updated", `"${form.title}" details updated.`);
+        toast.success("Video testimonial updated successfully!");
       } else {
         await adminCreateVideoTestimonial({
           title: form.title.trim(),
           patientName: form.patientName.trim(),
-          description: form.description.trim(),
+          description: form.description.trim() || undefined,
           videoUrl: form.videoUrl.trim(),
-          storagePath: form.storagePath || undefined,
-          thumbnailUrl: form.thumbnailUrl || undefined,
-          thumbnailStoragePath: form.thumbnailStoragePath || undefined,
-          fileSize: form.fileSize || undefined,
-          duration: form.duration || undefined,
-          displayOrder: Number(form.displayOrder) || 0,
+          thumbnailUrl: finalThumb,
           published: form.published,
         });
-        toast.success("Video Added", `"${form.title}" added to testimonials.`);
+        toast.success("Video testimonial added successfully!");
       }
       setIsModalOpen(false);
       await loadData();
     } catch (err) {
-      toast.error("Save Failed", err instanceof Error ? err.message : "Unable to save video");
+      toast.error(err instanceof Error ? err.message : "Failed to save video testimonial");
     } finally {
       setSaving(false);
     }
   };
 
-  const handleTogglePublished = async (item: VideoTestimonial) => {
-    const nextPublished = item.published === false ? true : false;
+  const handleTogglePublish = async (item: VideoTestimonial) => {
     try {
-      await adminUpdateVideoTestimonial(item.id, { published: nextPublished });
-      toast.success(
-        nextPublished ? "Video Published" : "Video Hidden",
-        `"${item.title}" is now ${nextPublished ? "visible on public pages" : "hidden"}.`
-      );
+      await adminUpdateVideoTestimonial(item.id, {
+        published: !item.published,
+      });
+      toast.success(item.published ? "Video hidden from public website." : "Video published successfully!");
       await loadData();
     } catch {
-      toast.error("Update Failed", "Unable to update video visibility.");
+      toast.error("Failed to update status");
     }
   };
 
-  const handleConfirmDelete = async () => {
+  const handleDelete = async () => {
     if (!itemToDelete) return;
     try {
       await adminDeleteVideoTestimonial(itemToDelete.id);
-      toast.success("Video Deleted", `"${itemToDelete.title}" removed.`);
+      toast.success("Video testimonial removed");
       setItemToDelete(null);
       await loadData();
     } catch {
-      toast.error("Delete Failed", "Unable to delete video testimonial.");
+      toast.error("Failed to delete video testimonial");
     }
   };
 
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    boxSizing: "border-box",
+    padding: "11px 14px",
+    fontSize: "0.93rem",
+    borderRadius: "10px",
+    border: "1.5px solid #dcd3c6",
+    background: "#ffffff",
+    color: "#1e2621",
+    outline: "none",
+    fontFamily: "inherit",
+  };
+
+  const labelStyle: React.CSSProperties = {
+    display: "block",
+    fontSize: "0.86rem",
+    fontWeight: 600,
+    color: "var(--green, #184232)",
+    marginBottom: "6px",
+  };
+
+  const extractedId = extractYouTubeId(form.videoUrl);
+
   return (
-    <div className="testimonial-admin-page video-testimonial-admin-page">
-      <div className="testimonial-admin-header">
-        <div className="testimonial-admin-heading">
-          <div className="testimonial-admin-title-row">
-            <h1>
-              Video Testimonials
-            </h1>
-            <span
-              className={`testimonial-admin-count ${
-                isLimitReached
-                  ? "limit-reached"
-                  : items.length > 7 ? "limit-near" : ""
-              }`}
-            >
-              {items.length} / {MAX_VIDEO_TESTIMONIALS} Videos
-            </span>
-          </div>
-          <p>
-            Manage authentic patient recovery video stories (max 10 videos, max 10 MB per video).
+    <div className="wrap admin-page-container">
+      {/* Page Header */}
+      <div className="admin-page-header">
+        <div>
+          <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+            Patient Stories • YouTube Integration
+          </span>
+          <h1 style={{ marginTop: "4px", fontSize: "1.8rem", color: "var(--green)" }}>
+            Video Testimonials
+          </h1>
+          <p style={{ color: "var(--ink-light)", fontSize: "0.95rem" }}>
+            Add patient video stories via YouTube links. Videos play directly on the website without sending visitors away.
           </p>
         </div>
-
-        <div className="testimonial-admin-actions">
-          <Link
-            href="/video-testimonials"
-            target="_blank"
-            className="testimonial-live-link"
-          >
-            <span>Live Section</span>
-            <ExternalLink size={14} />
-          </Link>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <Button
-            onClick={openCreateModal}
-            className="testimonial-add-button"
-            disabled={isLimitReached}
+            variant="ghost"
+            size="sm"
+            onClick={loadData}
+            icon={<RefreshCw size={14} className={loading ? "animate-spin" : ""} />}
           >
-            <Plus size={16} />
-            <span>Add Video</span>
+            Refresh
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={openCreateModal}
+            icon={<Plus size={15} />}
+          >
+            Add YouTube Video
           </Button>
         </div>
       </div>
 
-      {/* 10 Videos Limit Warning Banner */}
-      {isLimitReached && (
-        <div className="video-testimonial-limit-warning">
-          <AlertTriangle size={20} />
-          <div>
-            <strong>Maximum 10 video testimonials allowed.</strong> Delete an existing video before uploading a new one.
-          </div>
-        </div>
-      )}
-
-      {/* Grid or Empty State */}
+      {/* Grid of Videos */}
       {loading ? (
-        <div className="testimonial-loading-state">
-          <RefreshCw className="animate-spin" size={20} />
-          <span>Loading video testimonials...</span>
+        <div style={{ padding: "60px 0", textAlign: "center", color: "var(--ink-light)" }}>
+          Loading video testimonials…
         </div>
       ) : items.length === 0 ? (
-        <div className="testimonial-empty-state">
-          <div className="testimonial-empty-icon">
-            <VideoIcon size={28} />
+        <div
+          style={{
+            textAlign: "center",
+            padding: "60px 24px",
+            background: "#ffffff",
+            border: "1px solid #e7dfd3",
+            borderRadius: "16px",
+            maxWidth: "600px",
+            margin: "0 auto",
+          }}
+        >
+          <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(24, 66, 50, 0.08)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", color: "var(--green)" }}>
+            <VideoIcon size={32} />
           </div>
-          <h3>
-            No video testimonials yet.
+          <h3 style={{ fontSize: "1.3rem", color: "var(--green)", marginBottom: "8px" }}>
+            No Video Testimonials Yet
           </h3>
-          <p>
-            Upload patient video interviews, recovery milestones, and real consultations to build clinical trust.
+          <p style={{ color: "var(--ink-light)", fontSize: "0.95rem", marginBottom: "20px", lineHeight: "1.6" }}>
+            Paste a YouTube video link to showcase patient recovery stories on the website. Videos will play directly inside the website without redirecting visitors to YouTube.
           </p>
-          <Button
-            onClick={openCreateModal}
-            className="testimonial-add-button"
-            disabled={isLimitReached}
-          >
-            <Plus size={16} />
-            <span>Add Video</span>
+          <Button variant="primary" onClick={openCreateModal} icon={<Plus size={15} />}>
+            Add First Video
           </Button>
         </div>
       ) : (
-        <div className="video-testimonial-grid">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="video-testimonial-card"
-            >
-              <div>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+            gap: "24px",
+          }}
+        >
+          {items.map((item) => {
+            const ytid = extractYouTubeId(item.videoUrl);
+            const thumb = item.thumbnailUrl || (ytid ? `https://img.youtube.com/vi/${ytid}/hqdefault.jpg` : "/images/g5.jpg");
+
+            return (
+              <div
+                key={item.id}
+                style={{
+                  background: "#ffffff",
+                  borderRadius: "18px",
+                  border: "1.5px solid #e7dfd3",
+                  overflow: "hidden",
+                  boxShadow: "0 6px 20px rgba(0,0,0,0.04)",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                {/* Thumbnail with Play Overlay */}
                 <div
-                  className="video-testimonial-thumbnail"
+                  style={{
+                    position: "relative",
+                    width: "100%",
+                    paddingTop: "56.25%",
+                    background: "#000",
+                    cursor: "pointer",
+                  }}
                   onClick={() => setPreviewItem(item)}
                 >
-                  {item.thumbnailUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={item.thumbnailUrl}
-                      alt={item.title}
-                      className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition"
-                    />
-                  ) : (
-                    <div className="video-testimonial-thumbnail-empty">
-                      <VideoIcon size={36} />
-                    </div>
-                  )}
-
-                  {/* Play Button Overlay */}
-                  <div className="video-testimonial-play-overlay">
-                    <div className="video-testimonial-play-button">
-                      <Play size={20} className="fill-current ml-0.5" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={thumb}
+                    alt={item.title}
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      background: "rgba(0,0,0,0.35)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      transition: "background 0.2s ease",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "52px",
+                        height: "52px",
+                        borderRadius: "50%",
+                        background: "#FF0000",
+                        color: "#ffffff",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+                      }}
+                    >
+                      <Play size={24} fill="#ffffff" style={{ marginLeft: "3px" }} />
                     </div>
                   </div>
+                </div>
 
-                  <div className="video-testimonial-status">
+                {/* Info */}
+                <div style={{ padding: "18px", flexGrow: 1, display: "flex", flexDirection: "column" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                    <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                      YouTube Video
+                    </span>
                     <span
-                      className={`video-testimonial-status-badge ${
-                        item.published !== false
-                          ? "published"
-                          : "hidden"
-                      }`}
+                      style={{
+                        padding: "3px 9px",
+                        borderRadius: "999px",
+                        fontSize: "0.74rem",
+                        fontWeight: 700,
+                        background: item.published ? "rgba(46, 125, 50, 0.12)" : "rgba(100, 116, 139, 0.12)",
+                        color: item.published ? "#2e7d32" : "#64748b",
+                      }}
                     >
-                      {item.published !== false ? "Live" : "Hidden"}
+                      {item.published ? "Published" : "Hidden"}
                     </span>
                   </div>
 
-                  {item.duration && (
-                    <div className="video-testimonial-duration">
-                      <span>
-                        {formatDuration(item.duration)}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="video-testimonial-details">
-                  <div className="video-testimonial-patient">
-                    {item.patientName}
-                  </div>
-                  <h3>
+                  <h3 style={{ fontSize: "1.1rem", color: "var(--green)", marginBottom: "6px", lineHeight: "1.4" }}>
                     {item.title}
                   </h3>
+                  <p style={{ fontSize: "0.88rem", fontWeight: 600, color: "var(--gold-dark, #a87932)", marginBottom: "8px" }}>
+                    {item.patientName}
+                  </p>
                   {item.description && (
-                    <p>
+                    <p style={{ fontSize: "0.85rem", color: "var(--ink-light)", marginBottom: "14px", lineHeight: "1.5", flexGrow: 1 }}>
                       {item.description}
                     </p>
                   )}
+
+                  {/* Actions */}
+                  <div style={{ display: "flex", gap: "8px", marginTop: "auto", paddingTop: "12px", borderTop: "1px solid #f0eae1" }}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleTogglePublish(item)}
+                      title={item.published ? "Hide from website" : "Publish on website"}
+                    >
+                      {item.published ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => openEditModal(item)}
+                      icon={<Edit2 size={13} />}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => setItemToDelete(item)}
+                      icon={<Trash2 size={13} />}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </div>
               </div>
-
-              <div className="video-testimonial-card-actions">
-                <button
-                  type="button"
-                  onClick={() => handleTogglePublished(item)}
-                  className={`video-testimonial-visibility-button ${
-                    item.published !== false
-                      ? ""
-                      : "publish"
-                  }`}
-                  title={item.published !== false ? "Hide from public" : "Publish video"}
-                  aria-label={item.published !== false ? `Hide ${item.title}` : `Publish ${item.title}`}
-                  aria-pressed={item.published !== false}
-                >
-                  {item.published !== false ? (
-                    <>
-                      <EyeOff size={14} /> <span>Hide</span>
-                    </>
-                  ) : (
-                    <>
-                      <Eye size={14} /> <span>Publish</span>
-                    </>
-                  )}
-                </button>
-
-                <div className="testimonial-row-actions">
-                  <button
-                    type="button"
-                    onClick={() => openEditModal(item)}
-                    className="testimonial-icon-button"
-                    title="Edit video details"
-                    aria-label={`Edit ${item.title}`}
-                  >
-                    <Edit2 size={15} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setItemToDelete(item)}
-                    className="testimonial-icon-button danger"
-                    title="Delete video"
-                    aria-label={`Delete ${item.title}`}
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -407,157 +407,213 @@ export default function VideoTestimonialManager() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editingItem ? "Edit Video Testimonial" : "Add Video Testimonial"}
+        title={editingItem ? "Edit Video Testimonial" : "Add YouTube Video Testimonial"}
+        size="lg"
       >
-        <form onSubmit={handleSave} className="space-y-4">
+        <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "16px", paddingTop: "6px" }}>
+          {/* Title */}
           <div>
-            <label className="block text-sm font-semibold text-stone-800 mb-1">
-              Title <span className="text-red-500">*</span>
-            </label>
-            <Input
+            <label style={labelStyle}>Video Title *</label>
+            <input
+              style={inputStyle}
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder="e.g. Recovery from Chronic Joint Pain with Janu Basti"
+              placeholder="e.g. Chronic Joint Pain Recovery with Panchakarma"
               required
             />
           </div>
 
+          {/* Patient Name */}
           <div>
-            <label className="block text-sm font-semibold text-stone-800 mb-1">
-              Patient / Testimonial Name <span className="text-red-500">*</span>
-            </label>
-            <Input
+            <label style={labelStyle}>Patient Name & Location *</label>
+            <input
+              style={inputStyle}
               value={form.patientName}
               onChange={(e) => setForm({ ...form, patientName: e.target.value })}
-              placeholder="e.g. Rajesh S. (Pilani)"
+              placeholder="e.g. Rajesh Sharma, Pilani"
               required
             />
           </div>
 
+          {/* YouTube Video URL */}
           <div>
-            <label className="block text-sm font-semibold text-stone-800 mb-1">
-              Description / Case Summary
+            <label style={labelStyle}>
+              YouTube Video Link / URL *
             </label>
-            <Textarea
+            <div style={{ position: "relative" }}>
+              <input
+                style={{ ...inputStyle, paddingLeft: "40px" }}
+                value={form.videoUrl}
+                onChange={(e) => handleVideoUrlChange(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                required
+              />
+              <VideoIcon
+                size={18}
+                style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "#FF0000" }}
+              />
+            </div>
+            <p style={{ fontSize: "0.8rem", color: "var(--ink-light)", marginTop: "4px" }}>
+              Paste standard YouTube video, Shorts, or youtu.be link. Video will play directly on your website.
+            </p>
+          </div>
+
+          {/* Live Preview if ID is valid */}
+          {extractedId ? (
+            <div style={{ background: "#000000", borderRadius: "12px", overflow: "hidden", border: "1.5px solid var(--gold)" }}>
+              <div style={{ padding: "8px 12px", background: "var(--deep)", color: "#ffffff", fontSize: "0.82rem", display: "flex", alignItems: "center", gap: "6px" }}>
+                <CheckCircle2 size={14} style={{ color: "var(--gold)" }} />
+                <span>Live Video Embed Preview (Plays directly on website):</span>
+              </div>
+              <div style={{ position: "relative", paddingTop: "56.25%", width: "100%" }}>
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${extractedId}`}
+                  title="YouTube Preview"
+                  style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            </div>
+          ) : form.videoUrl.trim() ? (
+            <p style={{ color: "#c0392b", fontSize: "0.84rem" }}>
+              ⚠️ Could not extract YouTube video ID. Please check the URL format.
+            </p>
+          ) : null}
+
+          {/* Description */}
+          <div>
+            <label style={labelStyle}>Treatment / Case Summary (Optional)</label>
+            <textarea
+              style={{ ...inputStyle, minHeight: "80px", resize: "vertical" }}
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
-              placeholder="Brief summary of their health journey and clinical outcome..."
+              placeholder="e.g. 14-day Janu Basti & classical Panchakarma therapy outcome..."
               rows={3}
             />
           </div>
 
-          <div className="flex items-center pt-2">
-            <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-stone-800">
-              <input
-                type="checkbox"
-                checked={form.published}
-                onChange={(e) => setForm({ ...form, published: e.target.checked })}
-                className="rounded text-emerald-800 focus:ring-emerald-700"
-              />
-              <span>Publish publicly</span>
+          {/* Published */}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <input
+              type="checkbox"
+              id="publish-video"
+              checked={form.published}
+              onChange={(e) => setForm({ ...form, published: e.target.checked })}
+              style={{ width: "18px", height: "18px", accentColor: "var(--green)", cursor: "pointer" }}
+            />
+            <label htmlFor="publish-video" style={{ cursor: "pointer", fontWeight: 600, fontSize: "0.9rem", color: "var(--green)" }}>
+              Publish publicly on website (/stories & /video-testimonials)
             </label>
           </div>
 
-          {/* Reusable Video Upload Component */}
-          <VideoUpload
-            value={form.videoUrl}
-            thumbnailUrl={form.thumbnailUrl}
-            onChange={(res) =>
-              setForm({
-                ...form,
-                videoUrl: res.videoUrl,
-                storagePath: res.storagePath || "",
-                thumbnailUrl: res.thumbnailUrl || "",
-                thumbnailStoragePath: res.thumbnailStoragePath || "",
-                fileSize: res.fileSize || 0,
-                duration: res.duration || 0,
-              })
-            }
-            folder="testimonials"
-            label="Video File (MP4 / WebM format, up to 10 MB)"
-            required
-            disabled={!editingItem && isLimitReached}
-          />
-          {!form.videoUrl.trim() && (
-            <p className="text-xs text-stone-500">
-              Upload an MP4 or WebM video (up to 10 MB) to enable saving.
-            </p>
-          )}
-
-          <div className="testimonial-modal-actions">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsModalOpen(false)}
-              disabled={saving}
-            >
+          {/* Actions */}
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", paddingTop: "12px" }}>
+            <Button type="button" variant="ghost" onClick={() => setIsModalOpen(false)} disabled={saving}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="bg-emerald-800 hover:bg-emerald-900 text-white"
-              disabled={saving || (!editingItem && isLimitReached) || !form.videoUrl.trim()}
-            >
-              {saving ? "Saving..." : editingItem ? "Update Video" : "Save Video"}
+            <Button type="submit" variant="primary" disabled={saving || !extractedId}>
+              {saving ? "Saving…" : editingItem ? "Save Changes" : "Add Video Testimonial"}
             </Button>
           </div>
         </form>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Modal */}
       <Modal
         isOpen={!!itemToDelete}
         onClose={() => setItemToDelete(null)}
-        title="Confirm Video Deletion"
-      >
-        <div className="space-y-4">
-          <p className="text-sm text-stone-600">
-            Are you sure you want to delete <strong>&ldquo;{itemToDelete?.title}&rdquo;</strong>? This will permanently remove the video and its storage files.
-          </p>
-          <div className="testimonial-modal-actions">
-            <Button variant="outline" onClick={() => setItemToDelete(null)}>
+        title="Delete Video Testimonial"
+        size="sm"
+        footer={
+          <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+            <Button variant="ghost" onClick={() => setItemToDelete(null)}>
               Cancel
             </Button>
-            <Button
-              variant="danger"
-              className="bg-red-600 hover:bg-red-700 text-white"
-              onClick={handleConfirmDelete}
-            >
-              Delete Video
+            <Button variant="danger" onClick={handleDelete}>
+              Delete
             </Button>
           </div>
-        </div>
+        }
+      >
+        <p style={{ margin: 0, color: "var(--ink-light)", fontSize: "0.95rem" }}>
+          Are you sure you want to remove &quot;{itemToDelete?.title}&quot;?
+        </p>
       </Modal>
 
-      {/* Video Preview Modal */}
-      <Modal
-        isOpen={!!previewItem}
-        onClose={() => setPreviewItem(null)}
-        title={previewItem?.title || "Video Preview"}
-      >
-        {previewItem && (
-          <div className="space-y-3">
-            <div className="aspect-video bg-black rounded-xl overflow-hidden">
-              <video
-                src={previewItem.videoUrl}
-                poster={previewItem.thumbnailUrl}
-                controls
-                playsInline
-                preload="metadata"
-                className="w-full h-full object-contain"
+      {/* Video Modal Player (Plays on Website) */}
+      {previewItem && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0,0,0,0.88)",
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+          }}
+          onClick={() => setPreviewItem(null)}
+        >
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
+              maxWidth: "840px",
+              background: "#000",
+              borderRadius: "16px",
+              overflow: "hidden",
+              boxShadow: "0 12px 40px rgba(0,0,0,0.6)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setPreviewItem(null)}
+              style={{
+                position: "absolute",
+                top: "14px",
+                right: "14px",
+                background: "rgba(255,255,255,0.25)",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: "50%",
+                width: "38px",
+                height: "38px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                zIndex: 10,
+              }}
+            >
+              <X size={20} />
+            </button>
+
+            <div style={{ position: "relative", paddingTop: "56.25%", width: "100%" }}>
+              <iframe
+                src={getYouTubeEmbedUrl(previewItem.videoUrl, true) || ""}
+                title={previewItem.title}
+                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
               />
             </div>
-            <div>
-              <div className="text-xs font-semibold text-amber-800 uppercase tracking-wider">
-                {previewItem.patientName}
-              </div>
-              <p className="text-sm text-stone-600 mt-1">
-                {previewItem.description || "No description provided."}
+
+            <div style={{ padding: "18px 24px", background: "var(--deep)", color: "#ffffff" }}>
+              <h4 style={{ fontSize: "1.15rem", color: "var(--cream)", marginBottom: "4px" }}>
+                {previewItem.title}
+              </h4>
+              <p style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.75)", margin: 0 }}>
+                {previewItem.patientName} {previewItem.description ? `• ${previewItem.description}` : ""}
               </p>
             </div>
           </div>
-        )}
-      </Modal>
+        </div>
+      )}
     </div>
   );
 }

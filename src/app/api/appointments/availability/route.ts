@@ -27,47 +27,12 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const rawDoctorId = searchParams.get("doctorId");
     const date = searchParams.get("date");
+    const startDate = searchParams.get("startDate");
+    const endDate = searchParams.get("endDate");
 
     if (!rawDoctorId || !rawDoctorId.trim()) {
       return NextResponse.json(
         { ok: false, error: "doctorId parameter is required." },
-        { status: 400 }
-      );
-    }
-
-    if (!date || !date.trim()) {
-      return NextResponse.json(
-        { ok: false, error: "date parameter is required (YYYY-MM-DD)." },
-        { status: 400 }
-      );
-    }
-
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date.trim())) {
-      return NextResponse.json(
-        { ok: false, error: "Invalid date format. Expected YYYY-MM-DD." },
-        { status: 400 }
-      );
-    }
-
-    const trimmedDate = date.trim();
-
-    if (isDateInPast(trimmedDate)) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "Selected date is in the past. Please choose a future consultation date.",
-          code: "DATE_IN_PAST",
-        },
-        { status: 400 }
-      );
-    }
-
-    let dayOfWeek: string;
-    try {
-      dayOfWeek = getDayOfWeekFromDate(trimmedDate);
-    } catch {
-      return NextResponse.json(
-        { ok: false, error: "Unable to parse calendar date." },
         { status: 400 }
       );
     }
@@ -137,37 +102,166 @@ export async function GET(req: Request) {
       );
     }
 
-    // 2. FETCH AVAILABILITY WINDOWS FOR DAY
-    // Check if doctor has ANY active configured availability entries in the database
-    const { count: totalConfiguredCount } = await supabase
+    // Fetch all active availability windows for this doctor in one query
+    const { data: allDoctorAvail } = await supabase
       .from("doctor_availability")
-      .select("id", { count: "exact", head: true })
+      .select("day_of_week, start_time, end_time, slot_duration, active")
       .eq("doctor_id", doctor.id)
       .eq("active", true);
 
-    const hasAnyConfiguredSlots = (totalConfiguredCount ?? 0) > 0;
+    const hasAnyConfiguredSlots = Array.isArray(allDoctorAvail) && allDoctorAvail.length > 0;
 
-    let availList: { start_time: string; end_time: string; slot_duration: number; active: boolean }[] = [];
-    const { data: availData, error: availErr } = await supabase
-      .from("doctor_availability")
-      .select("start_time, end_time, slot_duration, active")
-      .eq("doctor_id", doctor.id)
-      .ilike("day_of_week", dayOfWeek)
-      .eq("active", true);
+    const todayIST = getTodayIST();
+    const currentTimeIST = getCurrentTimeIST();
 
-    if (!availErr && availData && availData.length > 0) {
-      availList = availData;
-    } else if (!hasAnyConfiguredSlots) {
-      // ONLY fallback to default hours if admin has NEVER configured any slots for this doctor
-      availList = [
-        { start_time: "09:00:00", end_time: "13:00:00", slot_duration: 30, active: true },
-        { start_time: "16:00:00", end_time: "19:00:00", slot_duration: 30, active: true },
-      ];
-    } else {
-      // If doctor HAS configured slots for other days, but NONE for this day (or admin removed them),
-      // then doctor is genuinely off on this day!
-      availList = [];
+    // Helper to get matching availability for a given day name
+    const getAvailForDay = (dayName: string) => {
+      const target = dayName.trim().toLowerCase();
+      const prefix = target.slice(0, 3);
+      const matched = (allDoctorAvail || []).filter((row) => {
+        const rowDay = (row.day_of_week || "").trim().toLowerCase();
+        return rowDay === target || rowDay.startsWith(prefix);
+      });
+
+      if (matched.length > 0) return matched;
+      if (!hasAnyConfiguredSlots) {
+        // Fallback to standard hospital OPD hours if admin hasn't set any custom windows
+        return [
+          { day_of_week: dayName, start_time: "09:00:00", end_time: "13:00:00", slot_duration: 30, active: true },
+          { day_of_week: dayName, start_time: "16:00:00", end_time: "19:00:00", slot_duration: 30, active: true },
+        ];
+      }
+      return [];
+    };
+
+    // ------------------------------------------------------------------------
+    // BATCH RANGE AVAILABILITY (e.g. for full month / 35-day slot counts)
+    // ------------------------------------------------------------------------
+    if (startDate && endDate) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate.trim()) || !/^\d{4}-\d{2}-\d{2}$/.test(endDate.trim())) {
+        return NextResponse.json(
+          { ok: false, error: "startDate and endDate must be YYYY-MM-DD" },
+          { status: 400 }
+        );
+      }
+
+      const sDate = startDate.trim();
+      const eDate = endDate.trim();
+
+      // Fetch all booked appointments in this date range in one query
+      const { data: rangeBookings } = await supabase
+        .from("appointments")
+        .select("appointment_date, start_time, status")
+        .eq("doctor_id", doctor.id)
+        .gte("appointment_date", sDate)
+        .lte("appointment_date", eDate)
+        .in("status", ["PENDING", "CONFIRMED"]);
+
+      const bookedByDate = new Map<string, Set<string>>();
+      if (rangeBookings) {
+        for (const apt of rangeBookings) {
+          if (!apt.appointment_date || !apt.start_time) continue;
+          if (!bookedByDate.has(apt.appointment_date)) {
+            bookedByDate.set(apt.appointment_date, new Set<string>());
+          }
+          bookedByDate.get(apt.appointment_date)!.add(normalizeTime(apt.start_time));
+        }
+      }
+
+      const dateMap: Record<string, number> = {};
+      const [sy, sm, sd] = sDate.split("-").map(Number);
+      const [ey, em, ed] = eDate.split("-").map(Number);
+      const cur = new Date(Date.UTC(sy, sm - 1, sd, 12, 0, 0));
+      const end = new Date(Date.UTC(ey, em - 1, ed, 12, 0, 0));
+
+      while (cur <= end) {
+        const dStr = cur.toISOString().split("T")[0];
+        let dayOfWeekName: string;
+        try {
+          dayOfWeekName = getDayOfWeekFromDate(dStr);
+        } catch {
+          dayOfWeekName = "";
+        }
+
+        const winList = dayOfWeekName ? getAvailForDay(dayOfWeekName) : [];
+        const candidateSlots: { time: string; endTime: string }[] = [];
+        for (const win of winList) {
+          candidateSlots.push(
+            ...generateTimeSlots(win.start_time, win.end_time, win.slot_duration || 30)
+          );
+        }
+
+        const bookedTimes = bookedByDate.get(dStr) || new Set<string>();
+        const isToday = dStr === todayIST;
+
+        let availableCount = 0;
+        for (const slot of candidateSlots) {
+          if (isToday && normalizeTime(slot.time) <= currentTimeIST) {
+            continue;
+          }
+          if (!bookedTimes.has(normalizeTime(slot.time))) {
+            availableCount++;
+          }
+        }
+
+        dateMap[dStr] = availableCount;
+        cur.setUTCDate(cur.getUTCDate() + 1);
+      }
+
+      return NextResponse.json({
+        ok: true,
+        data: {
+          doctorId: doctor.id,
+          doctorName: doctor.name,
+          startDate: sDate,
+          endDate: eDate,
+          dateMap,
+          today: todayIST,
+        },
+      });
     }
+
+    // ------------------------------------------------------------------------
+    // SINGLE DATE DETAILED SLOTS (for Step 4 time slot selection)
+    // ------------------------------------------------------------------------
+    if (!date || !date.trim()) {
+      return NextResponse.json(
+        { ok: false, error: "date or (startDate & endDate) parameter is required (YYYY-MM-DD)." },
+        { status: 400 }
+      );
+    }
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date.trim())) {
+      return NextResponse.json(
+        { ok: false, error: "Invalid date format. Expected YYYY-MM-DD." },
+        { status: 400 }
+      );
+    }
+
+    const trimmedDate = date.trim();
+
+    if (isDateInPast(trimmedDate)) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Selected date is in the past. Please choose a future consultation date.",
+          code: "DATE_IN_PAST",
+        },
+        { status: 400 }
+      );
+    }
+
+    let dayOfWeek: string;
+    try {
+      dayOfWeek = getDayOfWeekFromDate(trimmedDate);
+    } catch {
+      return NextResponse.json(
+        { ok: false, error: "Unable to parse calendar date." },
+        { status: 400 }
+      );
+    }
+
+    const availList = getAvailForDay(dayOfWeek);
 
     // Generate candidate slots
     const allCandidateSlots: { time: string; endTime: string }[] = [];
@@ -177,7 +271,7 @@ export async function GET(req: Request) {
       );
     }
 
-    // 3. IDENTIFY BOOKED SLOTS (CONFIRMED or PENDING)
+    // Identify booked slots
     const bookedTimes = new Set<string>();
     const { data: bookedAppointments, error: aptError } = await supabase
       .from("appointments")
@@ -195,9 +289,7 @@ export async function GET(req: Request) {
     }
 
     // Filter candidate slots: if booking is for today, remove past time slots
-    const todayIST = getTodayIST();
     const isToday = trimmedDate === todayIST;
-    const currentTimeIST = getCurrentTimeIST();
 
     const futureCandidateSlots = allCandidateSlots.filter((slot) => {
       if (!isToday) return true;
@@ -207,7 +299,7 @@ export async function GET(req: Request) {
     const calculatedSlots: GeneratedSlot[] = futureCandidateSlots.map((slot) => ({
       time: slot.time,
       endTime: slot.endTime,
-      isAvailable: !bookedTimes.has(slot.time),
+      isAvailable: !bookedTimes.has(normalizeTime(slot.time)),
     }));
 
     const availableSlots = calculatedSlots
