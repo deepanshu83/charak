@@ -44,7 +44,7 @@ export default function Footer() {
           <span className="footer-divider">•</span>
           <Link
             href="/admin"
-            title="Doctor & Clinic Admin Portal"
+            title="Doctor & Hospital Admin Portal"
             className="footer-admin-link"
           >
             <Lock size={14} strokeWidth={2} />

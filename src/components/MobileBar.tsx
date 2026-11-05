@@ -49,7 +49,7 @@ export default function MobileBar() {
       role="region"
       aria-label="Quick contact actions"
     >
-      <a href="tel:+918852887717" className="mbar-btn mbar-call" aria-label="Call Charak Clinic">
+      <a href="tel:+918852887717" className="mbar-btn mbar-call" aria-label="Call Charak Hospital">
         <Phone size={15} />
         <span>Call</span>
       </a>

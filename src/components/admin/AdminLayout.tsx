@@ -470,7 +470,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             {!isCollapsed && (
               <div className="admin-sidebar-badge">
                 <span className="sidebar-status-dot" />
-                <span>Ayurveda Clinic Portal</span>
+                <span>Ayurveda Hospital Portal</span>
               </div>
             )}
           </div>

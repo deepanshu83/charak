@@ -114,8 +114,18 @@ export async function GET(req: Request) {
     const todayIST = getTodayIST();
     const currentTimeIST = getCurrentTimeIST();
 
-    // Helper to get matching availability for a given day name
-    const getAvailForDay = (dayName: string) => {
+    // Helper to get matching availability for a given day name or specific date
+    const getAvailForDay = (dayName: string, dateStr?: string) => {
+      // 1. Check if doctor has specific date-wise custom slots (e.g. day_of_week === '2026-11-15')
+      if (dateStr) {
+        const dateSpecific = (allDoctorAvail || []).filter((row) => {
+          const rowDay = (row.day_of_week || "").trim();
+          return rowDay === dateStr;
+        });
+        if (dateSpecific.length > 0) return dateSpecific;
+      }
+
+      // 2. Regular recurring day-of-week slots (e.g. 'Monday', 'Sunday')
       const target = dayName.trim().toLowerCase();
       const prefix = target.slice(0, 3);
       const matched = (allDoctorAvail || []).filter((row) => {
@@ -183,7 +193,7 @@ export async function GET(req: Request) {
           dayOfWeekName = "";
         }
 
-        const winList = dayOfWeekName ? getAvailForDay(dayOfWeekName) : [];
+        const winList = dayOfWeekName ? getAvailForDay(dayOfWeekName, dStr) : [];
         const candidateSlots: { time: string; endTime: string }[] = [];
         for (const win of winList) {
           candidateSlots.push(
@@ -261,7 +271,7 @@ export async function GET(req: Request) {
       );
     }
 
-    const availList = getAvailForDay(dayOfWeek);
+    const availList = getAvailForDay(dayOfWeek, trimmedDate);
 
     // Generate candidate slots
     const allCandidateSlots: { time: string; endTime: string }[] = [];

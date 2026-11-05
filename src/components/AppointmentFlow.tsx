@@ -100,14 +100,14 @@ export default function AppointmentFlow() {
       .catch(() => {});
   }, []);
 
-  // Generate dynamic 35-day calendar (5 full weeks ahead so all Sundays and full month are visible)
+  // Generate dynamic 30-day calendar (next 30 days ahead)
   const availableDates = useMemo(() => {
     const dates: string[] = [];
     const todayStr = getTodayIST();
     const [y, m, d] = todayStr.split("-").map(Number);
     const startDate = new Date(y, m - 1, d);
-    // 35 days ensures all 4-5 Sundays of the month are covered
-    for (let i = 0; i < 35; i++) {
+    // 30 days ahead
+    for (let i = 0; i < 30; i++) {
       const cur = new Date(startDate);
       cur.setDate(startDate.getDate() + i);
       const iso = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, "0")}-${String(cur.getDate()).padStart(2, "0")}`;
@@ -261,7 +261,7 @@ export default function AppointmentFlow() {
   // and support viewing all Sundays of the month ("slot me mahine ke saare slot dikh jane chahiye saare sunday aasa kr")
   const hasAnyDateAvailabilityChecked = Object.keys(dateAvailabilityMap).length > 0;
   const visibleDates = useMemo(() => {
-    // 1. If user clicked "All Sundays", filter by Sunday (day 0) across all 35 days
+    // 1. If user clicked "All Sundays", filter by Sunday (day 0) across all 30 days
     if (dateFilter === "sundays") {
       const sundays = availableDates.filter((dStr) => {
         const [y, m, d] = dStr.split("-").map(Number);
@@ -271,7 +271,7 @@ export default function AppointmentFlow() {
       return sundays.length > 0 ? sundays : availableDates;
     }
 
-    // 2. If user clicked "Entire Month", show all 35 days
+    // 2. If user clicked "Entire Month", show all 30 days
     if (dateFilter === "all") {
       return availableDates;
     }
@@ -282,7 +282,7 @@ export default function AppointmentFlow() {
         const count = dateAvailabilityMap[dStr];
         return count !== undefined && count > 0;
       });
-      // If doctor has any available dates in the 35 days, show ONLY those!
+      // If doctor has any available dates in the 30 days, show ONLY those!
       // (For doctors only consulting on Sundays, this automatically isolates all Sundays!)
       if (availableOnly.length > 0) {
         return availableOnly;
@@ -398,7 +398,7 @@ export default function AppointmentFlow() {
               `Ref: ${confirmation.id} • Razorpay ID: ${raw.razorpay_payment_id}`
             );
           } catch (bookErr: unknown) {
-            const msg = bookErr instanceof Error ? bookErr.message : "Payment verified but slot encountered a conflict. Please contact clinic reception.";
+            const msg = bookErr instanceof Error ? bookErr.message : "Payment verified but slot encountered a conflict. Please contact hospital reception.";
             toast.error("Slot Conflict", msg);
           } finally {
             setIsSubmitting(false);
@@ -993,7 +993,7 @@ export default function AppointmentFlow() {
                   <div className="step-header">
                     <Badge variant="gold">Step 3 of 7</Badge>
                     <h2>Select Consultation Date</h2>
-                    <p>Consultations available across the month. All active Sunday and weekday clinics are listed below.</p>
+                    <p>Consultations available across the month. All active Sunday and weekday schedules are listed below.</p>
                   </div>
 
                   {/* Filter Pills to quickly view all Sundays or full month */}
@@ -1075,7 +1075,7 @@ export default function AppointmentFlow() {
                         No Available Consultation Dates
                       </h3>
                       <p style={{ color: "var(--ink-light)", fontSize: "0.92rem", maxWidth: "440px", margin: "0 auto 20px", lineHeight: "1.5" }}>
-                        No open consultation slots are currently available for {selectedDoctor?.name || "this physician"} in the upcoming 35 days.
+                        No open consultation slots are currently available for {selectedDoctor?.name || "this physician"} in the upcoming 30 days.
                       </p>
                       <Button variant="primary" onClick={() => setStep(2)}>
                         Choose Another Physician
@@ -1273,52 +1273,10 @@ export default function AppointmentFlow() {
               {/* STEP 5: PATIENT DETAILS */}
               {step === 5 && (
                 <div className="step-content">
-                  <div
-                    className="step-header"
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      flexWrap: "wrap",
-                      gap: "10px",
-                    }}
-                  >
-                    <div>
-                      <Badge variant="gold">Step 5 of 7</Badge>
-                      <h2>Patient Information</h2>
-                      <p>Enter contact details for medical records and SMS/WhatsApp appointment reminders.</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPatientForm({
-                          fullName: "Priya Sharma (Demo)",
-                          phone: "9876543210",
-                          age: "28",
-                          gender: "Female",
-                          email: "demo@charakayurvedapilani.com",
-                          notes: "Ayurvedic wellness & lifestyle consultation",
-                        });
-                        setFormErrors({});
-                      }}
-                      style={{
-                        background: "rgba(194, 139, 56, 0.12)",
-                        border: "1px solid var(--gold)",
-                        color: "var(--deep)",
-                        padding: "6px 12px",
-                        borderRadius: "8px",
-                        fontSize: "0.82rem",
-                        fontWeight: 600,
-                        cursor: "pointer",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "5px",
-                        transition: "all 0.15s ease",
-                      }}
-                      title="Click to automatically fill demo patient details for testing"
-                    >
-                      ⚡ Fill Demo Details
-                    </button>
+                  <div className="step-header">
+                    <Badge variant="gold">Step 5 of 7</Badge>
+                    <h2>Patient Information</h2>
+                    <p>Enter contact details for medical records and SMS/WhatsApp appointment reminders.</p>
                   </div>
 
                   <div className="mvp-form-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "18px" }}>
@@ -1341,9 +1299,9 @@ export default function AppointmentFlow() {
                       onChange={(e) =>
                         setPatientForm({ ...patientForm, phone: e.target.value })
                       }
-                      placeholder="e.g. 98765 43210 (Demo)"
+                      placeholder="e.g. 988637xxxx"
                       error={formErrors.phone}
-                      helperText="Enter 10-digit demo or personal phone number for booking updates"
+                      helperText="For consultation confirmations & SMS reminders"
                     />
 
                     <Input
@@ -1385,7 +1343,7 @@ export default function AppointmentFlow() {
                         onChange={(e) =>
                           setPatientForm({ ...patientForm, email: e.target.value })
                         }
-                        placeholder="e.g. priya@gmail.com (Demo)"
+                        placeholder="e.g. priya@gmail.com"
                         error={formErrors.email}
                       />
                     </div>

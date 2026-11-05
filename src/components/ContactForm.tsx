@@ -103,7 +103,7 @@ export default function ContactForm({
         </form>
       </div>
 
-      {/* Interactive Google Map of Clinic Location */}
+      {/* Interactive Google Map of Hospital Location */}
       <div className="wrap" style={{ marginTop: "44px" }}>
         <div className="contact-map-wrapper">
           <div className="contact-map-bar">
@@ -123,7 +123,7 @@ export default function ContactForm({
             </a>
           </div>
           <iframe
-            title="Charak Ayurveda Clinic Location Map"
+            title="Charak Ayurveda Hospital Location Map"
             src="https://maps.google.com/maps?q=28.3579064%2C75.6050713&z=17&output=embed"
             width="100%"
             height="340"

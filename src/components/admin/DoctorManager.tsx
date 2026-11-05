@@ -90,6 +90,8 @@ export default function DoctorManager() {
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [selectedDoctorForSchedule, setSelectedDoctorForSchedule] = useState<AdminDoctor | null>(null);
   const [availabilities, setAvailabilities] = useState<DoctorAvailabilityItem[]>([]);
+  const [slotMode, setSlotMode] = useState<"weekly" | "date">("weekly");
+  const [customDate, setCustomDate] = useState<string>("");
   const [newSlotForm, setNewSlotForm] = useState({
     dayOfWeek: "Monday",
     startTime: "09:00",
@@ -251,10 +253,16 @@ export default function DoctorManager() {
       return;
     }
 
+    const finalDayOrDate = slotMode === "date" ? customDate : newSlotForm.dayOfWeek;
+    if (slotMode === "date" && !customDate) {
+      toast.error("Date Required", "Please choose a specific calendar date.");
+      return;
+    }
+
     try {
       const created = await adminCreateAvailability({
         doctorId: selectedDoctorForSchedule.id,
-        dayOfWeek: newSlotForm.dayOfWeek,
+        dayOfWeek: finalDayOrDate,
         startTime: newSlotForm.startTime,
         endTime: newSlotForm.endTime,
         slotDuration: Number(newSlotForm.slotDuration),
@@ -262,7 +270,7 @@ export default function DoctorManager() {
       });
       if (created) {
         setAvailabilities((prev) => [...prev, created]);
-        toast.success("Slot Configured", `${newSlotForm.dayOfWeek} ${newSlotForm.startTime}-${newSlotForm.endTime} added.`);
+        toast.success("Slot Configured", `${finalDayOrDate} (${newSlotForm.startTime}-${newSlotForm.endTime}) added successfully.`);
         await loadData();
       }
     } catch (err) {
@@ -806,85 +814,96 @@ export default function DoctorManager() {
       <Modal
         isOpen={isScheduleModalOpen}
         onClose={() => setIsScheduleModalOpen(false)}
-        title={selectedDoctorForSchedule ? `Weekly Schedule: ${selectedDoctorForSchedule.name}` : "Manage Availability"}
+        title={selectedDoctorForSchedule ? `Doctor Schedule: ${selectedDoctorForSchedule.name}` : "Manage Availability"}
       >
         <div>
-          <h4 style={{ marginBottom: "12px" }}>Configured Weekly Slots</h4>
+          <h4 style={{ marginBottom: "12px" }}>Configured Consultation Slots</h4>
           {availabilities.length === 0 ? (
             <p className="text-muted text-sm" style={{ padding: "16px", background: "rgba(0,0,0,0.02)", borderRadius: "8px" }}>
               No custom schedule slots found in database for this doctor. Add one below.
             </p>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "240px", overflowY: "auto", marginBottom: "20px" }}>
-              {availabilities.map((slot) => (
-                <div
-                  key={slot.id}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "10px 14px",
-                    background: "#ffffff",
-                    borderRadius: "10px",
-                    border: "1px solid #e7dfd3",
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-                    <span style={{ fontWeight: 700, color: "var(--green)", fontSize: "0.92rem" }}>{slot.dayOfWeek}</span>
-                    <span style={{ color: "#888" }}>•</span>
-                    <span style={{ fontWeight: 600, color: "var(--foreground)", fontSize: "0.92rem" }}>
-                      {slot.startTime} – {slot.endTime}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: "0.75rem",
-                        color: "#6b5d4d",
-                        background: "#f4ede4",
-                        padding: "2px 8px",
-                        borderRadius: "12px",
-                        fontWeight: 500,
-                      }}
-                    >
-                      {slot.slotDuration} min
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteSlot(slot.id)}
-                    title="Delete Slot"
+              {availabilities.map((slot) => {
+                const isDateSpecific = /^\d{4}-\d{2}-\d{2}$/.test(slot.dayOfWeek);
+                return (
+                  <div
+                    key={slot.id}
                     style={{
-                      display: "inline-flex",
+                      display: "flex",
+                      justifyContent: "space-between",
                       alignItems: "center",
-                      justifyContent: "center",
-                      gap: "6px",
-                      padding: "6px 12px",
-                      borderRadius: "8px",
-                      border: "1px solid #fecdd3",
-                      background: "#fff1f2",
-                      color: "#e11d48",
-                      fontSize: "0.82rem",
-                      fontWeight: 600,
-                      cursor: "pointer",
-                      transition: "all 0.15s ease",
-                      flexShrink: 0,
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "#e11d48";
-                      e.currentTarget.style.color = "#ffffff";
-                      e.currentTarget.style.borderColor = "#e11d48";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "#fff1f2";
-                      e.currentTarget.style.color = "#e11d48";
-                      e.currentTarget.style.borderColor = "#fecdd3";
+                      padding: "10px 14px",
+                      background: "#ffffff",
+                      borderRadius: "10px",
+                      border: "1px solid #e7dfd3",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
                     }}
                   >
-                    <Trash2 size={14} />
-                    <span>Delete</span>
-                  </button>
-                </div>
-              ))}
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                      {isDateSpecific ? (
+                        <span style={{ fontWeight: 700, color: "#b45309", background: "#fef3c7", padding: "2px 8px", borderRadius: "6px", fontSize: "0.85rem" }}>
+                          📅 Date: {slot.dayOfWeek}
+                        </span>
+                      ) : (
+                        <span style={{ fontWeight: 700, color: "var(--green)", fontSize: "0.92rem" }}>
+                          🗓️ Every {slot.dayOfWeek}
+                        </span>
+                      )}
+                      <span style={{ color: "#888" }}>•</span>
+                      <span style={{ fontWeight: 600, color: "var(--foreground)", fontSize: "0.92rem" }}>
+                        {slot.startTime} – {slot.endTime}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "0.75rem",
+                          color: "#6b5d4d",
+                          background: "#f4ede4",
+                          padding: "2px 8px",
+                          borderRadius: "12px",
+                          fontWeight: 500,
+                        }}
+                      >
+                        {slot.slotDuration} min
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteSlot(slot.id)}
+                      title="Delete Slot"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "6px",
+                        padding: "6px 12px",
+                        borderRadius: "8px",
+                        border: "1px solid #fecdd3",
+                        background: "#fff1f2",
+                        color: "#e11d48",
+                        fontSize: "0.82rem",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        transition: "all 0.15s ease",
+                        flexShrink: 0,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "#e11d48";
+                        e.currentTarget.style.color = "#ffffff";
+                        e.currentTarget.style.borderColor = "#e11d48";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "#fff1f2";
+                        e.currentTarget.style.color = "#e11d48";
+                        e.currentTarget.style.borderColor = "#fecdd3";
+                      }}
+                    >
+                      <Trash2 size={14} />
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           )}
 
@@ -903,24 +922,83 @@ export default function DoctorManager() {
               border: "1px solid #e7dfd3",
             }}
           >
+            {/* Slot Mode: Weekly Recurring or Date-Specific */}
+            <div style={{ display: "flex", gap: "10px", marginBottom: "4px" }}>
+              <button
+                type="button"
+                onClick={() => setSlotMode("weekly")}
+                style={{
+                  flex: 1,
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  border: "1px solid",
+                  borderColor: slotMode === "weekly" ? "var(--green)" : "#e7dfd3",
+                  background: slotMode === "weekly" ? "var(--green)" : "#ffffff",
+                  color: slotMode === "weekly" ? "#ffffff" : "var(--ink)",
+                  fontWeight: 600,
+                  fontSize: "0.85rem",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                🗓️ Weekly Recurring Day
+              </button>
+              <button
+                type="button"
+                onClick={() => setSlotMode("date")}
+                style={{
+                  flex: 1,
+                  padding: "8px 12px",
+                  borderRadius: "8px",
+                  border: "1px solid",
+                  borderColor: slotMode === "date" ? "var(--green)" : "#e7dfd3",
+                  background: slotMode === "date" ? "var(--green)" : "#ffffff",
+                  color: slotMode === "date" ? "#ffffff" : "var(--ink)",
+                  fontWeight: 600,
+                  fontSize: "0.85rem",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                📅 Specific Calendar Date
+              </button>
+            </div>
+
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-              <div>
-                <label style={{ display: "block", marginBottom: "6px", fontSize: "0.82rem", fontWeight: 600, color: "var(--ink)" }}>
-                  Day of Week
-                </label>
-                <select
-                  value={newSlotForm.dayOfWeek}
-                  onChange={(e) => setNewSlotForm({ ...newSlotForm, dayOfWeek: e.target.value })}
-                  className="table-inline-input"
-                  style={{ width: "100%", padding: "10px 12px", background: "#ffffff", color: "#1e2621", fontWeight: 500 }}
-                >
-                  {DAYS_OF_WEEK.map((day) => (
-                    <option key={day} value={day} style={{ color: "#1e2621", background: "#ffffff" }}>
-                      {day}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {slotMode === "weekly" ? (
+                <div>
+                  <label style={{ display: "block", marginBottom: "6px", fontSize: "0.82rem", fontWeight: 600, color: "var(--ink)" }}>
+                    Day of Week
+                  </label>
+                  <select
+                    value={newSlotForm.dayOfWeek}
+                    onChange={(e) => setNewSlotForm({ ...newSlotForm, dayOfWeek: e.target.value })}
+                    className="table-inline-input"
+                    style={{ width: "100%", padding: "10px 12px", background: "#ffffff", color: "#1e2621", fontWeight: 500 }}
+                  >
+                    {DAYS_OF_WEEK.map((day) => (
+                      <option key={day} value={day} style={{ color: "#1e2621", background: "#ffffff" }}>
+                        Every {day}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <div>
+                  <label style={{ display: "block", marginBottom: "6px", fontSize: "0.82rem", fontWeight: 600, color: "var(--ink)" }}>
+                    Pick Consultation Date
+                  </label>
+                  <input
+                    type="date"
+                    min={new Date().toISOString().split("T")[0]}
+                    value={customDate}
+                    onChange={(e) => setCustomDate(e.target.value)}
+                    className="table-inline-input"
+                    style={{ width: "100%", padding: "10px 12px", background: "#ffffff", color: "#1e2621", fontWeight: 500 }}
+                    required={slotMode === "date"}
+                  />
+                </div>
+              )}
 
               <div>
                 <label style={{ display: "block", marginBottom: "6px", fontSize: "0.82rem", fontWeight: 600, color: "var(--ink)" }}>
