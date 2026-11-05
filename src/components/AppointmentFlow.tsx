@@ -1273,10 +1273,52 @@ export default function AppointmentFlow() {
               {/* STEP 5: PATIENT DETAILS */}
               {step === 5 && (
                 <div className="step-content">
-                  <div className="step-header">
-                    <Badge variant="gold">Step 5 of 7</Badge>
-                    <h2>Patient Information</h2>
-                    <p>Enter contact details for medical records and SMS/WhatsApp appointment reminders.</p>
+                  <div
+                    className="step-header"
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      flexWrap: "wrap",
+                      gap: "10px",
+                    }}
+                  >
+                    <div>
+                      <Badge variant="gold">Step 5 of 7</Badge>
+                      <h2>Patient Information</h2>
+                      <p>Enter contact details for medical records and SMS/WhatsApp appointment reminders.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPatientForm({
+                          fullName: "Priya Sharma (Demo)",
+                          phone: "9876543210",
+                          age: "28",
+                          gender: "Female",
+                          email: "demo@charakayurvedapilani.com",
+                          notes: "Ayurvedic wellness & lifestyle consultation",
+                        });
+                        setFormErrors({});
+                      }}
+                      style={{
+                        background: "rgba(194, 139, 56, 0.12)",
+                        border: "1px solid var(--gold)",
+                        color: "var(--deep)",
+                        padding: "6px 12px",
+                        borderRadius: "8px",
+                        fontSize: "0.82rem",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "5px",
+                        transition: "all 0.15s ease",
+                      }}
+                      title="Click to automatically fill demo patient details for testing"
+                    >
+                      ⚡ Fill Demo Details
+                    </button>
                   </div>
 
                   <div className="mvp-form-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "18px" }}>
@@ -1299,9 +1341,9 @@ export default function AppointmentFlow() {
                       onChange={(e) =>
                         setPatientForm({ ...patientForm, phone: e.target.value })
                       }
-                      placeholder="+91 98765 43210"
+                      placeholder="e.g. 98765 43210 (Demo)"
                       error={formErrors.phone}
-                      helperText="For consultation confirmations & reminders"
+                      helperText="Enter 10-digit demo or personal phone number for booking updates"
                     />
 
                     <Input
@@ -1343,7 +1385,7 @@ export default function AppointmentFlow() {
                         onChange={(e) =>
                           setPatientForm({ ...patientForm, email: e.target.value })
                         }
-                        placeholder="priya@gmail.com"
+                        placeholder="e.g. priya@gmail.com (Demo)"
                         error={formErrors.email}
                       />
                     </div>

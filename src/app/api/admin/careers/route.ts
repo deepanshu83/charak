@@ -3,6 +3,9 @@ import { getAdminSupabaseClient, getServerPublicSupabaseClient } from "@/lib/sup
 import { verifyAdminRequest } from "@/lib/adminAuthServer";
 import { DEFAULT_VACANCIES } from "@/lib/careersService";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // job_vacancies is a new table not yet present in the auto-generated Database type.
 // We cast to `any` here and rely on runtime correctness + the migration SQL.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,8 +30,18 @@ export async function GET(req: Request) {
       .order("display_order", { ascending: true })
       .order("created_at", { ascending: false });
 
-    // Auto-seed all 8 hospital vacancies directly into the database if the table is empty!
-    if (!error && Array.isArray(data) && data.length === 0) {
+    // Check if the only entries in the database are the old sample duplicate rows ("Ayurvedic Doctor (BAMS)")
+    const isOnlyOldSampleData =
+      Array.isArray(data) &&
+      data.length > 0 &&
+      data.every((row: { title?: string }) => row.title === "Ayurvedic Doctor (BAMS)");
+
+    // Auto-seed all 8 hospital vacancies directly into the database if the table is empty or only old sample!
+    if (!error && (data.length === 0 || isOnlyOldSampleData)) {
+      if (isOnlyOldSampleData) {
+        await supabase.from("job_vacancies").delete().eq("title", "Ayurvedic Doctor (BAMS)");
+      }
+
       const rowsToInsert = DEFAULT_VACANCIES.map((v) => ({
         title: v.title,
         department: v.department,

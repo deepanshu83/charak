@@ -21,7 +21,7 @@ export default function CareersPageClient() {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/careers")
+    fetch("/api/careers", { cache: "no-store" })
       .then((r) => r.json())
       .then((json) => {
         if (json.ok && Array.isArray(json.data)) {

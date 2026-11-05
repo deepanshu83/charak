@@ -37,7 +37,7 @@ export const DEFAULT_TREATMENTS: AdminTreatment[] = [
     description: "Root-cause Ayurvedic healing for psoriasis, eczema, skin allergies, acne & scars, fungal infections, hair fall, dandruff, and vitiligo via internal blood purification and herbal Lepa.",
     duration: "45 min",
     price: 500,
-    image: "/images/skincare.jpeg",
+    image: "/Ayurvedic-Guide-to-Skin-Care.webp",
     icon: "Sparkles",
     active: true,
   },
@@ -61,7 +61,7 @@ export const DEFAULT_TREATMENTS: AdminTreatment[] = [
     description: "Re-igniting the digestive fire (Jatharagni) to effectively resolve acidity, gas, constipation, IBS, bloating, indigestion, piles, fissure, fistula, and fatty liver.",
     duration: "45 min",
     price: 500,
-    image: "/images/g5.jpg",
+    image: "/images.jpeg",
     icon: "Sparkles",
     active: true,
   },
@@ -102,6 +102,26 @@ export interface AdminTreatment extends Treatment {
 function mapDbTreatmentToTreatment(
   row: Database["public"]["Tables"]["treatments"]["Row"]
 ): AdminTreatment {
+  let img = row.image || "";
+  const lowerName = (row.name || "").toLowerCase();
+  const lowerSlug = (row.slug || "").toLowerCase();
+
+  if (
+    row.id === "70000000-0000-4000-a000-000000000003" ||
+    lowerSlug.includes("skin") ||
+    lowerName.includes("skin")
+  ) {
+    img = "/Ayurvedic-Guide-to-Skin-Care.webp";
+  } else if (
+    row.id === "70000000-0000-4000-a000-000000000005" ||
+    lowerSlug.includes("stomach") ||
+    lowerSlug.includes("digestion") ||
+    lowerName.includes("stomach") ||
+    lowerName.includes("digestion")
+  ) {
+    img = "/images.jpeg";
+  }
+
   return {
     id: row.id,
     name: row.name,
@@ -110,7 +130,7 @@ function mapDbTreatmentToTreatment(
     description: row.description,
     duration: row.duration,
     price: Number(row.price),
-    image: row.image || "",
+    image: img,
     storagePath: row.storage_path || undefined,
     icon: "Sparkles",
     active: row.active,

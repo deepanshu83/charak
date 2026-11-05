@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { Calendar } from "lucide-react";
 import { fetchTreatments } from "@/lib/treatmentService";
 
 interface TreatmentItem {
@@ -28,7 +30,7 @@ const DEFAULT_TREATMENTS: TreatmentItem[] = [
     num: "03",
     title: "Skin & Hair Care",
     desc: "Root-cause care for psoriasis, eczema, acne, hair fall, dandruff & vitiligo.",
-    image: "/images/treatments/skincare.jpg",
+    image: "/Ayurvedic-Guide-to-Skin-Care.webp",
   },
   {
     num: "04",
@@ -40,7 +42,7 @@ const DEFAULT_TREATMENTS: TreatmentItem[] = [
     num: "05",
     title: "Stomach & Digestion",
     desc: "Resolving acidity, gas, constipation, IBS, bloating, piles & fatty liver.",
-    image: "/images/treatments/digestion.jpg",
+    image: "/images.jpeg",
   },
   {
     num: "06",
@@ -123,6 +125,25 @@ export default function Treatments({ onSelectConcern }: TreatmentsProps) {
             </a>
           </article>
         ))}
+      </div>
+
+      {/* Common Book Consultation Option at Bottom */}
+      <div style={{ textAlign: "center", marginTop: "44px" }}>
+        <Link
+          href="/appointment"
+          className="btn gold"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
+            padding: "13px 30px",
+            fontSize: "1rem",
+            fontWeight: 600,
+          }}
+        >
+          <Calendar size={18} />
+          <span>Book Consultation</span>
+        </Link>
       </div>
     </section>
   );

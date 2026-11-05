@@ -207,7 +207,7 @@ export default function CareersManager() {
     inFlightRef.current = true;
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/careers");
+      const res = await fetch("/api/admin/careers", { cache: "no-store" });
       const json = await res.json();
       if (json.ok && Array.isArray(json.data) && json.data.length > 0) {
         setVacancies(json.data.map(mapRow));

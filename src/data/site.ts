@@ -112,7 +112,7 @@ export const treatmentCategories = [
   },
   {
     title: "3. SKIN",
-    image: "/images/treatments/skincare.jpg",
+    image: "/Ayurvedic-Guide-to-Skin-Care.webp",
     summary: "Treating the internal root cause by cooling Rakta-Pitta, detoxifying liver and blood, and restoring radiant scalp and skin health.",
     conditions: [
       "Psoriasis",
@@ -142,7 +142,7 @@ export const treatmentCategories = [
   },
   {
     title: "5. STOMACH AND DIGESTION",
-    image: "/images/treatments/digestion.jpg",
+    image: "/images.jpeg",
     summary: "Kindling the digestive fire (Jatharagni) to clear gut toxins (Ama) and permanently resolve gastrointestinal dysfunctions.",
     conditions: [
       "Acidity and gas",

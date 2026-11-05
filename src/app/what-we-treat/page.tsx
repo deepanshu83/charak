@@ -166,54 +166,54 @@ export default async function WhatWeTreatPage() {
                       </div>
                     </div>
 
-                    <div style={{ borderTop: "1px solid rgba(24, 66, 50, 0.08)", paddingTop: "16px", marginTop: "16px" }}>
-                      <div style={{ fontSize: "0.82rem", color: "var(--ink-muted)", marginBottom: "12px", lineHeight: 1.5 }}>
+                    <div style={{ borderTop: "1px solid rgba(24, 66, 50, 0.08)", paddingTop: "14px", marginTop: "14px" }}>
+                      <div style={{ fontSize: "0.85rem", color: "var(--ink-muted)", lineHeight: 1.5 }}>
                         <b style={{ color: "var(--green)" }}>Therapies:</b> {cat.treatments}
                       </div>
-                      <Link
-                        href="/appointment"
-                        className="treatment-card-btn"
-                        style={{
-                          display: "inline-flex",
-                          width: "100%",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          gap: "8px",
-                        }}
-                      >
-                        <span>Book Consultation for this condition</span>
-                        <ArrowRight size={14} />
-                      </Link>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Bottom CTA Card */}
+            {/* Bottom Book Consultation Option */}
             <div
               style={{
-                marginTop: "60px",
+                marginTop: "50px",
                 background: "var(--deep)",
                 color: "#ffffff",
-                padding: "40px",
+                padding: "44px 32px",
                 borderRadius: "24px",
                 textAlign: "center",
                 backgroundImage: "radial-gradient(circle at 80% 20%, rgba(194, 139, 56, 0.25), transparent 45%)",
+                boxShadow: "var(--shadow-md)",
               }}
             >
               <h2 style={{ color: "#ffffff", fontSize: "2.2rem", marginBottom: "12px" }}>
                 Unsure Which Treatment You Need?
               </h2>
-              <p style={{ color: "#cfc9bb", maxWidth: "620px", margin: "0 auto 24px", fontSize: "1.05rem" }}>
-                Schedule a 1-on-1 Nadi Pariksha consultation with our Ayurvedic doctor. We will assess your pulse and design a customized recovery roadmap.
+              <p style={{ color: "#cfc9bb", maxWidth: "620px", margin: "0 auto 26px", fontSize: "1.05rem", lineHeight: 1.6 }}>
+                Schedule a 1-on-1 Nadi Pariksha consultation with our senior Ayurvedic physician. We assess your pulse, identify your root Prakriti/Vikriti imbalances, and design a customized recovery roadmap.
               </p>
-              <div style={{ display: "flex", justifyContent: "center", gap: "16px", flexWrap: "wrap" }}>
-                <Link href="/appointment" className="btn gold">
+              <div style={{ display: "flex", justifyContent: "center", gap: "16px", flexWrap: "wrap", alignItems: "center" }}>
+                <Link
+                  href="/appointment"
+                  className="btn gold"
+                  style={{
+                    padding: "14px 32px",
+                    fontSize: "1.05rem",
+                    fontWeight: 700,
+                    boxShadow: "0 4px 15px rgba(194, 139, 56, 0.35)",
+                  }}
+                >
                   <Calendar size={18} />
-                  Book Doctor Consultation
+                  Book Consultation
                 </Link>
-                <a href="tel:+918852887717" className="btn ghost" style={{ color: "#ffffff", borderColor: "rgba(255, 255, 255, 0.4)" }}>
+                <a
+                  href="tel:+918852887717"
+                  className="btn ghost"
+                  style={{ color: "#ffffff", borderColor: "rgba(255, 255, 255, 0.4)", padding: "14px 24px" }}
+                >
                   Call: 088528 87717
                 </a>
               </div>

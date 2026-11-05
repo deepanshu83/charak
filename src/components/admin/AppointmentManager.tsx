@@ -10,6 +10,7 @@ import {
   Eye,
   RefreshCw,
   Search,
+  X,
 } from "lucide-react";
 import StatusBadge from "@/components/ui/StatusBadge";
 import { Badge, Button, Modal, useToast } from "@/components/ui";
@@ -138,6 +139,8 @@ export default function AppointmentManager() {
         matchesTab = apt.date === todayStr;
       } else if (filterTab === "Upcoming") {
         matchesTab = apt.date >= todayStr && apt.status !== "CANCELLED";
+      } else if (filterTab === "PENDING") {
+        matchesTab = apt.status === "PENDING";
       } else if (filterTab !== "All") {
         matchesTab = apt.status === filterTab;
       }
@@ -159,6 +162,7 @@ export default function AppointmentManager() {
   const tabCounts = useMemo(() => {
     return {
       All: appointments.length,
+      PENDING: appointments.filter((a) => a.status === "PENDING").length,
       "Today's": appointments.filter((a) => a.date === todayStr).length,
       Upcoming: appointments.filter(
         (a) => a.date >= todayStr && a.status !== "CANCELLED"
@@ -213,22 +217,37 @@ export default function AppointmentManager() {
           {(
             [
               "All",
+              "PENDING",
               "Today's",
               "Upcoming",
               "CONFIRMED",
               "COMPLETED",
               "CANCELLED",
             ] as const
-          ).map((tab) => (
-            <button
-              key={tab}
-              type="button"
-              className={`filter-pill ${filterTab === tab ? "active" : ""}`}
-              onClick={() => setFilterTab(tab)}
-            >
-              {tab} ({tabCounts[tab] || 0})
-            </button>
-          ))}
+          ).map((tab) => {
+            const count = tabCounts[tab] || 0;
+            const isPendingTab = tab === "PENDING";
+            return (
+              <button
+                key={tab}
+                type="button"
+                className={`filter-pill ${filterTab === tab ? "active" : ""}`}
+                style={
+                  isPendingTab && count > 0
+                    ? {
+                        borderColor: filterTab === "PENDING" ? "#dc2626" : "#fca5a5",
+                        backgroundColor: filterTab === "PENDING" ? "#dc2626" : "#fef2f2",
+                        color: filterTab === "PENDING" ? "#ffffff" : "#b91c1c",
+                        fontWeight: 700,
+                      }
+                    : undefined
+                }
+                onClick={() => setFilterTab(tab)}
+              >
+                {isPendingTab ? `🔴 Pending Action (${count})` : `${tab} (${count})`}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -263,9 +282,10 @@ export default function AppointmentManager() {
                 const doc = doctorMap.get(apt.doctorId);
                 const treat = treatmentMap.get(apt.treatmentId);
                 const isToday = apt.date === todayStr;
+                const isPending = apt.status === "PENDING";
 
                 return (
-                  <tr key={apt.id}>
+                  <tr key={apt.id} className={isPending ? "row-pending" : ""}>
                     <td>
                       <strong>{apt.id}</strong>
                     </td>
@@ -294,15 +314,44 @@ export default function AppointmentManager() {
                     <td>
                       <div className="table-actions-cell">
                         {apt.status === "PENDING" && (
-                          <button
-                            type="button"
-                            className="mini-action-btn primary"
-                            disabled={updatingId === apt.id}
-                            title="Confirm Appointment"
-                            onClick={() => handleUpdateStatus(apt.id, "CONFIRMED")}
-                          >
-                            <Check size={13} /> Confirm
-                          </button>
+                          <>
+                            <button
+                              type="button"
+                              className="mini-action-btn primary"
+                              disabled={updatingId === apt.id}
+                              title="Approve Appointment (Confirm Booking)"
+                              style={{
+                                background: "#16a34a",
+                                color: "#ffffff",
+                                borderColor: "#16a34a",
+                                fontWeight: 600,
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "4px",
+                              }}
+                              onClick={() => handleUpdateStatus(apt.id, "CONFIRMED")}
+                            >
+                              <Check size={13} /> Approve
+                            </button>
+                            <button
+                              type="button"
+                              className="mini-action-btn danger"
+                              disabled={updatingId === apt.id}
+                              title="Reject Appointment"
+                              style={{
+                                background: "#dc2626",
+                                color: "#ffffff",
+                                borderColor: "#dc2626",
+                                fontWeight: 600,
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "4px",
+                              }}
+                              onClick={() => setAptToCancel(apt)}
+                            >
+                              <X size={13} /> Reject
+                            </button>
+                          </>
                         )}
 
                         {apt.status === "CONFIRMED" && (
@@ -317,7 +366,7 @@ export default function AppointmentManager() {
                           </button>
                         )}
 
-                        {apt.status !== "CANCELLED" && apt.status !== "COMPLETED" && (
+                        {apt.status !== "CANCELLED" && apt.status !== "COMPLETED" && apt.status !== "PENDING" && (
                           <button
                             type="button"
                             className="mini-action-btn danger"
@@ -489,26 +538,35 @@ export default function AppointmentManager() {
         )}
       </Modal>
 
-      {/* REUSABLE MODAL: Cancel Confirmation */}
+      {/* REUSABLE MODAL: Cancel / Reject Confirmation */}
       <Modal
         isOpen={!!aptToCancel}
         onClose={() => setAptToCancel(null)}
-        title="Confirm Appointment Cancellation"
-        description={`Cancel consultation for ${aptToCancel?.patientName} on ${aptToCancel?.date} at ${aptToCancel?.time}?`}
+        title={
+          aptToCancel?.status === "PENDING"
+            ? "Reject Appointment Request"
+            : "Confirm Appointment Cancellation"
+        }
+        description={
+          aptToCancel?.status === "PENDING"
+            ? `Are you sure you want to reject the booking request for ${aptToCancel?.patientName} on ${aptToCancel?.date} at ${aptToCancel?.time}?`
+            : `Cancel consultation for ${aptToCancel?.patientName} on ${aptToCancel?.date} at ${aptToCancel?.time}?`
+        }
         footer={
           <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
             <Button variant="ghost" onClick={() => setAptToCancel(null)}>
               Keep Appointment
             </Button>
             <Button variant="danger" onClick={handleConfirmCancel}>
-              Cancel Appointment
+              {aptToCancel?.status === "PENDING" ? "Reject Booking" : "Cancel Appointment"}
             </Button>
           </div>
         }
       >
         <p style={{ margin: 0, color: "var(--ink-light)", fontSize: "0.95rem" }}>
-          Cancelling will automatically release this time slot so it becomes available
-          again for other patients to book in the public appointment flow.
+          {aptToCancel?.status === "PENDING"
+            ? "Rejecting will mark this request as CANCELLED and immediately free this slot back to the public booking calendar."
+            : "Cancelling will automatically release this time slot so it becomes available again for other patients to book in the public appointment flow."}
         </p>
       </Modal>
     </div>

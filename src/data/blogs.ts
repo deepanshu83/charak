@@ -714,7 +714,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "Oct 17, 2026",
     readTime: "5 min read",
     author: "Dr. Ramraj Sharma & Dr. Varij Pandey",
-    featuredImage: "/images/blogs/clinic-pilani.jpg",
+    featuredImage: "/bits.jpeg",
     excerpt:
       "Find Charak Ayurveda & Panchakarma Chikitsalaya in Vidyavihar, Pilani. Explore Panchakarma, skin, pain, women’s health, gut and lifestyle concerns.",
     metaTitle: "Ayurveda Clinic Near BITS Pilani & CEERI | Charak Ayurveda",

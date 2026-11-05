@@ -131,7 +131,7 @@ INSERT INTO public.treatments (
   'Root-cause Ayurvedic healing for psoriasis, eczema, skin allergies, acne & scars, fungal infections, hair fall, dandruff, and vitiligo via internal blood purification and herbal Lepa.',
   '45 min',
   1200.00,
-  '/images/skincare.jpeg',
+  '/Ayurvedic-Guide-to-Skin-Care.webp',
   true
 ),
 (
@@ -153,7 +153,7 @@ INSERT INTO public.treatments (
   'Re-igniting the digestive fire (Jatharagni) to effectively resolve acidity, gas, constipation, IBS, bloating, indigestion, piles, fissure, fistula, and fatty liver.',
   '45 min',
   1000.00,
-  '/images/g5.jpg',
+  '/images.jpeg',
   true
 ),
 (
