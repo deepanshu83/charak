@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   Menu,
   X,
@@ -22,29 +22,34 @@ import {
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
 
   const closeMenu = () => setIsOpen(false);
+
+  const scrollToFooter = () => {
+    const footerEl = document.getElementById("footer") || document.querySelector("footer");
+    if (footerEl) {
+      footerEl.scrollIntoView({ behavior: "smooth", block: "end" });
+    } else {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  };
 
   const handleContactClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     closeMenu();
 
-    if (pathname === "/") {
-      const contactEl = document.getElementById("contact");
-      if (contactEl) {
-        contactEl.scrollIntoView({ behavior: "smooth" });
-      }
-    } else {
-      router.push("/#contact");
-      // Wait for navigation then scroll
-      setTimeout(() => {
-        const contactEl = document.getElementById("contact");
-        if (contactEl) {
-          contactEl.scrollIntoView({ behavior: "smooth" });
-        }
-      }, 300);
+    if (typeof document !== "undefined") {
+      document.body.style.overflow = "";
     }
+
+    // Scroll immediately and then slightly after to ensure layout/drawer close finishes
+    scrollToFooter();
+    setTimeout(() => {
+      scrollToFooter();
+    }, 60);
   };
 
   // Automatically close mobile menu when navigating to a new route
@@ -104,7 +109,7 @@ export default function Navbar() {
       icon: Briefcase,
     },
     {
-      href: "/#contact",
+      href: "#footer",
       label: "Contact",
       icon: MapPin,
     },
@@ -142,7 +147,7 @@ export default function Navbar() {
             <Link href="/gallery">Gallery</Link>
             <Link href="/blog">Blog</Link>
             <Link href="/careers">Careers</Link>
-            <Link href="/#contact" onClick={handleContactClick}>Contact</Link>
+            <Link href="#footer" onClick={handleContactClick}>Contact</Link>
           </nav>
 
           {/* Desktop Right CTAs */}
@@ -212,7 +217,7 @@ export default function Navbar() {
                 {navLinks.map((item) => {
                   const Icon = item.icon;
                   const isActive = pathname === item.href;
-                  const isContact = item.href === "/#contact";
+                  const isContact = item.href === "#footer" || item.href === "/#contact";
                   return (
                     <Link
                       key={item.href}

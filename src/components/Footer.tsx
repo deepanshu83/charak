@@ -5,8 +5,21 @@ import { Lock } from "lucide-react";
 export default function Footer() {
   const year = new Date().getFullYear();
 
+  const handleContactClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const footerEl = document.getElementById("footer") || document.querySelector("footer");
+    if (footerEl) {
+      footerEl.scrollIntoView({ behavior: "smooth", block: "end" });
+    } else {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  };
+
   return (
-    <footer>
+    <footer id="footer">
       <div className="wrap">
         <Link href="/" className="logo footer-logo" aria-label="Charak Ayurveda Home">
           <Image
@@ -36,7 +49,7 @@ export default function Footer() {
           <span className="footer-divider">•</span>
           <Link href="/careers">Careers</Link>
           <span className="footer-divider">•</span>
-          <Link href="/#contact">Contact</Link>
+          <Link href="#footer" onClick={handleContactClick}>Contact</Link>
         </div>
 
         <div className="footer-bottom-row">
