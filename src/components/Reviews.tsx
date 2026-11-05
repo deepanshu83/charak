@@ -30,7 +30,7 @@ const DEFAULT_REVIEWS: ReviewItem[] = [
   },
   {
     id: "rev-4",
-    quote: "Effective Ayurvedic therapies for chronic cervical pain. Highly recommended clinic in Shekhawati.",
+    quote: "Effective Ayurvedic therapies for chronic cervical pain. Highly recommended hospital in Shekhawati.",
     author: "Vikram Shekhawat, Chirawa",
   },
   {

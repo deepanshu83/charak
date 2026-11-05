@@ -56,7 +56,7 @@ export default function OurApproachPage() {
               <span className="tag">Philosophy &amp; Tradition</span>
               <h1>Our Approach to Healing</h1>
               <p>
-                Named with deep reverence after Acharya Charak, our clinic adheres strictly to classical Ayurvedic principles — treating the individual, not just the disease.
+                Named with deep reverence after Acharya Charak, our hospital adheres strictly to classical Ayurvedic principles — treating the individual, not just the disease.
               </p>
             </div>
           </div>

@@ -7,15 +7,15 @@ import MobileBar from "@/components/MobileBar";
 import { Calendar, Phone } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Gallery | Charak Ayurveda Pilani",
+  title: "Hospital Gallery | Charak Ayurveda Pilani",
   description:
-    "Explore photo glimpses of Charak Ayurveda clinic in Vidyavihar Pilani, traditional Panchakarma suites, herbal preparations, and peaceful consultation chambers.",
+    "Explore photo glimpses of Charak Ayurveda Hospital in Vidyavihar Pilani, traditional Panchakarma suites, herbal preparations, and peaceful consultation chambers.",
   alternates: {
     canonical: "https://charakayurvedapilani.com/gallery",
   },
   openGraph: {
-    title: "Gallery | Charak Ayurveda Pilani",
-    description: "Photo glimpses of our Ayurveda clinic, Panchakarma suites, herbal preparations and consultation chambers in Vidyavihar, Pilani.",
+    title: "Hospital Gallery | Charak Ayurveda Pilani",
+    description: "Photo glimpses of our Ayurveda Hospital, Panchakarma suites, herbal preparations and consultation chambers in Vidyavihar, Pilani.",
     url: "https://charakayurvedapilani.com/gallery",
     type: "website",
   },
@@ -31,9 +31,9 @@ export default function GalleryPage() {
           <div className="wrap">
             <div className="head">
               <span className="tag">Sanctuary &amp; Therapies</span>
-              <h1>Clinic Gallery</h1>
+              <h1>Hospital Gallery</h1>
               <p>
-                Take a visual tour of our healing spaces, time-honored Panchakarma therapies, and sacred medicinal herbs at Charak Ayurveda in Vidyavihar, Pilani.
+                Take a visual tour of our healing spaces, time-honored Panchakarma therapies, and sacred medicinal herbs at Charak Ayurveda Hospital in Vidyavihar, Pilani.
               </p>
             </div>
           </div>

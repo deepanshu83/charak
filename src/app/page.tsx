@@ -9,6 +9,7 @@ import DoshaExplorer from "@/components/DoshaExplorer";
 import HealingJourney from "@/components/HealingJourney";
 import Approach from "@/components/Approach";
 import Reviews from "@/components/Reviews";
+import VideoTestimonials from "@/components/VideoTestimonials";
 import Gallery from "@/components/Gallery";
 import HomeBlogPreview from "@/components/HomeBlogPreview";
 import ContactForm from "@/components/ContactForm";
@@ -29,6 +30,7 @@ export default function Home() {
         <HealingJourney />
         <Approach />
         <Reviews />
+        <VideoTestimonials />
         <Gallery limit={4} showTabs={false} showViewMore={true} />
         <HomeBlogPreview />
         <ContactForm selectedConcern={selectedConcern} />

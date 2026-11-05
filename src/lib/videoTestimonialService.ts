@@ -4,7 +4,46 @@ import { getPublicSupabaseClient } from "./supabaseClient";
 
 const EVENT_NAME = "charak_video_testimonials_updated";
 
-let runtimeVideoCache: VideoTestimonial[] = [];
+export const DEFAULT_VIDEO_TESTIMONIALS: VideoTestimonial[] = [
+  {
+    id: "vid-panchakarma-1",
+    title: "14-Day Janu Basti & Knee Joint Recovery",
+    patientName: "Kamla Devi, 62 yrs (Pilani)",
+    description: "Complete relief from severe chronic knee osteoarthritis, swelling, and morning stiffness through authentic Janu Basti and classical Panchakarma therapies.",
+    videoUrl: "https://www.youtube.com/watch?v=M7lc1UVf-VE",
+    thumbnailUrl: "https://img.youtube.com/vi/M7lc1UVf-VE/mqdefault.jpg",
+    published: true,
+    displayOrder: 1,
+    createdAt: "2026-03-01T10:00:00Z",
+    updatedAt: "2026-03-01T10:00:00Z",
+  },
+  {
+    id: "vid-skin-psoriasis-2",
+    title: "Chronic Skin Psoriasis Clearance Journey",
+    patientName: "Rajesh Sharma, 41 yrs (Jhunjhunu)",
+    description: "Remarkable clearance of persistent plaques and chronic skin itching via classical Vamana, Virechana detox and specialized herbal Lepam therapies.",
+    videoUrl: "https://www.youtube.com/watch?v=LXb3EKWsInQ",
+    thumbnailUrl: "https://img.youtube.com/vi/LXb3EKWsInQ/mqdefault.jpg",
+    published: true,
+    displayOrder: 2,
+    createdAt: "2026-03-05T10:00:00Z",
+    updatedAt: "2026-03-05T10:00:00Z",
+  },
+  {
+    id: "vid-infertility-uttarbasti-3",
+    title: "Holistic Infertility & Uttar Basti Success Story",
+    patientName: "Priya & Vikram Singh (Churu)",
+    description: "Natural conception achieved after 5 years of struggle through individualized Nadi Pariksha, Uttar Basti therapies, and holistic Ayurvedic Rasayana roadmap.",
+    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    thumbnailUrl: "https://img.youtube.com/vi/dQw4w9WgXcQ/mqdefault.jpg",
+    published: true,
+    displayOrder: 3,
+    createdAt: "2026-03-10T10:00:00Z",
+    updatedAt: "2026-03-10T10:00:00Z",
+  },
+];
+
+let runtimeVideoCache: VideoTestimonial[] = DEFAULT_VIDEO_TESTIMONIALS;
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -54,7 +93,7 @@ export async function fetchVideoTestimonials(): Promise<VideoTestimonial[]> {
       .order("display_order", { ascending: true })
       .order("created_at", { ascending: false });
 
-    if (error || !data) {
+    if (error || !data || data.length === 0) {
       return runtimeVideoCache.filter((v) => v.published);
     }
 

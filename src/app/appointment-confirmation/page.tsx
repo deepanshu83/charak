@@ -251,7 +251,7 @@ function AppointmentConfirmationContent() {
                 >
                   {appointment?.paymentStatus === "PAID"
                     ? "Paid Online (Razorpay)"
-                    : "Payable at Clinic Reception"}
+                    : "Payable at Hospital Reception"}
                 </span>
               </div>
             </div>

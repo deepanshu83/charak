@@ -7,7 +7,7 @@ import CareersPageClient from "@/components/CareersPage";
 export const metadata: Metadata = {
   title: "Careers & Job Vacancies | Charak Ayurveda Pilani",
   description:
-    "Join our growing team at Charak Ayurveda, Pilani. Explore current job openings for Ayurvedic doctors, therapists, nurses, and clinic staff.",
+    "Join our growing team at Charak Ayurveda, Pilani. Explore current job openings for Ayurvedic doctors, therapists, nurses, and hospital staff.",
   alternates: {
     canonical: "/careers",
   },

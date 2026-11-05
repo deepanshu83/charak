@@ -62,7 +62,7 @@ export default async function DoctorsPage() {
                   No doctors added yet.
                 </h3>
                 <p style={{ color: "var(--ink-light)", fontSize: "0.95rem", lineHeight: 1.6 }}>
-                  Our physician profiles will be listed here shortly. You can still reach us directly for clinic enquiries.
+                  Our physician profiles will be listed here shortly. You can still reach us directly for hospital enquiries.
                 </p>
                 <div style={{ marginTop: "24px" }}>
                   <Link href="/appointment" className="btn gold sm">

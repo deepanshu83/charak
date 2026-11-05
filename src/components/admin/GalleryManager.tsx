@@ -299,7 +299,7 @@ export default function GalleryManager() {
           onClick={() => setFilter("clinic")}
           className={`filter-pill ${filter === "clinic" ? "active" : ""}`}
         >
-          Clinic &amp; Sanctuary ({items.filter((i) => i.category === "clinic").length})
+          Hospital &amp; Sanctuary ({items.filter((i) => i.category === "clinic").length})
         </button>
         <button
           type="button"
@@ -377,7 +377,7 @@ export default function GalleryManager() {
               lineHeight: 1.6,
             }}
           >
-            Upload your authentic clinic spaces, Panchakarma therapy suites, and herbal formulation glimpses to showcase to visitors.
+            Upload your authentic hospital spaces, Panchakarma therapy suites, and herbal formulation glimpses to showcase to visitors.
           </p>
           <Button
             variant="primary"
@@ -561,7 +561,7 @@ export default function GalleryManager() {
               }
             >
               <option value="therapy">Therapies &amp; Panchakarma</option>
-              <option value="clinic">Clinic &amp; Sanctuary</option>
+              <option value="clinic">Hospital &amp; Sanctuary</option>
               <option value="herbs">Herbs &amp; Apothecary</option>
             </Select>
           </div>

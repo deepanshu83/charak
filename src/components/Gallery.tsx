@@ -62,7 +62,12 @@ export default function Gallery({
     return null;
   }
 
-  const filtered = items.filter((item) => filter === "all" || item.cat === filter);
+  const filtered = items.filter(
+    (item) =>
+      filter === "all" ||
+      item.cat === filter ||
+      ((filter === "hospital" || filter === "clinic") && (item.cat === "clinic" || item.cat === "hospital"))
+  );
   const displayedItems = limit ? filtered.slice(0, limit) : filtered;
 
   return (
@@ -89,11 +94,11 @@ export default function Gallery({
             Therapies
           </button>
           <button
-            className={filter === "clinic" ? "on" : ""}
-            onClick={() => setFilter("clinic")}
+            className={filter === "hospital" || filter === "clinic" ? "on" : ""}
+            onClick={() => setFilter("hospital")}
             type="button"
           >
-            Clinic
+            Hospital
           </button>
           <button
             className={filter === "herbs" ? "on" : ""}
@@ -121,7 +126,7 @@ export default function Gallery({
             New photographs coming soon
           </h3>
           <p style={{ color: "var(--ink-light)", fontSize: "0.95rem", lineHeight: 1.6 }}>
-            Our clinic healing spaces, Panchakarma therapy suites, and herbal dispensary photographs are currently being updated.
+            Our hospital healing spaces, Panchakarma therapy suites, and herbal dispensary photographs are currently being updated.
           </p>
         </div>
       ) : (

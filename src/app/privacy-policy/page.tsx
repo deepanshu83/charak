@@ -8,7 +8,7 @@ import { ShieldCheck, ArrowLeft } from "lucide-react";
 export const metadata: Metadata = {
   title: "Privacy Policy | Charak Ayurveda Pilani",
   description:
-    "Privacy Policy for Charak Ayurveda Clinic. Learn how we collect, protect, and use patient consultation and order data in compliance with Indian privacy laws.",
+    "Privacy Policy for Charak Ayurveda Hospital. Learn how we collect, protect, and use patient consultation and order data in compliance with Indian privacy laws.",
 };
 
 export default function PrivacyPolicyPage() {
@@ -40,7 +40,7 @@ export default function PrivacyPolicyPage() {
             </span>
             <h1 style={{ fontSize: "2.4rem", color: "var(--green)", marginBottom: "8px" }}>Privacy Policy</h1>
             <p style={{ color: "var(--ink-light)", fontSize: "0.95rem" }}>
-              Last updated: October 2026 • Charak Ayurveda Clinic &amp; Panchakarma Center
+              Last updated: October 2026 • Charak Ayurveda Hospital &amp; Panchakarma Center
             </p>
           </header>
 
@@ -57,13 +57,13 @@ export default function PrivacyPolicyPage() {
             <section>
               <h2 style={{ fontSize: "1.4rem", color: "var(--green)", marginBottom: "12px" }}>1. Introduction</h2>
               <p>
-                Charak Ayurveda Clinic (&quot;we&quot;, &quot;our&quot;, or &quot;the Clinic&quot;), situated at 6A, Beside Birla Hospital, Shyam Vatika, Vidyavihar, Pilani, Rajasthan 333031, respects your personal privacy. This Privacy Policy details our practices concerning the collection, storage, and handling of personal and medical data provided through our website (charakayurvedapilani.com), consultation booking system, and dispensary services.
+                Charak Ayurveda Hospital (&quot;we&quot;, &quot;our&quot;, or &quot;the Hospital&quot;), situated at 6A, Beside Birla Hospital, Shyam Vatika, Vidyavihar, Pilani, Rajasthan 333031, respects your personal privacy. This Privacy Policy details our practices concerning the collection, storage, and handling of personal and medical data provided through our website (charakayurvedapilani.com), consultation booking system, and dispensary services.
               </p>
             </section>
 
             <section>
               <h2 style={{ fontSize: "1.4rem", color: "var(--green)", marginBottom: "12px" }}>2. Information We Collect</h2>
-              <p>When you book an appointment, purchase formulations, or contact our clinic, we may collect:</p>
+              <p>When you book an appointment, purchase formulations, or contact our hospital, we may collect:</p>
               <ul style={{ paddingLeft: "24px", marginTop: "8px", display: "flex", flexDirection: "column", gap: "6px" }}>
                 <li><strong>Personal Identity:</strong> Full Name, gender, age, and contact preferences.</li>
                 <li><strong>Contact Data:</strong> Phone/WhatsApp number, email address, postal and shipping address with PIN code.</li>

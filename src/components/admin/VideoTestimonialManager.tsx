@@ -463,14 +463,14 @@ export default function VideoTestimonialManager() {
             <div style={{ background: "#000000", borderRadius: "12px", overflow: "hidden", border: "1.5px solid var(--gold)" }}>
               <div style={{ padding: "8px 12px", background: "var(--deep)", color: "#ffffff", fontSize: "0.82rem", display: "flex", alignItems: "center", gap: "6px" }}>
                 <CheckCircle2 size={14} style={{ color: "var(--gold)" }} />
-                <span>Live Video Embed Preview (Plays directly on website):</span>
+                <span>Live Video Embed Preview (16:9 Widescreen):</span>
               </div>
-              <div style={{ position: "relative", paddingTop: "56.25%", width: "100%" }}>
+              <div className="video-player-frame" style={{ position: "relative", width: "100%", aspectRatio: "16 / 9", background: "#000000", overflow: "hidden" }}>
                 <iframe
-                  src={`https://www.youtube-nocookie.com/embed/${extractedId}`}
+                  src={getYouTubeEmbedUrl(extractedId, false) || `https://www.youtube-nocookie.com/embed/${extractedId}?rel=0&playsinline=1`}
                   title="YouTube Preview"
                   style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
                 />
               </div>
@@ -563,47 +563,51 @@ export default function VideoTestimonialManager() {
             style={{
               position: "relative",
               width: "100%",
-              maxWidth: "840px",
-              background: "#000",
-              borderRadius: "16px",
+              maxWidth: "min(960px, calc((100vh - 110px) * (16 / 9)))",
+              maxHeight: "96vh",
+              background: "#071711",
+              borderRadius: "18px",
               overflow: "hidden",
-              boxShadow: "0 12px 40px rgba(0,0,0,0.6)",
+              boxShadow: "0 24px 70px rgba(0,0,0,0.85), 0 0 0 1px rgba(194,139,56,0.3)",
+              display: "flex",
+              flexDirection: "column",
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setPreviewItem(null)}
+              aria-label="Close video preview"
               style={{
                 position: "absolute",
-                top: "14px",
-                right: "14px",
-                background: "rgba(255,255,255,0.25)",
+                top: "12px",
+                right: "12px",
+                background: "rgba(0, 0, 0, 0.75)",
                 color: "#ffffff",
-                border: "none",
+                border: "1px solid rgba(255, 255, 255, 0.35)",
                 borderRadius: "50%",
-                width: "38px",
-                height: "38px",
+                width: "40px",
+                height: "40px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 cursor: "pointer",
-                zIndex: 10,
+                zIndex: 30,
               }}
             >
               <X size={20} />
             </button>
 
-            <div style={{ position: "relative", paddingTop: "56.25%", width: "100%" }}>
+            <div className="video-player-frame" style={{ position: "relative", width: "100%", aspectRatio: "16 / 9", background: "#000000", overflow: "hidden" }}>
               <iframe
                 src={getYouTubeEmbedUrl(previewItem.videoUrl, true) || ""}
                 title={previewItem.title}
                 style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
               />
             </div>
 
-            <div style={{ padding: "18px 24px", background: "var(--deep)", color: "#ffffff" }}>
+            <div className="video-modal-info" style={{ padding: "16px 22px", background: "#0d261b", color: "#ffffff", borderTop: "1px solid rgba(194, 139, 56, 0.2)" }}>
               <h4 style={{ fontSize: "1.15rem", color: "var(--cream)", marginBottom: "4px" }}>
                 {previewItem.title}
               </h4>

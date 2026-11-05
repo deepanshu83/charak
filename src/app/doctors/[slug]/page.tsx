@@ -241,7 +241,7 @@ export default async function DoctorDetailPage({ params }: PageProps) {
                         display: "inline-block",
                       }}
                     />
-                    Accepting In-Clinic Patients
+                    Accepting Hospital Patients
                   </span>
                 </div>
 
@@ -360,7 +360,7 @@ export default async function DoctorDetailPage({ params }: PageProps) {
                     }}
                   >
                     <ShieldCheck size={13} color="var(--gold)" />
-                    <span>Instant confirmation • In-Clinic Consultation</span>
+                    <span>Instant confirmation • Hospital Consultation</span>
                   </div>
                 </div>
               </div>
@@ -454,7 +454,7 @@ export default async function DoctorDetailPage({ params }: PageProps) {
                       fontWeight: 500,
                     }}
                   >
-                    📍 In-Clinic Consultation (Pilani)
+                    📍 Hospital Consultation (Pilani)
                   </span>
                 </div>
 
