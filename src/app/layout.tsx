@@ -1,26 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Cormorant_Garamond, Jost } from "next/font/google";
 import { CartProvider } from "@/lib/cart-store";
 import { ToastProvider } from "@/components/ui/ToastContext";
 import { getProducts } from "@/lib/productService";
 import "./globals.css";
 import "./mvp.css";
-
-const cormorant = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
-  variable: "--font-serif",
-  display: "swap",
-});
-
-const jost = Jost({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-sans",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Charak Ayurveda | Panchakarma, Skin Care, Joint Care & Infertility Center",
@@ -33,7 +17,7 @@ export const metadata: Metadata = {
     "Skin Care Ayurveda Vidyavihar",
     "Joint Care Ayurveda",
     "Infertility Treatment Pilani",
-    "Ayurvedic Clinic Rajasthan",
+    "Ayurvedic Hospital Rajasthan",
   ],
   metadataBase: new URL("https://charakayurvedapilani.com"),
   authors: [{ name: "Charak Ayurveda" }],
@@ -122,8 +106,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${jost.variable}`}>
+    <html lang="en">
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Jost:wght@300;400;500;600;700&display=swap"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

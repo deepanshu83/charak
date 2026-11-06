@@ -207,7 +207,7 @@ export async function launchRazorpayCheckout(
       key: keyId,
       amount: orderData.amount,
       currency: orderData.currency,
-      name: "Charak Ayurveda Clinic",
+      name: "Charak Ayurveda Hospital",
       description: options.description || "Ayurvedic Doctor Consultation",
       image: "/logo.png",
       order_id: orderData.order_id,

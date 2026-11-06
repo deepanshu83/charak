@@ -117,7 +117,7 @@ export default function PrivacyPolicyPage() {
                   marginTop: "12px",
                 }}
               >
-                <p><strong>Charak Ayurveda Clinic &amp; Panchakarma Center</strong></p>
+                <p><strong>Charak Ayurveda Hospital &amp; Panchakarma Center</strong></p>
                 <p>6A, Beside Birla Hospital, Shyam Vatika, Vidyavihar, Pilani, Rajasthan 333031</p>
                 <p><strong>Phone:</strong> +91 88528 87717</p>
                 <p><strong>Email:</strong> charakayurvedapilani@gmail.com</p>

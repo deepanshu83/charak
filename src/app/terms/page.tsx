@@ -8,7 +8,7 @@ import { FileText, ArrowLeft } from "lucide-react";
 export const metadata: Metadata = {
   title: "Terms and Conditions | Charak Ayurveda Pilani",
   description:
-    "Terms and Conditions governing doctor consultations, therapies, and medicinal formulation orders at Charak Ayurveda Clinic, Pilani.",
+    "Terms and Conditions governing doctor consultations, therapies, and medicinal formulation orders at Charak Ayurveda Hospital, Pilani.",
 };
 
 export default function TermsPage() {
@@ -40,7 +40,7 @@ export default function TermsPage() {
             </span>
             <h1 style={{ fontSize: "2.4rem", color: "var(--green)", marginBottom: "8px" }}>Terms &amp; Conditions</h1>
             <p style={{ color: "var(--ink-light)", fontSize: "0.95rem" }}>
-              Last updated: October 2026 • Charak Ayurveda Clinic &amp; Panchakarma Center
+              Last updated: October 2026 • Charak Ayurveda Hospital &amp; Panchakarma Center
             </p>
           </header>
 
@@ -57,7 +57,7 @@ export default function TermsPage() {
             <section>
               <h2 style={{ fontSize: "1.4rem", color: "var(--green)", marginBottom: "12px" }}>1. General Overview</h2>
               <p>
-                By accessing or utilizing the online booking services, appointment system, and digital catalog of Charak Ayurveda Clinic (&quot;the Clinic&quot;), you acknowledge and agree to comply with these Terms and Conditions. If you disagree with any portion of these terms, please refrain from using our digital services.
+                By accessing or utilizing the online booking services, appointment system, and digital catalog of Charak Ayurveda Hospital (&quot;the Hospital&quot;), you acknowledge and agree to comply with these Terms and Conditions. If you disagree with any portion of these terms, please refrain from using our digital services.
               </p>
             </section>
 
@@ -75,7 +75,7 @@ export default function TermsPage() {
             <section>
               <h2 style={{ fontSize: "1.4rem", color: "var(--green)", marginBottom: "12px" }}>3. Appointment Booking &amp; Slot Confirmation</h2>
               <p>
-                Consultation slots are reserved upon confirmation. When opting for online fee payment via Razorpay, your slot is confirmed instantly upon successful transaction verification. When opting for in-clinic payment, please arrive at least 10 minutes prior to your designated slot to complete registration.
+                Consultation slots are reserved upon confirmation. When opting for online fee payment via Razorpay, your slot is confirmed instantly upon successful transaction verification. When opting for in-person hospital payment, please arrive at least 10 minutes prior to your designated slot to complete registration.
               </p>
             </section>
 
@@ -89,7 +89,7 @@ export default function TermsPage() {
             <section>
               <h2 style={{ fontSize: "1.4rem", color: "var(--green)", marginBottom: "12px" }}>5. Intellectual Property</h2>
               <p>
-                All logos, texts, medical educational articles, photographs, and branding on charakayurvedapilani.com are the exclusive intellectual property of Charak Ayurveda Clinic. Unauthorized reproduction or commercial use is strictly prohibited.
+                All logos, texts, medical educational articles, photographs, and branding on charakayurvedapilani.com are the exclusive intellectual property of Charak Ayurveda Hospital. Unauthorized reproduction or commercial use is strictly prohibited.
               </p>
             </section>
 
@@ -111,7 +111,7 @@ export default function TermsPage() {
                   marginTop: "8px",
                 }}
               >
-                <p><strong>Charak Ayurveda Clinic &amp; Panchakarma Center</strong></p>
+                <p><strong>Charak Ayurveda Hospital &amp; Panchakarma Center</strong></p>
                 <p>6A, Beside Birla Hospital, Shyam Vatika, Vidyavihar, Pilani, Rajasthan 333031</p>
                 <p><strong>Phone:</strong> +91 88528 87717</p>
                 <p><strong>Email:</strong> charakayurvedapilani@gmail.com</p>

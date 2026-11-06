@@ -8,7 +8,7 @@ import { RefreshCw, ArrowLeft } from "lucide-react";
 export const metadata: Metadata = {
   title: "Cancellation & Refund Policy | Charak Ayurveda Pilani",
   description:
-    "Cancellation and Refund Policy for doctor consultations and authentic herbal orders at Charak Ayurveda Clinic, Pilani.",
+    "Cancellation and Refund Policy for doctor consultations and authentic herbal orders at Charak Ayurveda Hospital, Pilani.",
 };
 
 export default function RefundPolicyPage() {
@@ -42,7 +42,7 @@ export default function RefundPolicyPage() {
               Cancellation &amp; Refund Policy
             </h1>
             <p style={{ color: "var(--ink-light)", fontSize: "0.95rem" }}>
-              Last updated: October 2026 • Charak Ayurveda Clinic &amp; Panchakarma Center
+              Last updated: October 2026 • Charak Ayurveda Hospital &amp; Panchakarma Center
             </p>
           </header>
 
@@ -79,7 +79,7 @@ export default function RefundPolicyPage() {
               </p>
               <ul style={{ paddingLeft: "24px", marginTop: "8px", display: "flex", flexDirection: "column", gap: "6px" }}>
                 <li><strong>Damaged / Incorrect Item in Transit:</strong> If your medicine package is damaged, tampered with, or contains an incorrect item upon delivery, notify us within <strong>48 hours</strong> of receipt with a photo/video. We will arrange a free replacement or a 100% refund.</li>
-                <li><strong>Unopened Formulations:</strong> Unopened, sealed herbal preparations in their original outer packaging can be returned within <strong>7 days</strong> of delivery. Return courier charges will be borne by the customer unless the return is due to a clinic dispatch error.</li>
+                <li><strong>Unopened Formulations:</strong> Unopened, sealed herbal preparations in their original outer packaging can be returned within <strong>7 days</strong> of delivery. Return courier charges will be borne by the customer unless the return is due to a hospital dispatch error.</li>
                 <li><strong>Non-Returnable Items:</strong> Customized classical decoctions (Kashayams), opened oils, or personalized churnas prepared specifically for individual patient Dosha constitutions cannot be returned once unsealed.</li>
               </ul>
             </section>
@@ -102,7 +102,7 @@ export default function RefundPolicyPage() {
                 4. How to Request a Cancellation or Refund
               </h2>
               <p>
-                To initiate a cancellation or refund request, please provide your appointment reference ID or order ID to our clinic desk:
+                To initiate a cancellation or refund request, please provide your appointment reference ID or order ID to our hospital desk:
               </p>
               <div
                 style={{
@@ -113,7 +113,7 @@ export default function RefundPolicyPage() {
                   marginTop: "8px",
                 }}
               >
-                <p><strong>Charak Ayurveda Clinic Desk</strong></p>
+                <p><strong>Charak Ayurveda Hospital Desk</strong></p>
                 <p><strong>Phone / WhatsApp:</strong> +91 88528 87717 (10:00 AM – 7:00 PM IST)</p>
                 <p><strong>Email:</strong> charakayurvedapilani@gmail.com</p>
                 <p><strong>Address:</strong> 6A, Beside Birla Hospital, Shyam Vatika, Vidyavihar, Pilani, Rajasthan 333031</p>

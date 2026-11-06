@@ -449,7 +449,7 @@ export default function AppointmentManager() {
       >
         {selectedApt && (
           <div className="order-drawer-content" style={{ marginTop: "12px" }}>
-            {/* Patient & Clinic Details */}
+            {/* Patient & Hospital Details */}
             <div className="drawer-info-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "20px" }}>
               <div className="drawer-info-block" style={{ padding: "16px", background: "var(--cream-card)", borderRadius: "12px", border: "1px solid var(--border)" }}>
                 <h4 style={{ margin: "0 0 10px", color: "var(--green)" }}>Patient Details</h4>

@@ -575,7 +575,7 @@ export default function CareersPageClient() {
                 </a>
                 <a
                   href={`https://wa.me/918852887717?text=${encodeURIComponent(
-                    "Hello Charak Ayurveda, I am interested in career opportunities at your clinic. I would like to submit my profile and CV."
+                    "Hello Charak Ayurveda, I am interested in career opportunities at your hospital. I would like to submit my profile and CV."
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"

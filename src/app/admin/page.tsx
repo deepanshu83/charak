@@ -3,7 +3,7 @@ import AdminDashboard from "@/components/admin/AdminDashboard";
 
 export const metadata = {
   title: "Admin Dashboard | Charak Ayurveda",
-  description: "Operations console for Charak Ayurveda clinic and pharmacy.",
+  description: "Operations console for Charak Ayurveda Hospital and pharmacy.",
 };
 
 export default function AdminPage() {

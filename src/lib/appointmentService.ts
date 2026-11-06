@@ -118,7 +118,7 @@ export async function fetchAvailableSlots(
 }
 
 /**
- * Fallback slot calculation for clinic working hours (09:00 - 17:00, 30 min slots)
+ * Fallback slot calculation for hospital working hours (09:00 - 17:00, 30 min slots)
  */
 export function getAllDoctorSlots(
   doctorId?: string,

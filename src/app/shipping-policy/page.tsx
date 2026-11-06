@@ -8,7 +8,7 @@ import { Truck, ArrowLeft } from "lucide-react";
 export const metadata: Metadata = {
   title: "Shipping & Delivery Policy | Charak Ayurveda Pilani",
   description:
-    "Shipping and delivery terms for classical Ayurvedic medicines and formulations dispatched from Charak Ayurveda Clinic, Pilani.",
+    "Shipping and delivery terms for classical Ayurvedic medicines and formulations dispatched from Charak Ayurveda Hospital, Pilani.",
 };
 
 export default function ShippingPolicyPage() {
@@ -42,7 +42,7 @@ export default function ShippingPolicyPage() {
               Shipping &amp; Delivery Policy
             </h1>
             <p style={{ color: "var(--ink-light)", fontSize: "0.95rem" }}>
-              Last updated: October 2026 • Charak Ayurveda Clinic Dispensary
+              Last updated: October 2026 • Charak Ayurveda Hospital Dispensary
             </p>
           </header>
 
@@ -104,10 +104,10 @@ export default function ShippingPolicyPage() {
 
             <section>
               <h2 style={{ fontSize: "1.4rem", color: "var(--green)", marginBottom: "12px" }}>
-                5. In-Clinic Pick Up Option
+                5. In-Hospital Pick Up Option
               </h2>
               <p>
-                Local patients in Pilani and surrounding towns may choose direct pickup at our hospital dispensary counter during regular clinic timings (10:00 AM to 7:00 PM) at zero shipping fee.
+                Local patients in Pilani and surrounding towns may choose direct pickup at our hospital dispensary counter during regular hospital timings (10:00 AM to 7:00 PM) at zero shipping fee.
               </p>
               <div
                 style={{

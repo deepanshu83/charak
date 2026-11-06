@@ -10,14 +10,14 @@ import { treatmentCategories } from "@/data/site";
 import { fetchTreatments } from "@/lib/treatmentService";
 
 export const metadata: Metadata = {
-  title: "Services & Clinical Specialities | Charak Ayurvedic Chikitsalya, Pilani",
+  title: "Services & Specialities | Charak Ayurveda Hospital, Pilani",
   description:
-    "Explore authentic Ayurvedic services: Therapies, Body Pain & Spine, Skin, Women's Health, Stomach & Digestion, and Stress & Lifestyle at Charak Ayurveda Pilani.",
+    "Explore authentic Ayurvedic services: Therapies, Body Pain & Spine, Skin, Women's Health, Stomach & Digestion, and Stress & Lifestyle at Charak Ayurveda Hospital, Pilani.",
   alternates: {
     canonical: "https://charakayurvedapilani.com/what-we-treat",
   },
   openGraph: {
-    title: "Services | Charak Ayurvedic Chikitsalya, Pilani",
+    title: "Services | Charak Ayurveda Hospital, Pilani",
     description:
       "Comprehensive classical Ayurvedic treatments and therapies in Pilani, Rajasthan.",
     url: "https://charakayurvedapilani.com/what-we-treat",
@@ -57,7 +57,7 @@ export default async function WhatWeTreatPage() {
         <section style={{ padding: "60px 0 30px" }}>
           <div className="wrap">
             <div className="head">
-              <span className="tag">Charak Ayurvedic Chikitsalya, Pilani</span>
+              <span className="tag">Charak Ayurveda Hospital, Pilani</span>
               <h1>Our Services &amp; Treatments</h1>
               <p>
                 Comprehensive classical Ayurvedic care diagnosing the root imbalances of Doshas, Dhatus, and Agni to bring lasting healing to your body and mind.

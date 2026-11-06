@@ -185,10 +185,11 @@ export const journeySteps = [
 ];
 
 export const stats = [
-  { num: "6", label: "Speciality Care Areas" },
+  { num: "5000+", label: "Patients Treated" },
+  { num: "8+", label: "Speciality Care Areas" },
   { num: "100%", label: "Herbal Formulations" },
   { num: "1 : 1", label: "Personalized Consultation" },
-  { num: "5", label: "Panchakarma Therapies" },
+  { num: "25+", label: "Panchakarma Therapies" },
 ];
 
 export const approachHighlights = [

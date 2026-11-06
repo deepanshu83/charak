@@ -231,7 +231,7 @@ export default function ProductDetail({ product }: { product: Product }) {
             {isInactive ? (
               <div className="mvp-out-of-stock-box">
                 <p>
-                  This formulation is currently inactive in dispensary records and not available for online purchase. Please explore active formulations or consult our clinic physician.
+                  This formulation is currently inactive in dispensary records and not available for online purchase. Please explore active formulations or consult our hospital physician.
                 </p>
                 <Link href="/products" className="btn ghost">
                   Browse Formulations
@@ -365,7 +365,7 @@ export default function ProductDetail({ product }: { product: Product }) {
             ) : (
               <div className="mvp-out-of-stock-box">
                 <p>
-                  This formulation is currently unavailable. Please check back soon or consult our clinic physician for herbal alternatives.
+                  This formulation is currently unavailable. Please check back soon or consult our hospital physician for herbal alternatives.
                 </p>
                 <Link href="/appointment" className="btn ghost">
                   Consult Physician

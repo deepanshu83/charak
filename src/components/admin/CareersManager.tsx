@@ -107,7 +107,7 @@ const ROLE_PRESETS = [
     location: "Pilani, Rajasthan",
     salaryRange: "Standard hospital pay scale",
     applyEmail: "careers@charakayurvedapilani.com",
-    description: "Support general hospital operations, therapy room cleaning and setup, patient assistance, linen management, and assist clinic staff in daily operational tasks.",
+    description: "Support general hospital operations, therapy room cleaning and setup, patient assistance, linen management, and assist hospital staff in daily operational tasks.",
     requirements: "• 10th or 12th pass.\n• Hardworking, disciplined, honest, and respectful.\n• Ability to handle multiple assistance tasks in a medical setting.\n• Good cooperative nature with staff and visitors.",
   },
   {
@@ -120,7 +120,7 @@ const ROLE_PRESETS = [
     location: "Pilani, Rajasthan",
     salaryRange: "Attractive salary package",
     applyEmail: "careers@charakayurvedapilani.com",
-    description: "Manage clinic front desk, welcome visiting patients, coordinate appointment schedules, attend patient phone inquiries and WhatsApp messages, and manage billing entries.",
+    description: "Manage hospital front desk, welcome visiting patients, coordinate appointment schedules, attend patient phone inquiries and WhatsApp messages, and manage billing entries.",
     requirements: "• Graduate or 10+2 with proven front office / reception experience.\n• Fluent and polite communication in Hindi and basic English.\n• Computer literacy (MS Excel, Email, basic billing software).\n• Professional presentation and organized work ethic.",
   },
   {
@@ -133,7 +133,7 @@ const ROLE_PRESETS = [
     location: "Pilani, Rajasthan",
     salaryRange: "Fixed monthly salary",
     applyEmail: "careers@charakayurvedapilani.com",
-    description: "Safeguard hospital premises, monitor visitor entry/exit, assist elderly patients at the gate, manage vehicle parking, and ensure peaceful environment throughout clinic hours.",
+    description: "Safeguard hospital premises, monitor visitor entry/exit, assist elderly patients at the gate, manage vehicle parking, and ensure peaceful environment throughout hospital hours.",
     requirements: "• Prior experience as a security guard in hospital, school, or corporate facility.\n• Physically fit, alert, polite, and disciplined.\n• Clean background with no criminal record.\n• Punctuality and vigilance.",
   },
   {

@@ -148,7 +148,7 @@ export default function GalleryManager() {
           displayOrder: Number(form.displayOrder) || 0,
           published: form.published,
         });
-        toast.success("Photo Added", `"${form.title}" added to clinic gallery.`);
+        toast.success("Photo Added", `"${form.title}" added to hospital gallery.`);
       }
       setIsModalOpen(false);
       await loadData();
@@ -226,7 +226,7 @@ export default function GalleryManager() {
             </Badge>
           </div>
           <p style={{ margin: "6px 0 0", color: "var(--ink-light)", fontSize: "0.9rem" }}>
-            Manage high-resolution clinic photos, Panchakarma suites, and herbal formulation glimpses.
+            Manage high-resolution hospital photos, Panchakarma suites, and herbal formulation glimpses.
           </p>
         </div>
 

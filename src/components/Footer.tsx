@@ -1,20 +1,21 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Lock } from "lucide-react";
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  const router = useRouter();
 
   const handleContactClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    const footerEl = document.getElementById("footer") || document.querySelector("footer");
-    if (footerEl) {
-      footerEl.scrollIntoView({ behavior: "smooth", block: "end" });
+    const contactEl = document.getElementById("contact");
+    if (contactEl) {
+      contactEl.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
-      window.scrollTo({
-        top: document.documentElement.scrollHeight,
-        behavior: "smooth",
-      });
+      router.push("/#contact");
     }
   };
 
@@ -49,7 +50,7 @@ export default function Footer() {
           <span className="footer-divider">•</span>
           <Link href="/careers">Careers</Link>
           <span className="footer-divider">•</span>
-          <Link href="#footer" onClick={handleContactClick}>Contact</Link>
+          <Link href="/#contact" onClick={handleContactClick}>Contact</Link>
         </div>
 
         <div className="footer-bottom-row">

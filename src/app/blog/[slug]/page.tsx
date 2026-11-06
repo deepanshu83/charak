@@ -390,7 +390,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                 </div>
               )}
 
-              {/* Author & Clinic Signature */}
+              {/* Author & Hospital Signature */}
               <div
                 style={{
                   marginTop: "48px",
@@ -414,7 +414,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
                 <Link href="/appointment" className="btn sm gold">
                   <CalendarCheck size={16} />
-                  Book Clinical Consultation
+                  Book Hospital Consultation
                 </Link>
               </div>
             </div>

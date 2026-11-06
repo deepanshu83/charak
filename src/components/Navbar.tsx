@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Menu,
   X,
@@ -11,8 +11,6 @@ import {
   Calendar,
   Sparkles,
   UserCheck,
-  Heart,
-  Video,
   Image as ImageIcon,
   BookOpen,
   MapPin,
@@ -22,18 +20,16 @@ import {
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   const closeMenu = () => setIsOpen(false);
 
-  const scrollToFooter = () => {
-    const footerEl = document.getElementById("footer") || document.querySelector("footer");
-    if (footerEl) {
-      footerEl.scrollIntoView({ behavior: "smooth", block: "end" });
+  const scrollToContact = () => {
+    const contactEl = document.getElementById("contact");
+    if (contactEl) {
+      contactEl.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
-      window.scrollTo({
-        top: document.documentElement.scrollHeight,
-        behavior: "smooth",
-      });
+      router.push("/#contact");
     }
   };
 
@@ -46,9 +42,9 @@ export default function Navbar() {
     }
 
     // Scroll immediately and then slightly after to ensure layout/drawer close finishes
-    scrollToFooter();
+    scrollToContact();
     setTimeout(() => {
-      scrollToFooter();
+      scrollToContact();
     }, 60);
   };
 
@@ -109,7 +105,7 @@ export default function Navbar() {
       icon: Briefcase,
     },
     {
-      href: "#footer",
+      href: "/#contact",
       label: "Contact",
       icon: MapPin,
     },
@@ -147,7 +143,7 @@ export default function Navbar() {
             <Link href="/gallery">Gallery</Link>
             <Link href="/blog">Blog</Link>
             <Link href="/careers">Careers</Link>
-            <Link href="#footer" onClick={handleContactClick}>Contact</Link>
+            <Link href="/#contact" onClick={handleContactClick}>Contact</Link>
           </nav>
 
           {/* Desktop Right CTAs */}
